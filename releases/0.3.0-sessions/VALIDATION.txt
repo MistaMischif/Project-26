@@ -7,3 +7,5 @@ Unity JSON null-object handling was corrected and covered for pending/empty acti
 An earlier editor run crashed in Unity XR settings initialization; the final run completed successfully.
 An earlier toolbar regression was corrected; Candy Land gameplay controls remain circular and in one row.
 Real-board camera accuracy and full physical piece identity were not validated by these tests. Manual/imported sessions remain unverified.
+
+Android build: Succeeded, 0 errors, 2 warnings. APK v2 signature verified. Package version 0.3.0 / code 30 installed on Quest 3; launch succeeded and the process remained running with no startup exception found. Physical board recognition accuracy was not established by this startup check.
