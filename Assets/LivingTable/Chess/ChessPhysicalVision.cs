@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Meta.XR;
+using UnityEngine;
+using UnityEngine.Android;
+using UnityEngine.Rendering;
+using LivingTable.CandyLand;
+namespace LivingTable.Chess
+{
+ // Registered cell appearance changes + legal-move constraints. Does not claim to classify arbitrary piece identities.
+ public sealed class ChessPhysicalVision:MonoBehaviour
+ {
+  ChessTable table;PassthroughCameraAccess cameraAccess;bool permissionAsked,pending;int generation;float next;float[][] baseline,candidate;
+  readonly CandyVisionStability stable=new CandyVisionStability();public bool Ready=>baseline!=null;public string Status {get;private set;}="Look at the aligned board";
+  public void Initialize(ChessTable owner){table=owner;}
+  public void ClearEvidence(){generation++;stable.Reset();candidate=null;}
+  public void ResetBoard(){baseline=null;ClearEvidence();Status="Standard position · hands clear while the camera settles";}
+  public float[] CaptureAppearance()=>baseline==null?null:baseline.SelectMany(x=>x).ToArray();
+  public void RestoreAppearance(float[] values){ClearEvidence();baseline=values!=null&&values.Length==768?Enumerable.Range(0,64).Select(i=>values.Skip(i*12).Take(12).ToArray()).ToArray():null;}
+  public static bool Matches(float[][] expected,float[][] actual)=>expected!=null&&actual!=null&&expected.Length==64&&actual.Length==64&&Enumerable.Range(0,64).All(s=>Difference(expected[s],actual[s])<.075f);
+  bool Active=>table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&table.Playing&&table.Match.Result==""&&!table.StorageBlocked&&!table.Paused&&(!table.ManualFallback||table.Recovering);
+  void Update()
+  {
+   if(!Active){if(cameraAccess!=null)cameraAccess.enabled=false;stable.Reset();return;}
+#if UNITY_ANDROID && !UNITY_EDITOR
+   const string permission="horizonos.permission.HEADSET_CAMERA";if(!Permission.HasUserAuthorizedPermission(permission)){Status="Allow camera access or choose MANUAL";if(!permissionAsked){permissionAsked=true;Permission.RequestUserPermission(permission);}return;}
+   if(!PassthroughCameraAccess.IsSupported){Status="Camera unavailable · choose MANUAL";return;}
+#else
+   return;
+#endif
+#pragma warning disable CS0162
+   if(cameraAccess==null){var go=new GameObject("Chess local board camera");go.transform.SetParent(transform,false);go.SetActive(false);cameraAccess=go.AddComponent<PassthroughCameraAccess>();cameraAccess.RequestedResolution=new Vector2Int(1280,960);cameraAccess.MaxFramerate=15;go.SetActive(true);}cameraAccess.enabled=true;
+   if(!cameraAccess.IsPlaying){Status="Starting camera…";return;}if(pending||Time.unscaledTime<next||!cameraAccess.IsUpdatedThisFrame)return;
+   if(!table.HandsClear){stable.Reset();Status="Move your piece, then lift your hand away";return;}
+   var source=cameraAccess.GetTexture();if(source==null)return;var pose=cameraAccess.GetCameraPose();var samples=new Vector2[64][];
+   for(int square=0;square<64;square++){samples[square]=new Vector2[144];var center=table.SquareLocal(square);for(int y=0;y<12;y++)for(int x=0;x<12;x++){var local=center+new Vector3((x/11f-.5f)*table.Size/8*.7f,.005f,(y/11f-.5f)*table.Size/8*.7f);var world=table.transform.TransformPoint(local);var uv=cameraAccess.WorldToViewportPoint(world,pose);if(uv.x<.02f||uv.y<.02f||uv.x>.98f||uv.y>.98f||Vector3.Dot(world-pose.position,pose.rotation*Vector3.forward)<0){Status="Look at the entire board from above";stable.Reset();return;}samples[square][y*12+x]=uv;}}
+   pending=true;next=Time.unscaledTime+.3f;int version=table.Version,session=generation,w=source.width,h=source.height;double captured=Time.realtimeSinceStartupAsDouble;
+   AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,request=>{pending=false;if(this==null||!Active||session!=generation||version!=table.Version||request.hasError||table.LastHandAt>captured||!table.HandsClear||Time.realtimeSinceStartupAsDouble-captured>.8)return;var pixels=request.GetData<Color32>();var descriptor=new float[64][];
+    for(int square=0;square<64;square++){var values=new float[12];foreach(var uv in samples[square]){var c=pixels[Mathf.Clamp((int)(uv.y*h),0,h-1)*w+Mathf.Clamp((int)(uv.x*w),0,w-1)];values[Mathf.Min(3,c.r/64)]++;values[4+Mathf.Min(3,c.g/64)]++;values[8+Mathf.Min(3,c.b/64)]++;}for(int i=0;i<12;i++)values[i]/=144;descriptor[square]=values;}
+    if(table.Recovering){if(baseline==null){Status="Match the saved layout, then use MANUAL CHECK. No camera reference exists.";return;}if(!Matches(baseline,descriptor)){stable.Reset();Status="Board differs from the saved view. Restore pieces or use an explicit manual check.";return;}if(stable.Observe("reconcile",captured,1))table.AcceptRecovery(version);return;}
+    if(baseline==null){if(candidate==null||AverageChange(candidate,descriptor)>.035f){candidate=descriptor;stable.Reset();Status="Keep the starting position still for a moment";return;}if(stable.Observe("baseline",captured,.8f)){baseline=descriptor;candidate=null;stable.Reset();Status="Camera ready · make your move";}return;}
+    var move=Infer(table.Match.Position,baseline,descriptor,table.Promotion,table.PendingAi);if(!move.HasValue){stable.Reset();Status=table.PendingAi.HasValue?"Move AI: "+table.PendingAi.Value:"Your move · camera watching";return;}
+    Status="Checking "+move.Value+"…";if(stable.Observe(move.Value.ToString(),captured,.8f)){var previous=baseline;baseline=descriptor;if(table.ApplyCameraMove(move.Value,version)){stable.Reset();Status="Move recognized";Debug.Log("[ChessVision] Confirmed "+move.Value);}else baseline=previous;}
+   });
+#pragma warning restore CS0162
+  }
+  public static float Difference(float[] a,float[] b){float total=0;for(int i=0;i<a.Length;i++)total+=Mathf.Abs(a[i]-b[i]);return total/6;}
+  static float AverageChange(float[][] a,float[][] b){float sum=0;for(int s=0;s<64;s++)sum+=Difference(a[s],b[s]);return sum/64;}
+  public static int[] ChangedSquares(ChessPosition position,ChessMove move){var after=position.After(move);return Enumerable.Range(0,64).Where(i=>position.Board[i]!=after.Board[i]).ToArray();}
+  public static ChessMove? Infer(ChessPosition position,float[][] before,float[][] after,int promotion=5,ChessMove? expected=null)
+  {
+   if(before==null||after==null||before.Length!=64||after.Length!=64)return null;var delta=Enumerable.Range(0,64).Select(i=>Difference(before[i],after[i])).ToArray();ChessMove? found=null;
+   foreach(var move in position.LegalMoves()){if(move.Promotion!=0&&move.Promotion!=promotion||expected.HasValue&&!move.Equals(expected.Value))continue;var changed=ChangedSquares(position,move);if(changed.Any(s=>delta[s]<.10f))continue;if(Enumerable.Range(0,64).Any(s=>!changed.Contains(s)&&delta[s]>.075f))continue;if(found.HasValue)return null;found=move;}return found;
+  }
+  void OnDisable(){ClearEvidence();if(cameraAccess!=null)cameraAccess.enabled=false;}
+  void OnApplicationPause(bool paused){if(paused){ClearEvidence();if(cameraAccess!=null)cameraAccess.enabled=false;}}
+  void OnDestroy(){if(cameraAccess!=null)Destroy(cameraAccess.gameObject);}
+ }
+}

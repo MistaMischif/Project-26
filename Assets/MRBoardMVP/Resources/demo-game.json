@@ -1,0 +1,73 @@
+{
+  "id": "tabletop-sandbox",
+  "title": "Tabletop Sandbox",
+  "columns": 8,
+  "rows": 8,
+  "cellSize": 0.045,
+  "pieces": [
+    {
+      "id": "azure-1",
+      "label": "Azure 1",
+      "x": 0,
+      "y": 0,
+      "shape": "Cylinder",
+      "color": "#35B9FF"
+    },
+    {
+      "id": "azure-2",
+      "label": "Azure 2",
+      "x": 2,
+      "y": 0,
+      "shape": "Cylinder",
+      "color": "#35B9FF"
+    },
+    {
+      "id": "azure-3",
+      "label": "Azure 3",
+      "x": 4,
+      "y": 0,
+      "shape": "Cylinder",
+      "color": "#35B9FF"
+    },
+    {
+      "id": "azure-4",
+      "label": "Azure 4",
+      "x": 6,
+      "y": 0,
+      "shape": "Cylinder",
+      "color": "#35B9FF"
+    },
+    {
+      "id": "coral-1",
+      "label": "Coral 1",
+      "x": 0,
+      "y": 7,
+      "shape": "Cube",
+      "color": "#FF715B"
+    },
+    {
+      "id": "coral-2",
+      "label": "Coral 2",
+      "x": 2,
+      "y": 7,
+      "shape": "Cube",
+      "color": "#FF715B"
+    },
+    {
+      "id": "coral-3",
+      "label": "Coral 3",
+      "x": 4,
+      "y": 7,
+      "shape": "Cube",
+      "color": "#FF715B"
+    },
+    {
+      "id": "coral-4",
+      "label": "Coral 4",
+      "x": 6,
+      "y": 7,
+      "shape": "Cube",
+      "color": "#FF715B"
+    }
+  ]
+}

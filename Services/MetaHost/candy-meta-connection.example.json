@@ -1,0 +1,4 @@
+{
+  "url": "https://your-private-living-table-host.example",
+  "deviceToken": "replace-with-a-random-device-token-not-your-meta-key"
+}

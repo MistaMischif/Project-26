@@ -1,0 +1,1094 @@
+{
+  "source": "Supplied m81702829238_1.avif; 1984 reverse sheet 4700E; deck inventory https://www.donsgamecloset.com/candyland1984.html",
+  "status": "Path manually traced; physical alignment and card counts require device/set validation.",
+  "spaces": [
+    {
+      "x": 0.260156,
+      "y": 0.926616,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.290625,
+      "y": 0.903614,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.31875,
+      "y": 0.874042,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.340625,
+      "y": 0.838992,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.363281,
+      "y": 0.807229,
+      "color": 4,
+      "picture": null,
+      "shortcut": 58,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.384375,
+      "y": 0.789704,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.419531,
+      "y": 0.783133,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.453906,
+      "y": 0.7908,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.486719,
+      "y": 0.818182,
+      "color": 6,
+      "picture": "Plumpy",
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.513281,
+      "y": 0.849945,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.540625,
+      "y": 0.88609,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.573438,
+      "y": 0.92333,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.610156,
+      "y": 0.943045,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.64375,
+      "y": 0.951807,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.679688,
+      "y": 0.950712,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.717969,
+      "y": 0.939759,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.750781,
+      "y": 0.918949,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.771094,
+      "y": 0.88828,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.766406,
+      "y": 0.855422,
+      "color": 6,
+      "picture": "Mr Mint",
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.745313,
+      "y": 0.83023,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.715625,
+      "y": 0.809419,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.677344,
+      "y": 0.799562,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.638281,
+      "y": 0.800657,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.599219,
+      "y": 0.799562,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.563281,
+      "y": 0.788609,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.535156,
+      "y": 0.761227,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.524219,
+      "y": 0.721796,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.545312,
+      "y": 0.67908,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.597656,
+      "y": 0.653888,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.633594,
+      "y": 0.675794,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.666406,
+      "y": 0.703176,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.700781,
+      "y": 0.729463,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.736719,
+      "y": 0.746988,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.771875,
+      "y": 0.75575,
+      "color": 1,
+      "picture": null,
+      "shortcut": 46,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.809375,
+      "y": 0.75575,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.84375,
+      "y": 0.744797,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.875,
+      "y": 0.725082,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.894531,
+      "y": 0.702081,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.908594,
+      "y": 0.665936,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.902344,
+      "y": 0.622125,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.889062,
+      "y": 0.587076,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.867969,
+      "y": 0.558598,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.835938,
+      "y": 0.547645,
+      "color": 6,
+      "picture": "Jolly",
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.803906,
+      "y": 0.54874,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.772656,
+      "y": 0.568456,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.740625,
+      "y": 0.58598,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.707812,
+      "y": 0.595838,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.672656,
+      "y": 0.589266,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": 2
+    },
+    {
+      "x": 0.638281,
+      "y": 0.570646,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.605469,
+      "y": 0.549836,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.56875,
+      "y": 0.53012,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.530469,
+      "y": 0.518072,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.491406,
+      "y": 0.521358,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.454688,
+      "y": 0.536692,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.421094,
+      "y": 0.56517,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.386719,
+      "y": 0.600219,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.353125,
+      "y": 0.631982,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.322656,
+      "y": 0.657174,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.291406,
+      "y": 0.680175,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.257812,
+      "y": 0.700986,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.224219,
+      "y": 0.710843,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.190625,
+      "y": 0.708653,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.157031,
+      "y": 0.6977,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.128125,
+      "y": 0.677985,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.107031,
+      "y": 0.646221,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.098437,
+      "y": 0.607886,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.110156,
+      "y": 0.571742,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.142187,
+      "y": 0.539978,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.175781,
+      "y": 0.536692,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.208594,
+      "y": 0.54655,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.242969,
+      "y": 0.564074,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.276562,
+      "y": 0.573932,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.309375,
+      "y": 0.562979,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.326562,
+      "y": 0.52793,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.319531,
+      "y": 0.491785,
+      "color": 6,
+      "picture": "Gramma Nutt",
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.292969,
+      "y": 0.466594,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.266406,
+      "y": 0.441402,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.250781,
+      "y": 0.400876,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.259375,
+      "y": 0.36035,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.286719,
+      "y": 0.326396,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.321094,
+      "y": 0.318729,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.353906,
+      "y": 0.324206,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.383594,
+      "y": 0.345016,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.410938,
+      "y": 0.372399,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.441406,
+      "y": 0.398686,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.471875,
+      "y": 0.419496,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": 3
+    },
+    {
+      "x": 0.503906,
+      "y": 0.43483,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.535937,
+      "y": 0.445783,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.567969,
+      "y": 0.45345,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.600781,
+      "y": 0.462212,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.634375,
+      "y": 0.473165,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.667969,
+      "y": 0.476451,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.701562,
+      "y": 0.477547,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.735938,
+      "y": 0.473165,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.76875,
+      "y": 0.467689,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.803125,
+      "y": 0.458927,
+      "color": 6,
+      "picture": "Princess Lolly",
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.835156,
+      "y": 0.439211,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.857031,
+      "y": 0.415115,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.865625,
+      "y": 0.373494,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.857031,
+      "y": 0.330778,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.833594,
+      "y": 0.294633,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.803125,
+      "y": 0.276013,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.775781,
+      "y": 0.250821,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.754687,
+      "y": 0.211391,
+      "color": 6,
+      "picture": "Queen Frostine",
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.7375,
+      "y": 0.173056,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.707031,
+      "y": 0.150055,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.675,
+      "y": 0.147864,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.645312,
+      "y": 0.166484,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.626563,
+      "y": 0.198248,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.610156,
+      "y": 0.236583,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.588281,
+      "y": 0.271632,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.557813,
+      "y": 0.30011,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.520312,
+      "y": 0.314348,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.485938,
+      "y": 0.307777,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.452344,
+      "y": 0.291347,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.41875,
+      "y": 0.270537,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.385156,
+      "y": 0.253012,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.350781,
+      "y": 0.238773,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.316406,
+      "y": 0.237678,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.280469,
+      "y": 0.243154,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.246094,
+      "y": 0.243154,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": 0
+    },
+    {
+      "x": 0.210938,
+      "y": 0.245345,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.177344,
+      "y": 0.238773,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.145313,
+      "y": 0.223439,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.125,
+      "y": 0.196057,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.113281,
+      "y": 0.157722,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.122656,
+      "y": 0.118291,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.145313,
+      "y": 0.081051,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.175781,
+      "y": 0.053669,
+      "color": 2,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.210938,
+      "y": 0.042716,
+      "color": 3,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.244531,
+      "y": 0.05586,
+      "color": 4,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.274219,
+      "y": 0.082147,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.302344,
+      "y": 0.11391,
+      "color": 0,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.330469,
+      "y": 0.139102,
+      "color": 1,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    }
+  ],
+  "singles": [
+    8,
+    8,
+    8,
+    8,
+    7,
+    7
+  ],
+  "doubles": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    2
+  ]
+}

@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+candy-meta-connection.json
+*.key
+*.pem

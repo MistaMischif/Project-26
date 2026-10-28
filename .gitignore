@@ -37,3 +37,14 @@
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+# Local service credentials, signing keys, and transient native build files
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.key
+/.utmp/

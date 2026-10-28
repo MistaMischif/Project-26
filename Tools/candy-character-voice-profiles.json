@@ -1,0 +1,92 @@
+[
+  {
+    "pitch": -4,
+    "rate": -1,
+    "voice": "DavidM",
+    "lines": [
+      "Oops! My berries are making a break for it!",
+      "I was saving those for my second breakfast!"
+    ],
+    "id": "plumpy"
+  },
+  {
+    "pitch": 4,
+    "rate": 1,
+    "voice": "MarkM",
+    "lines": [
+      "Fresh candy canes! No watering required!",
+      "You have got me in mint condition!"
+    ],
+    "id": "mr-mint"
+  },
+  {
+    "pitch": 3,
+    "rate": 1,
+    "voice": "DavidM",
+    "lines": [
+      "That tickles my gumdrops!",
+      "I am not wobbly. I am extra jolly!"
+    ],
+    "id": "jolly"
+  },
+  {
+    "pitch": -4,
+    "rate": -2,
+    "voice": "ZiraM",
+    "lines": [
+      "Careful, dear. My pockets are full of peanuts!",
+      "A little nutty? Why, thank you!"
+    ],
+    "id": "gramma-nutt"
+  },
+  {
+    "pitch": 5,
+    "rate": 1,
+    "voice": "ZiraM",
+    "lines": [
+      "One royal twirl, extra sprinkles!",
+      "My dance moves are pop approved!"
+    ],
+    "id": "princess-lolly"
+  },
+  {
+    "pitch": -1,
+    "rate": -1,
+    "voice": "ZiraM",
+    "lines": [
+      "Stay cool, my sweet little snowflake.",
+      "A royal wiggle? How ice of you!"
+    ],
+    "id": "queen-frostine"
+  },
+  {
+    "pitch": -6,
+    "rate": -1,
+    "voice": "DavidM",
+    "lines": [
+      "By royal decree, more giggles!",
+      "My crown is straight. My jokes are crooked!"
+    ],
+    "id": "king-kandy"
+  },
+  {
+    "pitch": -5,
+    "rate": -1,
+    "voice": "MarkM",
+    "lines": [
+      "My bats! They always leave before the punch line!",
+      "Behold, my very dramatic entrance!"
+    ],
+    "id": "lord-licorice"
+  },
+  {
+    "pitch": -8,
+    "rate": -3,
+    "voice": "DavidM",
+    "lines": [
+      "Oops. Was that your shoe, or my snack?",
+      "I give the stickiest hugs in Candy Land!"
+    ],
+    "id": "gloppy"
+  }
+]

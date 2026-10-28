@@ -1,0 +1,9 @@
+Living Table 0.3.0 session validation — 2026-10-28
+PASS: CHESS_RULES_TESTS_PASSED and CHESS_SCENE_TESTS_PASSED (Session-chess-tests.log).
+PASS: SESSION_RULES_TESTS_PASSED and SESSION_SCENE_TESTS_PASSED (Session-continuity-tests-4.log).
+PASS: CANDY_RULES_TESTS_PASSED, CANDY_VISION_TESTS_PASSED and CANDY_SCENE_TESTS_PASSED (Session-Candy-regression-2.log).
+The continuity scene checks include a persisted AI proposal that cannot be erased by human takeover or replaced with a different move.
+Unity JSON null-object handling was corrected and covered for pending/empty actions.
+An earlier editor run crashed in Unity XR settings initialization; the final run completed successfully.
+An earlier toolbar regression was corrected; Candy Land gameplay controls remain circular and in one row.
+Real-board camera accuracy and full physical piece identity were not validated by these tests. Manual/imported sessions remain unverified.
