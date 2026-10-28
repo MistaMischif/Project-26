@@ -1,0 +1,17 @@
+{
+  "version": "0.5.0",
+  "versionCode": 50,
+  "package": "com.UnityTechnologies.com.unity.template.urpblank",
+  "sourceCommit": "46919246787e7ae3ff1b68afd6af7effec6a5633",
+  "file": "LivingTable-0.5.0-Quest.apk",
+  "bytes": 98311423,
+  "sha256": "fe0ae6bd2bf9fda4391230266a0a6bb11930e6452268a30a2aa62d1d4398d9cc",
+  "buildUtc": "2026-10-28T21:02:02.1939073Z",
+  "installedOnQuest3": true,
+  "games": [
+    "Chess",
+    "Candy Land"
+  ],
+  "profile": "General app; chess first",
+  "headsetHandFeel": "Requires user play check"
+}
