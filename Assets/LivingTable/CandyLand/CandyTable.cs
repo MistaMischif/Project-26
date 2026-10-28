@@ -205,26 +205,13 @@ namespace LivingTable.CandyLand
             }
             return desired+Vector3.up*.07f;
         }
-        public void CelebrateCharacter(int index,bool animate=true)
-        {
-            if(index<0||index>=hosts.Count)return;
-            if(Celebration==null){var go=new GameObject("Special card fireworks and treats");go.transform.SetParent(content,false);Celebration=go.AddComponent<CandyCardCelebration>();Celebration.IsPaused=()=>Paused;}
-            Celebration.Play(index,Width,hosts[index].localPosition);if(animate)hosts[index].GetComponent<CandyCharacterActor>().Celebrate();
-        }
+        // Special characters now appear only as card illustrations.
+        public void CelebrateCharacter(int index,bool animate=true) { }
         void BuildHosts()
         {
             ReleaseCharacterStretches();
-            if(scenery!=null) { scenery.gameObject.SetActive(false); Destroy(scenery.gameObject); }
-            hosts.Clear(); scenery=new GameObject("Candy Land character sculptures").transform; scenery.SetParent(content,false);
-            // Locations are in the printed illustrations, away from the traversable path.
-            Vector2[] places={new Vector2(.46f,.9f),new Vector2(.91f,.88f),new Vector2(.82f,.64f),new Vector2(.18f,.41f),new Vector2(.68f,.33f),new Vector2(.92f,.19f),new Vector2(.43f,.15f),new Vector2(.46f,.65f),new Vector2(.24f,.15f)};
-            for(int i=0;i<places.Length;i++)
-            {
-                var prefab=Resources.Load<GameObject>("Characters/"+CandyCharacterModel.Ids[i]);
-                if(prefab==null){Debug.LogError("Missing character model: "+CandyCharacterModel.Ids[i]);continue;}
-                var host=Instantiate(prefab,scenery);host.name=CandyCharacterModel.Names[i];host.transform.localPosition=new Vector3((places[i].x-.5f)*Width,.003f,(.5f-places[i].y)*Width*Aspect);host.transform.localScale=Vector3.one*(Width*.12f);hosts.Add(host.transform);var actor=host.GetComponent<CandyCharacterActor>();actor.CharacterId=i;actor.IsPaused=()=>Paused;host.AddComponent<CandyCharacterPlay>().Initialize(this,actor);
-                Label(scenery,"Character name",CandyCharacterModel.Names[i],host.transform.localPosition+new Vector3(0,.002f,-.022f),.0013f,Color.white);
-            }
+            if(scenery!=null){scenery.gameObject.SetActive(false);Destroy(scenery.gameObject);}
+            hosts.Clear();
         }
         public void Configure(int aiCount, bool manual, bool twoHumans, bool physical)
         {
@@ -240,8 +227,6 @@ namespace LivingTable.CandyLand
             if(Phase!=CandyPhase.Setup) return;
             if(StorageBlocked)return;
             if(AutomaticPhysical&&!Desktop&&(Vision==null||!Vision.Ready)){Message="Look at the full physical board first, or turn CAMERA OFF.";BuildUI();return;}
-            if(TreatBucket==null){var bucket=new GameObject("Shared treat bucket");bucket.transform.SetParent(content,false);TreatBucket=bucket.AddComponent<CandyTreatBucket>();TreatBucket.Initialize(this,Width);}
-            TreatBucket.ResetTreats();TreatBucket.gameObject.SetActive(true);
             Cards.Clear(); if(MoveMagic!=null)MoveMagic.Clear(); Game=new CandyGame(Data,TwoHumans?2:Opponents+1,seed);SessionId=GameSessionStore.NewId();SessionRecovering=SessionUnverified=StorageBlocked=pendingShortcutPassed=false;Paused=false;if(!SaveSession("started"))return; candidate=null;lastDrawn=null; ScanRequests=0; scannedAgain=false;
             BuildPawns(Game.Players);music.SetGameplay(true);
             Debug.Log($"[Candy] Started manual={Manual} physical={PhysicalOverlay} players={Game.Players} visiblePieces={VisiblePawnCount}");
@@ -305,11 +290,10 @@ namespace LivingTable.CandyLand
         IEnumerator PresentAndMove(CandyCard card)
         {
             turnRemaining=0;turnRoot.gameObject.SetActive(false);Phase=CandyPhase.Revealing; BuildUI();
-            if(card.Color==CandyColor.Picture){int character=Array.IndexOf(pictureNames,card.Picture);CelebrateCharacter(character);TreatBucket?.Fill(character);}
             yield return Cards.Reveal(CreateCard(card),Width,()=>Paused);
             BeginMove();
         }
-        Transform CreateCard(CandyCard card)
+        Transform CreateCard(CandyCard card,bool restored=false)
         {
             var root=new GameObject("Turn card: "+card.Label).transform;root.SetParent(content,false);
             Shape(root,"Card body",PrimitiveType.Cube,Vector3.zero,new Vector3(.09f,.00065f,.13f),new Color(1,.97f,.88f));
@@ -318,14 +302,14 @@ namespace LivingTable.CandyLand
             else
             {
                 int index=Array.IndexOf(pictureNames,card.Picture);
-                var texture=Resources.Load<Texture2D>("Celebrations/"+CandyCharacterModel.Ids[index]);
+                var texture=Resources.Load<Texture2D>("Characters/"+CandyCharacterModel.Ids[index]);
                 if(texture==null)texture=Resources.Load<Texture2D>("Characters/"+CandyCharacterModel.Ids[index]);
                 if(texture!=null)
                 {
                     var art=GameObject.CreatePrimitive(PrimitiveType.Quad);art.name="Character illustration";Destroy(art.GetComponent<Collider>());art.transform.SetParent(root,false);art.transform.localPosition=Vector3.up*.001f;art.transform.localRotation=Quaternion.Euler(90,0,0);
                     float ratio=(float)texture.width/texture.height;float height=Mathf.Min(.09f,.073f/ratio);art.transform.localScale=new Vector3(height*ratio,height,1);
                     if(!characterCards.TryGetValue(index,out var m)){m=new Material(Resources.Load<Shader>("CharacterCard"));m.mainTexture=texture;materials.Add(m);characterCards[index]=m;}art.GetComponent<Renderer>().sharedMaterial=m;
-                    art.AddComponent<CandyCardPose>().IsPaused=()=>Paused;
+                    root.gameObject.AddComponent<CandyCardMagic>().Initialize(art.GetComponent<Renderer>(),index,()=>Paused,()=>Cards.IsPresenting,restored);
                 }
                 Label(root,"Picture card name",card.Picture,new Vector3(0,.001f,-.053f),.0013f,new Color(.5f,.1f,.3f));
             }
@@ -337,7 +321,7 @@ namespace LivingTable.CandyLand
             if(MoveMagic==null){var root=new GameObject("Candy movement magic");root.transform.SetParent(content,false);MoveMagic=root.AddComponent<CandyMoveMagic>();MoveMagic.IsPaused=()=>Paused;}
             var move=Game.Preview();int index=card.Color==CandyColor.Picture?Array.IndexOf(pictureNames,card.Picture):-1;
             if(!move.Stuck&&move.To!=move.From)
-                MoveMagic.Play(content.InverseTransformPoint(pawns[Game.CurrentPlayer].position),SpacePosition(move.To),index,Width,colors[(int)Data.spaces[move.To].color],DestinationTangent(move.To),DestinationSize(move.To),()=>{if(index>=0&&index<hosts.Count)hosts[index].GetComponent<CandyCharacterActor>().Celebrate();});
+                MoveMagic.Play(content.InverseTransformPoint(pawns[Game.CurrentPlayer].position),SpacePosition(move.To),-1,Width,colors[(int)Data.spaces[move.To].color],DestinationTangent(move.To),DestinationSize(move.To),null);
             else MoveMagic.Clear();
             lastDrawn=card;Say(PlayerName(Game.CurrentPlayer)+" drew "+card.Label+".");
         }
@@ -628,7 +612,7 @@ namespace LivingTable.CandyLand
                 AddButton(StatusPanel.Floating?"PIN PANEL":"FLOAT PANEL",0,6,()=>{StatusPanel.SetFloating(!StatusPanel.Floating);BuildUI();});
                 AddButton(placingPanel?"CANCEL PLACEMENT":"MOVE PANEL",1,6,TogglePanelPlacement);
                 AddButton(music.Enabled?"MUSIC ON":"MUSIC OFF",2,6,()=>{music.Toggle();BuildUI();});
-                AddButton(CharacterVoicesEnabled?"VOICE OFF":"VOICE ON",3,6,ToggleCharacterVoices);
+                AddButton(CharacterVoicesEnabled?"HOST OFF":"HOST ON",3,6,ToggleCharacterVoices);
                 AddButton(CameraEnabled?"CAMERA ON":"CAMERA OFF",2,7,ToggleCamera,active:CameraEnabled);
                 AddButton("CHESS",3,7,()=>FindFirstObjectByType<LivingTableExperience>()?.SelectChess());
                 AddButton("YOUR COLOR: "+new[]{"RED","BLUE","GREEN","YELLOW"}[PlayerColor],1,7,CyclePlayerColor);
@@ -647,7 +631,7 @@ namespace LivingTable.CandyLand
                 AddRound("MOVE BOARD",-2,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),new Color(.025f,.48f,.92f));
                 AddRound(music.Enabled?"MUSIC ON":"MUSIC OFF",-3,()=>{music.Toggle();BuildUI();},new Color(.65f,.08f,.85f),music.Enabled);
                 AddRound("NEW GAME",-4,ReturnToSetup,new Color(.85f,.06f,.13f));
-                AddRound(CharacterVoicesEnabled?"VOICE OFF":"VOICE ON",1,ToggleCharacterVoices,new Color(.02f,.67f,.64f),CharacterVoicesEnabled);
+                AddRound(CharacterVoicesEnabled?"HOST OFF":"HOST ON",1,ToggleCharacterVoices,new Color(.02f,.67f,.64f),CharacterVoicesEnabled);
                 AddRound(StatusPanel.Floating?"PIN PANEL":"FLOAT PANEL",2,()=>{StatusPanel.SetFloating(!StatusPanel.Floating);BuildUI();},new Color(.85f,.12f,.46f),StatusPanel.Floating);
                 AddRound(placingPanel?"CANCEL PLACEMENT":"MOVE PANEL",3,TogglePanelPlacement,new Color(.38f,.45f,.82f));
                 if(!Paused&&!StorageBlocked&&!SessionRecovering)

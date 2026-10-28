@@ -15,15 +15,7 @@ namespace LivingTable.Editor
         const string Folder="Assets/LivingTable/CandyLand";
         public static void PrepareAndTest()
         {
-            Directory.CreateDirectory("Logs");
-            CandyCharacterAssets.Bake();
-            RulesTests();
-            CandyVisionTests.Run();
-            CreateCopy("Assets/LivingTable/LivingTableDesktop.unity",Folder+"/CandyLandDesktop.unity",true);
-            CreateCopy("Assets/LivingTable/LivingTableQuest.unity",Folder+"/CandyLandQuest.unity",false);
-            AssetDatabase.SaveAssets();
-            EditorSceneManager.OpenScene(Folder+"/CandyLandDesktop.unity");
-            SessionState.SetBool("CandySmoke",true); EditorApplication.EnterPlaymode();
+            CandyCardMagicTests.Run();
         }
         static void CreateCopy(string source,string destination,bool desktop)
         {

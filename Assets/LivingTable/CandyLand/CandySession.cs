@@ -29,8 +29,7 @@ namespace LivingTable.CandyLand
    try{var record=GameSessionStore.Load(id);if(record.game!="candy-land-1984")throw new ArgumentException("Wrong game");var state=JsonUtility.FromJson<SessionState>(record.payload);var restored=CandyGame.Restore(Data,state.game);
     if(state.opponents<1||state.opponents>3||state.color<0||state.color>3)throw new ArgumentException("Invalid saved players");if(Game!=null&&!SaveSession("switch saved session"))return;StopAllCoroutines();buttonBusy=false;ReleasePieceGrabs(true);Game=restored;SessionId=id;PhysicalOverlay=state.physical;Manual=state.manual;TwoHumans=state.twoHumans;CameraEnabled=state.camera;VisionFallback=state.fallback;SessionUnverified=state.unverified;VirtualRoom=state.room;Opponents=state.opponents;PlayerColor=state.color;ConfirmationSeconds=state.timer;pendingShortcutPassed=state.shortcutPassed;
     StorageBlocked=false;sessionMenu=false;Paused=false;candidate=null;lastDrawn=Game.PendingCard;SessionRecovering=PhysicalOverlay;Phase=Game.Winner>=0?CandyPhase.Finished:CandyPhase.Ready;Vision.Invalidate();Cards.Clear();MoveMagic?.Clear();music.SetGameplay(true);RefreshSessionView();
-    if(TreatBucket==null){var bucket=new GameObject("Shared treat bucket");bucket.transform.SetParent(content,false);TreatBucket=bucket.AddComponent<CandyTreatBucket>();TreatBucket.Initialize(this,Width);}TreatBucket.gameObject.SetActive(true);TreatBucket.ResetTreats();
-    foreach(var card in state.game.discard)Cards.RestoreSettled(CreateCard(card.Card),Width);
+    foreach(var card in state.game.discard)Cards.RestoreSettled(CreateCard(card.Card,true),Width);
     if(!SessionRecovering)ContinuePending();Message=SessionRecovering?"Recreate the saved piece positions. MANUAL CHECK records your confirmation.":"Saved game restored, including the deck and pending card.";
    }catch(Exception e){Message="Cannot resume: "+e.Message;}
   }

@@ -50,7 +50,7 @@ namespace LivingTable.CandyLand
             if(!string.IsNullOrEmpty(url))connection=new Connection{url=url,deviceToken=Environment.GetEnvironmentVariable("LIVING_TABLE_DEVICE_TOKEN")};
 #endif
             if(Configured)Status="Meta ready · turn voice on to talk";
-            table.HostSpoke+=Announce;table.CharacterChanged+=Handoff;table.ScanRequested+=ScanCard;
+            table.HostSpoke+=Announce;table.ScanRequested+=ScanCard;
         }
         public void ToggleVoice()
         {
@@ -146,7 +146,7 @@ namespace LivingTable.CandyLand
             }
             if(string.IsNullOrWhiteSpace(text)){busy=false;Status="Listening…";yield break;}
             string state=table.Game==null?"Setting up":$"Turn {table.Game.Turn}; player {table.Game.CurrentPlayer+1}; phase {table.Phase}; card {table.CardText}; host says {table.HostLine}";
-            var payload=new Chat{text=text,character=table.NearbyCharacter,state=state,history=history.ToArray()};
+            var payload=new Chat{text=text,character="Game host",state=state,history=history.ToArray()};
             using(var request=Post("/chat",Encoding.UTF8.GetBytes(JsonUtility.ToJson(payload))))
             {
                 yield return request.SendWebRequest();if(version!=replyVersion)yield break;
@@ -231,6 +231,6 @@ namespace LivingTable.CandyLand
         }
         void OnApplicationPause(bool paused){if(paused){StopVoice();if(cameraAccess!=null)cameraAccess.enabled=false;}}
         void OnDisable(){if(speaker!=null)StopVoice();if(cameraAccess!=null)cameraAccess.enabled=false;}
-        void OnDestroy(){if(table!=null){table.HostSpoke-=Announce;table.CharacterChanged-=Handoff;table.ScanRequested-=ScanCard;}}
+        void OnDestroy(){if(table!=null){table.HostSpoke-=Announce;table.ScanRequested-=ScanCard;}}
     }
 }
