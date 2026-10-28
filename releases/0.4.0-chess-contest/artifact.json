@@ -1,0 +1,13 @@
+{
+  "version": "0.4.0",
+  "versionCode": 40,
+  "package": "com.UnityTechnologies.com.unity.template.urpblank",
+  "sourceCommit": "b0308fe9d6ef471456a3fcf256eb63f688b9b3e2",
+  "file": "LivingTable-Chess-0.4.0-Quest.apk",
+  "bytes": 72780084,
+  "sha256": "dd696ee055f0d580b889fea8bdd8dc7620b6c8647bf35005349aeb839e296140",
+  "buildUtc": "2026-10-28T19:33:08.2445022Z",
+  "installedOnQuest3": true,
+  "contestContentAudit": "No excluded Candy Land Resources assets packed",
+  "physicalCameraAccuracy": "Not yet validated on a real board"
+}
