@@ -1,0 +1,14 @@
+Result: Succeeded
+Errors: 0
+Warnings: 981
+Duration: 00:11:28.3962098
+
+Artifact: LivingTable-Chess-0.4.0-Quest.apk
+Package: com.UnityTechnologies.com.unity.template.urpblank
+Version: 0.4.0 / 40
+APK signature: v2 verified with Android apksigner.
+Content audit: 4,465 unique packed-asset paths; no CandyLand/ContestExcluded content. Candy Land source-script metadata remains in the shared assembly, but its artwork, audio, models and board data are not packaged.
+Warnings: 981 reported by Unity. The shader diagnostics are dominated by existing Sentis/inference shaders (920 ConvGeneric variants plus other Sentis shaders); existing legacy-script deprecations and SDK/build configuration warnings also appear. No build errors. These warnings are retained in the local build log rather than treated as proof of measured runtime performance.
+Build log: Logs/Chess-contest-build.log
+
+Quest 3: installed successfully with adb install -r (existing data retained), launched activity, verified installed version 0.4.0 / 40. Startup log inspected: no matched managed exceptions, fatal exception, table startup failure or unsupported-shader errors. This is a startup smoke check, not a real-board accuracy or frame-rate measurement.

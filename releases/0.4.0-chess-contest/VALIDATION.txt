@@ -1,0 +1,21 @@
+Automated validation, 2026-10-28
+
+PASS: Chess rules and legal-move tests, including initial and Kiwipete perft, castling restrictions, en passant, promotion, mate/draw rules, local AI legality, and rejection of ambiguous/partial camera observations.
+PASS: Chess contest scene starts directly with 32 pieces and no Candy Land object or navigation.
+PASS: Handoff panel blocks play; human/AI changes preserve session identity and position.
+PASS: Physical transition blocks moves until alignment/reconciliation.
+PASS: Virtual moves invalidate old physical camera evidence.
+PASS: Paused session survives save/reload.
+PASS: Pending AI move survives reload and human return; wrong replacement move rejected; virtual continuation executes exactly once and persists completion.
+PASS: Physical instructions cover castling rook movement, en passant removal, capture removal, promotion replacement.
+PASS: Existing chess and Candy Land persistence regression: replay/repetition, pending card, deck/RNG continuation, physical card conservation, journal tamper refusal, scene handoffs/resume.
+PASS: Desktop rendered handoff UI inspected at 1600 x 1200.
+
+Evidence logs (local, excluded from Git):
+Logs/Chess-handoff-tests-final.log: CHESS_RULES_TESTS_PASSED, CHESS_HANDOFF_TESTS_PASSED
+Logs/Chess-contest-session-regression.log: SESSION_RULES_TESTS_PASSED, SESSION_SCENE_TESTS_PASSED
+Logs/Chess-Handoff.png
+
+Not established by these tests: real-board recognition accuracy, uncoached usability, unfamiliar-room robustness, sustained Quest frame rate, or contest submission acceptance. Existing Meta editor shutdown warnings are separate from the test pass markers. Device startup inspection and build verification are recorded in BUILD.txt when completed.
+
+PASS: Normal chess scene regression (Logs/Chess-contest-gameplay-regression.log): AI reply, pinch movement, alignment, stale/duplicate camera rejection, manual fallback, return to general-app game selector.

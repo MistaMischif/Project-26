@@ -19,7 +19,7 @@ namespace LivingTable.Chess
   public float[] CaptureAppearance()=>baseline==null?null:baseline.SelectMany(x=>x).ToArray();
   public void RestoreAppearance(float[] values){ClearEvidence();baseline=values!=null&&values.Length==768?Enumerable.Range(0,64).Select(i=>values.Skip(i*12).Take(12).ToArray()).ToArray():null;}
   public static bool Matches(float[][] expected,float[][] actual)=>expected!=null&&actual!=null&&expected.Length==64&&actual.Length==64&&Enumerable.Range(0,64).All(s=>Difference(expected[s],actual[s])<.075f);
-  bool Active=>table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&table.Playing&&table.Match.Result==""&&!table.StorageBlocked&&!table.Paused&&(!table.ManualFallback||table.Recovering);
+  bool Active=>table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&table.Playing&&table.Match.Result==""&&!table.StorageBlocked&&!table.Paused&&!table.SessionMenuOpen&&(!table.ManualFallback||table.Recovering);
   void Update()
   {
    if(!Active){if(cameraAccess!=null)cameraAccess.enabled=false;stable.Reset();return;}
@@ -39,9 +39,9 @@ namespace LivingTable.Chess
    AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,request=>{pending=false;if(this==null||!Active||session!=generation||version!=table.Version||request.hasError||table.LastHandAt>captured||!table.HandsClear||Time.realtimeSinceStartupAsDouble-captured>.8)return;var pixels=request.GetData<Color32>();var descriptor=new float[64][];
     for(int square=0;square<64;square++){var values=new float[12];foreach(var uv in samples[square]){var c=pixels[Mathf.Clamp((int)(uv.y*h),0,h-1)*w+Mathf.Clamp((int)(uv.x*w),0,w-1)];values[Mathf.Min(3,c.r/64)]++;values[4+Mathf.Min(3,c.g/64)]++;values[8+Mathf.Min(3,c.b/64)]++;}for(int i=0;i<12;i++)values[i]/=144;descriptor[square]=values;}
     if(table.Recovering){if(baseline==null){Status="Match the saved layout, then use MANUAL CHECK. No camera reference exists.";return;}if(!Matches(baseline,descriptor)){stable.Reset();Status="Board differs from the saved view. Restore pieces or use an explicit manual check.";return;}if(stable.Observe("reconcile",captured,1))table.AcceptRecovery(version);return;}
-    if(baseline==null){if(candidate==null||AverageChange(candidate,descriptor)>.035f){candidate=descriptor;stable.Reset();Status="Keep the starting position still for a moment";return;}if(stable.Observe("baseline",captured,.8f)){baseline=descriptor;candidate=null;stable.Reset();Status="Camera ready · make your move";}return;}
-    var move=Infer(table.Match.Position,baseline,descriptor,table.Promotion,table.PendingAi);if(!move.HasValue){stable.Reset();Status=table.PendingAi.HasValue?"Move AI: "+table.PendingAi.Value:"Your move · camera watching";return;}
-    Status="Checking "+move.Value+"…";if(stable.Observe(move.Value.ToString(),captured,.8f)){var previous=baseline;baseline=descriptor;if(table.ApplyCameraMove(move.Value,version)){stable.Reset();Status="Move recognized";Debug.Log("[ChessVision] Confirmed "+move.Value);}else baseline=previous;}
+    if(baseline==null){if(candidate==null||AverageChange(candidate,descriptor)>.035f){candidate=descriptor;stable.Reset();Status="Keep the starting position still for a moment";return;}if(stable.Observe("baseline",captured,.8f)){baseline=descriptor;candidate=null;stable.Reset();Status="Camera ready - make your move";table.SaveSession("camera baseline captured");}return;}
+    var move=Infer(table.Match.Position,baseline,descriptor,table.Promotion,table.PendingAi);if(!move.HasValue){stable.Reset();Status=Enumerable.Range(0,64).Any(s=>Difference(baseline[s],descriptor[s])>.075f)?"Incomplete or unexpected move. Finish the requested move, or restore the last position.":"Your move - camera watching";return;}
+    Status="Checking "+move.Value+"…";if(stable.Observe(move.Value.ToString(),captured,.8f)){var previous=baseline;baseline=descriptor;if(table.ApplyCameraMove(move.Value,version)){stable.Reset();Status="Move recognized";Debug.Log("[ChessVision] Confirmed "+move.Value);}else if(table.Version==version)baseline=previous;}
    });
 #pragma warning restore CS0162
   }

@@ -15,11 +15,12 @@ namespace LivingTable
         const string AnchorKey = "LivingTableMVP_BoardAnchorUuid";
         public bool desktopPreview;
         public bool candyLandMode;
+        public bool chessOnlyMode;
         CandyLand.CandyTable candy;
         Chess.ChessTable chess;
         public bool ChessActive=>chess!=null&&chess.gameObject.activeSelf;
-        public void SelectChess(){if(candy==null||busy)return;candy.SetGameVisible(false);if(chess==null){var go=new GameObject("Living Table Chess");go.transform.SetParent(mount,false);go.transform.localPosition=Vector3.up*.012f;chess=go.AddComponent<Chess.ChessTable>();chess.Initialize(desktopPreview);}else chess.gameObject.SetActive(true);}
-        public void SelectCandy(){if(chess!=null)chess.gameObject.SetActive(false);candy?.SetGameVisible(true);}
+        public void SelectChess(){if(mount==null||busy)return;candy?.SetGameVisible(false);if(chess==null){var go=new GameObject("Living Table Chess");go.transform.SetParent(mount,false);go.transform.localPosition=Vector3.up*.012f;chess=go.AddComponent<Chess.ChessTable>();chess.Initialize(desktopPreview);}else chess.gameObject.SetActive(true);}
+        public void SelectCandy(){if(chessOnlyMode)return;if(chess!=null)chess.gameObject.SetActive(false);candy?.SetGameVisible(true);}
         public void SetVirtualRoom(bool enabled){foreach(var layer in FindObjectsByType<OVRPassthroughLayer>(FindObjectsSortMode.None))layer.enabled=!enabled;if(Camera.main!=null){Camera.main.clearFlags=CameraClearFlags.SolidColor;Camera.main.backgroundColor=enabled?new Color(.025f,.035f,.055f,1):Color.clear;}}
         public Material surfaceMaterial;
         public Material boardMaterial;
@@ -51,11 +52,12 @@ namespace LivingTable
                 platform.LoadGame(games[0]);
                 platform.RegisterGame(Resources.Load<TextAsset>("living-constellation").text);
                 mount = platform.board.transform;
-                if (candyLandMode)
+                if (candyLandMode || chessOnlyMode)
                 {
                     foreach (Transform child in mount) child.gameObject.SetActive(false);
-                    candy = mount.gameObject.AddComponent<CandyLand.CandyTable>();
-                    candy.Initialize(desktopPreview, surfaceMaterial);
+                    if(chessOnlyMode)SelectChess();
+                    else {candy = mount.gameObject.AddComponent<CandyLand.CandyTable>();
+                    candy.Initialize(desktopPreview, surfaceMaterial);}
                 }
                 mount.gameObject.SetActive(false);
                 if (!desktopPreview)
