@@ -45,7 +45,7 @@ namespace LivingTable.Chess
   void DrawHandoffUI()
   {
    if(ui!=null){ui.gameObject.SetActive(false);Destroy(ui.gameObject);}ui=Node("Chess controls");buttons.Clear();
-   var p=new GameObject("Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",Vector3.zero,.0026f);Shape(p.transform,"Status backing",PrimitiveType.Cube,new Vector3(0,0,.009f),new Vector3(.50f,.21f,.008f),ebony);
+   var p=new GameObject("Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",Vector3.zero,.0026f);p.AddComponent<TableCabinetVisual>().Panel(.50f,.21f,false);status.color=new Color(.10f,.04f,.008f);
    if(editing){SessionUI();return;}
    if(!Playing){
     if(saved.Length>0){Add("RESUME GAME",0,0,()=>ResumeSession(saved[savedIndex].id),Purple,true);Add("NEW GAME",2,1,StartGame,Purple);}else Add("PLAY NOW",0,0,StartGame,Purple,true);Add(Physical?"REAL BOARD":"VIRTUAL BOARD",-2,0,()=>Configure(!Physical,TwoPlayers,HumanSide),Purple);Add(TwoPlayers?"HUMAN OPPONENT":"AI OPPONENT",2,0,()=>Configure(Physical,!TwoPlayers,HumanSide),Purple);

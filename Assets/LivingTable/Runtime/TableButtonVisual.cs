@@ -22,6 +22,7 @@ namespace LivingTable
    label.SetParent(cap,true);label.localPosition=new Vector3(0,.006f,0);Refresh();
   }
   public void Hover(){hoverUntil=Time.unscaledTime+.10f;}
+  public void UseGoldTrim(bool goldFace=false){material.SetFloat("_GoldTrim",1);material.SetFloat("_GoldFace",goldFace?1:0);metal.shader=Resources.Load<Shader>("TableCabinet");metal.SetFloat("_Finish",1);metal.color=Color.white;}
   public void Press(){pressUntil=Time.unscaledTime+.16f;Refresh();}
   void Update(){Refresh();}
   void Refresh(){if(material==null)return;material.SetColor("_Tint",tint*(active?1.15f:1));material.SetFloat("_Hover",Hovered?1:0);material.SetFloat("_Pressed",Pressed?1:0);cap.localPosition=Vector3.up*(Pressed?-.004f:0);}

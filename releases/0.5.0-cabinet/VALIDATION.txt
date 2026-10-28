@@ -1,0 +1,14 @@
+Validation for Living Table 0.5.0 cabinet test release
+
+PASS: Pinch contact follows the supplied fingertip midpoint to within 0.1 mm in the scene test, including a lift 40 cm above the pickup position. This checks transform logic, not optical hand-tracking accuracy.
+PASS: Tracking loss resets the held piece without committing a move; high release cancels; legal drop commits and settles at its exact square.
+PASS: Pickup and placement audio cues are triggered. Sound clips are locally synthesized and bundled as runtime code.
+PASS: General-app scene starts in chess and allows Candy Land and back.
+PASS: Board and floating-panel treatments exist in both games; rendered previews visually inspected.
+PASS: Full Candy Land rules, vision fixtures and scene regression (Logs/Cabinet-Candy-regression-final.log).
+
+Test-harness repairs: synthetic character hand input now runs in the player loop so editor stalls do not simulate tracking loss. Short-hop timing uses game time with per-hop frame-quantization allowance rather than an editor wall-clock upper bound. Runtime tracking-loss timeout and character movement behavior were not relaxed.
+
+Hardware hand feel, perceived sound loudness, physical-camera accuracy and sustained Quest frame rate are not established by editor tests. Device package/startup verification is recorded in BUILD.txt after installation.
+
+PASS: Final cabinet interaction verification (Logs/Cabinet-final-verification.log), including suppression of accidental toolbar presses while holding a chess piece.

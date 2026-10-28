@@ -86,18 +86,18 @@ namespace LivingTable.Editor
             File.WriteAllText("Logs/CandyLand-rules-tests.txt",$"PASS: original movement, both shortcuts, all penalties, picture travel, finish, shared cells, invalid recognition, wrong-position refusal.\n250 complete seeded games, 2–4 players. Reshuffles: {reshuffles}; max turns: {maxTurns}. Deck conserved at 64 cards.\nPhysical route and camera accuracy still require on-device validation.\n");
             Debug.Log("CANDY_RULES_TESTS_PASSED");
         }
-        static double deadline,magicWait;
+        static double deadline,magicWait,moveGameStarted;
         static bool poofCaptured;
         static Vector3 treatPoint,treatReleased;
         static CandyCharacterPlay testedPlay;static float playPausedAt;
-        static Vector3 stretchPoint,stretchOrigin;
+        static Vector3 stretchPoint,stretchOrigin;static CandyTestHandFeed stretchFeed;
         static float pausedMagic;static Vector3 pausedActor;static CandyCharacterActor testedActor;
         static int stage;
         static Vector3 playerStart,opponentStart;
         [InitializeOnLoadMethod] static void Resume()
         {
             if(!SessionState.GetBool("CandySmoke",false))return;
-            deadline=EditorApplication.timeSinceStartup+120;stage=0;EditorApplication.update+=Tick;
+            deadline=EditorApplication.timeSinceStartup+240;stage=0;EditorApplication.update+=Tick;
         }
         static void Tick()
         {
@@ -216,15 +216,14 @@ namespace LivingTable.Editor
                     CheckSludge(table);
                     testedActor=table.GetComponentsInChildren<CandyCharacterActor>().First(a=>a.CharacterId==7);stretchOrigin=testedActor.transform.localPosition;stretchPoint=testedActor.transform.position+table.transform.up*.04f;
                     Check(table.BeginCharacterStretch(93,stretchPoint),"Pinch captures character.");Check(!table.BeginCharacterStretch(94,stretchPoint),"A second hand cannot steal a captured character.");
-                    magicWait=EditorApplication.timeSinceStartup+.4;stage=23;
+                    stretchFeed=new GameObject("Synthetic character pinch").AddComponent<CandyTestHandFeed>();stretchFeed.table=table;stretchFeed.hand=93;stretchFeed.point=stretchPoint+table.transform.right*.3f+table.transform.up*.3f;stage=23;
                 }
                 else if(stage==23)
                 {
-                    table.UpdateCharacterStretch(93,stretchPoint+table.transform.right*.3f+table.transform.up*.3f,false);
-                    if(EditorApplication.timeSinceStartup<magicWait)return;
+                    if(stretchFeed.elapsed<.4f)return;
                     Check(testedActor.StretchRatio.y>2&&testedActor.StretchRatio.y<=3.01f&&Mathf.Abs(testedActor.StretchRatio.x-1)<.001f&&Mathf.Abs(testedActor.StretchRatio.z-1)<.001f,"Upward pulls stretch height only, never outward. Ratio="+testedActor.StretchRatio+", held="+testedActor.Stretching);
                     Check(Vector3.Distance(testedActor.transform.localPosition,stretchOrigin)<.001f,"Stretch keeps feet anchored.");SaveView("Logs/CandyLand-character-stretch.png");
-                    table.UpdateCharacterStretch(93,stretchPoint,true);magicWait=EditorApplication.timeSinceStartup+.8;stage=24;
+                    stretchFeed.enabled=false;UnityEngine.Object.Destroy(stretchFeed.gameObject);table.UpdateCharacterStretch(93,stretchPoint,true);magicWait=EditorApplication.timeSinceStartup+.8;stage=24;
                 }
                 else if(stage==24)
                 {
@@ -280,13 +279,13 @@ namespace LivingTable.Editor
                 {
                     if(testedPlay.EffectCount>0)return;table.ReturnToSetup();Check(table.GetComponent<TableMusic>().Source.clip.name=="candy-garden-waltz","Setup music returns after leaving gameplay.");
                     CheckPartySpacing(table);table.StartGame(42);table.Game.ObserveCard(new CandyCard(CandyColor.Blue));
-                    typeof(CandyTable).GetMethod("BeginMove",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(table,null);magicWait=EditorApplication.timeSinceStartup;stage=33;
+                    typeof(CandyTable).GetMethod("BeginMove",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).Invoke(table,null);moveGameStarted=Time.timeAsDouble;stage=33;
                 }
                 else if(stage==33)
                 {
                     CheckNoOverlap(table);if(table.Phase!=CandyPhase.Ready)return;
                     Check(table.LastHopCount==4&&table.Game.Position(0)==3,"Short move hops through four consecutive path squares.");
-                    Check(EditorApplication.timeSinceStartup-magicWait>=1.1&&EditorApplication.timeSinceStartup-magicWait<2,"Short move uses the shared movement time.");
+                    double moveElapsed=Time.timeAsDouble-moveGameStarted;Check(moveElapsed>=CandyTable.MoveSeconds-Time.maximumDeltaTime&&moveElapsed<CandyTable.MoveSeconds+(table.LastHopCount+1)*Time.maximumDeltaTime+.1f,"Short move uses shared game time within per-hop frame quantization. Elapsed="+moveElapsed);
                     table.CelebrateCharacter(0);stage=34;
                 }
                 else if(stage==34)

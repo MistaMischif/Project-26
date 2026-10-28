@@ -136,8 +136,8 @@ namespace LivingTable.CandyLand
             Cards=new GameObject("Shared card presentation").AddComponent<TableCardPresentation>(); Cards.transform.SetParent(content,false);
             StatusPanel=new GameObject("Viewer facing status panel").AddComponent<TableFacingPanel>();StatusPanel.transform.SetParent(content,false);StatusPanel.transform.localPosition=new Vector3(0,.20f,Width*Aspect*.5f+.01f);
             turnRoot=new GameObject("New turn announcement").transform;turnRoot.SetParent(content,false);turnRoot.localPosition=new Vector3(0,Width*.25f,0);turnRoot.gameObject.AddComponent<TableFacingPanel>();
-            Shape(turnRoot,"Turn banner backing",PrimitiveType.Cube,new Vector3(0,0,.008f),new Vector3(.39f,.105f,.003f),new Color(.03f,.08f,.10f));
-            turnText=Label(turnRoot,"Turn name","",Vector3.zero,.005f,new Color(1,.9f,.4f));turnText.transform.localRotation=Quaternion.identity;turnRoot.gameObject.SetActive(false);
+            turnRoot.gameObject.AddComponent<TableCabinetVisual>().Panel(.39f,.105f,true);
+            turnText=Label(turnRoot,"Turn name","",Vector3.zero,.005f,new Color(1,.9f,.4f));turnText.color=new Color(.22f,.045f,.33f);turnText.transform.localRotation=Quaternion.identity;turnRoot.gameObject.SetActive(false);
             music=gameObject.AddComponent<TableMusic>();music.Initialize();
             RefreshSaved();BuildBoard(); BuildHosts(); BuildPawns(2); BuildUI();
             meta=gameObject.AddComponent<CandyMetaConnection>();
@@ -174,7 +174,7 @@ namespace LivingTable.CandyLand
             boardFace.AddComponent<MeshFilter>().sharedMesh = mesh;
             var m = new Material(Mat(Color.white)); materials.Add(m); m.mainTexture = Resources.Load<Texture2D>("candy-board-reference"); boardFace.AddComponent<MeshRenderer>().sharedMaterial = m;
             boardFace.transform.localScale = Vector3.one * Width;
-            boardBody=Shape(content,"Solid board edge",PrimitiveType.Cube,new Vector3(0,-.006f,0),new Vector3(Width,.012f,Width*Aspect),new Color(.24f,.075f,.14f));
+            boardBody=Shape(content,"Solid board edge",PrimitiveType.Cube,new Vector3(0,-.006f,0),new Vector3(Width,.012f,Width*Aspect),new Color(.24f,.075f,.14f));boardBody.AddComponent<TableBoardCabinet>();
             pawnRoot = new GameObject("Playing pieces").transform; pawnRoot.SetParent(content,false);
             var ring = new GameObject("Legal destination outline"); ring.transform.SetParent(content,false); destinationRing=ring.AddComponent<LineRenderer>();
             destinationRing.useWorldSpace=false; destinationRing.loop=true; destinationRing.positionCount=32; destinationRing.widthMultiplier=.0015f; destinationRing.sharedMaterial=Mat(new Color(1,.88f,.25f));
@@ -453,7 +453,7 @@ namespace LivingTable.CandyLand
             foreach(var id in stretchSeen.Where(p=>Time.unscaledTime-p.Value>.3f).Select(p=>p.Key).ToArray())UpdateCharacterStretch(id,Vector3.zero,true);
             if(Game!=null&&!StorageBlocked&&!SessionRecovering&&!Paused&&!TwoHumans&&!Manual&&!AutomaticPhysical&&Phase==CandyPhase.Ready&&Game.CurrentPlayer>0&&Time.unscaledTime>=aiAt) DrawVirtual();
             
-            if(worldStatus!=null) worldStatus.text=Wrap(StorageBlocked?Message:SessionRecovering?"Restore the saved layout, then MANUAL CHECK.":(Paused?"PAUSED":Message)+(Game!=null?" · "+(SessionUnverified?"MANUAL SESSION":"LOCAL SESSION"):""),40);
+            if(worldStatus!=null) worldStatus.text=Wrap(StorageBlocked?Message:SessionRecovering?"Restore the saved layout, then MANUAL CHECK.":(Paused?"PAUSED":Message)+(Game!=null?" ï¿½ "+(SessionUnverified?"MANUAL SESSION":"LOCAL SESSION"):""),40);
             if(hostCaption!=null) hostCaption.text=Wrap(HostLine,40);
             if(cardCaption!=null) cardCaption.text=CardText+(Phase==CandyPhase.CheckingCard&&candidate.HasValue&&!scannedAgain?"  Â·  "+Mathf.CeilToInt(Countdown)+"s":"");
             if(metaCaption!=null&&meta!=null)metaCaption.text=Wrap(Time.unscaledTime<localLineUntil?localCharacterLine:AutomaticPhysical&&!VisionFallback&&Vision!=null?Vision.Status:meta.CharacterLine,48);
@@ -586,7 +586,7 @@ namespace LivingTable.CandyLand
             float x=slot==0?0:Mathf.Sign(slot)*(.137f+(Mathf.Abs(slot)-1)*.085f),z=-Width*Aspect*.5f-.10f;
             var root=new GameObject(text+" button");root.transform.SetParent(ui,false);root.transform.localPosition=new Vector3(x,.010f,z);
             var label=Label(ui,text,text.Replace(" ","\n"),new Vector3(x,.016f,z),primary?.0035f:.00165f,Color.white);
-            var visual=root.AddComponent<TableButtonVisual>();visual.Build(label.transform,color,active,true,diameter,primary);
+            var visual=root.AddComponent<TableButtonVisual>();visual.Build(label.transform,color,active,true,diameter,primary);visual.UseGoldTrim();
             float hit=primary?.18f:.081f;buttons.Add(new Button{rect=new Rect(x-hit*.5f,z-hit*.5f,hit,hit),action=action,text=text,visual=visual,circular=true});
         }
         void AddDrawButton()=>AddRound("DRAW CARD",0,DrawVirtual,new Color(.01f,.85f,.03f),true,true);
@@ -595,7 +595,7 @@ namespace LivingTable.CandyLand
             float w=.145f,h=.038f; float x=(col-1.5f)*.153f,z=-Width*Aspect*.5f-.045f-row*.046f;
             var root=new GameObject(text+" button");root.transform.SetParent(ui,false);root.transform.localPosition=new Vector3(x,.010f,z);
             var label=Label(ui,text,text,new Vector3(x,.016f,z),.0018f,Color.white);
-            var visual=root.AddComponent<TableButtonVisual>();visual.Build(label.transform,new Color(.43f,.055f,.73f),active);
+            var visual=root.AddComponent<TableButtonVisual>();visual.Build(label.transform,new Color(.43f,.055f,.73f),active);visual.UseGoldTrim();
             buttons.Add(new Button{rect=new Rect(x-w*.5f,z-h*.5f,w,h),action=action,text=text,visual=visual});
         }
         void BuildUI()
@@ -605,7 +605,7 @@ namespace LivingTable.CandyLand
             ui=new GameObject("Hands-only controls").transform;ui.SetParent(content,false);
             if(panelText!=null){panelText.gameObject.SetActive(false);Destroy(panelText.gameObject);}
             panelText=new GameObject("Status text").transform;panelText.SetParent(StatusPanel.transform,false);
-            Shape(panelText,"Readable panel",PrimitiveType.Cube,new Vector3(0,0,.008f),new Vector3(.55f,.27f,.004f),new Color(.025f,.055f,.075f));
+            panelText.gameObject.AddComponent<TableCabinetVisual>().Panel(.55f,.27f,true);
             PanelLabel("Brand","LIVING TABLE / CANDY LAND",.105f,.0032f,new Color(1,.85f,.5f));
             hostCaption=PanelLabel("Host caption",Wrap(HostLine,40),.060f,.0025f,Color.white);
             worldStatus=PanelLabel("Status",Wrap(Message,40),.010f,.0025f,Color.white);
@@ -667,7 +667,7 @@ namespace LivingTable.CandyLand
         }
         void TogglePanelPlacement(){placingPanel=!placingPanel;Message=placingPanel?"Pinch where you want the panel.":"Panel placement cancelled.";BuildUI();}
         TextMesh PanelLabel(string name,string text,float y,float size,Color color)
-        {var label=Label(panelText,name,text,new Vector3(0,y,0),size,color);label.transform.localRotation=Quaternion.identity;return label;}
+        {var label=Label(panelText,name,text,new Vector3(0,y,0),size,new Color(.22f,.055f,.30f));label.transform.localRotation=Quaternion.identity;return label;}
         public void ShowTurn()
         {
             string name=PlayerName(Game.CurrentPlayer);

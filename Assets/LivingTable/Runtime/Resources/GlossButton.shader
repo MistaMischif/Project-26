@@ -1,6 +1,6 @@
 Shader "LivingTable/GlossButton"
 {
- Properties { _Tint("Tint",Color)=(.04,.16,.2,1) _Hover("Hover",Float)=0 _Pressed("Pressed",Float)=0 _Circle("Circle",Float)=0 _Sparkle("Sparkle",Float)=0 }
+ Properties { _Tint("Tint",Color)=(.04,.16,.2,1) _Hover("Hover",Float)=0 _Pressed("Pressed",Float)=0 _Circle("Circle",Float)=0 _Sparkle("Sparkle",Float)=0 _GoldTrim("Gold trim",Float)=0 _GoldFace("Gold face",Float)=0 }
  SubShader { Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="TransparentCutout" "Queue"="AlphaTest" }
  Pass { Cull Off
  HLSLPROGRAM
@@ -11,7 +11,7 @@ Shader "LivingTable/GlossButton"
  struct A {float4 positionOS:POSITION;float2 uv:TEXCOORD0;UNITY_VERTEX_INPUT_INSTANCE_ID};
  struct V {float4 positionCS:SV_POSITION;float2 uv:TEXCOORD0;UNITY_VERTEX_OUTPUT_STEREO};
  CBUFFER_START(UnityPerMaterial)
- float4 _Tint;float _Hover;float _Pressed;float _Circle;float _Sparkle;
+ float4 _Tint;float _Hover;float _Pressed;float _Circle;float _Sparkle;float _GoldTrim;float _GoldFace;
  CBUFFER_END
  V vert(A i){V o;UNITY_SETUP_INSTANCE_ID(i);UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);o.positionCS=TransformObjectToHClip(i.positionOS.xyz);o.uv=i.uv;return o;}
  float4 frag(V i):SV_Target {
@@ -23,12 +23,13 @@ Shader "LivingTable/GlossButton"
  clip(-d);
  float3 c;
  if(d>-.025)c=float3(.06,.07,.07);
- else if(d>-.09)c=lerp(float3(.32,.34,.35),float3(.94,.96,.97),smoothstep(.1,.85,i.uv.y));
+ else if(d>-.09)c=lerp(lerp(float3(.32,.34,.35),float3(.94,.96,.97),smoothstep(.1,.85,i.uv.y)),lerp(float3(.29,.15,.025),float3(1,.87,.43),smoothstep(.1,.85,i.uv.y)),_GoldTrim);
  else if(d>-.125)c=float3(.015,.025,.015);
  else {
  c=_Tint.rgb*(.78+.35*i.uv.y);
  float shine=smoothstep(.50,.54,i.uv.y)*(.18+.38*i.uv.y);
  c=lerp(c,float3(.9,1,.9),shine);
+ if(_GoldFace>.5){float band=smoothstep(.46,.52,i.uv.y);c=lerp(float3(.28,.12,.018),float3(.72,.46,.12),i.uv.y);c+=band*.14;c+=pow(saturate(1-abs(i.uv.y-.84)*17),5)*float3(.25,.22,.12);}
  c+=_Hover*float3(.18,.25,.16);
  if(_Sparkle>.5){
  for(int k=0;k<10;k++){

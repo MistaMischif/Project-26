@@ -1,0 +1,14 @@
+Result: Succeeded
+Errors: 0
+Warnings: 981
+Duration: 00:10:47.2356509
+
+Version: 0.5.0 / 50
+Package: com.UnityTechnologies.com.unity.template.urpblank
+APK signature: v2 verified with Android apksigner.
+Build log: Logs/Cabinet-build.log
+Shader compile errors: none found in build log.
+Unity reported 981 warnings, primarily existing inference-library shader diagnostics plus existing legacy script / SDK warnings. Build succeeded with zero errors. The warning count is not a frame-rate measurement.
+General app: opens chess, includes Candy Land resources and game selection. This is not the chess-only contest package.
+
+Quest 3: installed successfully using adb install -r, preserving existing app data. Launched the app and verified installed version 0.5.0 / 50. Startup log inspection found no matched managed exceptions, fatal errors, table startup failure, unsupported shaders or audio initialization failures. This is a startup smoke check, not hands-on grip/audio or frame-rate validation.

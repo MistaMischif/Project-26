@@ -16,6 +16,7 @@ namespace LivingTable
         public bool desktopPreview;
         public bool candyLandMode;
         public bool chessOnlyMode;
+        public bool startWithChess;
         CandyLand.CandyTable candy;
         Chess.ChessTable chess;
         public bool ChessActive=>chess!=null&&chess.gameObject.activeSelf;
@@ -57,7 +58,7 @@ namespace LivingTable
                     foreach (Transform child in mount) child.gameObject.SetActive(false);
                     if(chessOnlyMode)SelectChess();
                     else {candy = mount.gameObject.AddComponent<CandyLand.CandyTable>();
-                    candy.Initialize(desktopPreview, surfaceMaterial);}
+                    candy.Initialize(desktopPreview, surfaceMaterial);if(startWithChess)SelectChess();}
                 }
                 mount.gameObject.SetActive(false);
                 if (!desktopPreview)
@@ -118,7 +119,8 @@ namespace LivingTable
                 {
                     var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(bone.Id==OVRSkeleton.BoneId.Hand_WristRoot||bone.Id==OVRSkeleton.BoneId.Hand_IndexTip||bone.Id==OVRSkeleton.BoneId.Hand_PinkyTip)chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==OVRSkeleton.BoneId.Hand_IndexTip)chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}
                     bool valid=TryPinchPoint(hand,out var cp);
-                    if(chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f||!valid||busy)){held[hand]=strength>=.4f;continue;}
+                    if(!valid||busy){chess.ForgetHand(hand.GetInstanceID());held[hand]=strength>=.4f;continue;}
+                    if(chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
                     if(strength<.4f)held[hand]=false;else if(strength>=.7f&&!wasHeld){held[hand]=true;if(valid&&!busy&&!chess.BeginGrab(hand.GetInstanceID(),cp))chess.TouchWorld(cp);}continue;
                 }
                 if(candyLandMode&&placed&&candy!=null)
