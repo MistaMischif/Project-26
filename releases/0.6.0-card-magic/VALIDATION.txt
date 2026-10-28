@@ -1,0 +1,4 @@
+Passed: Candy rules, vision fixture tests, card-magic runtime scene test.
+APK signature verified. Quest installation succeeded; versionName 0.6.0 / code 60.
+Application launched. Startup checked for fatal, null-reference, missing-method and shader errors.
+Build: zero errors; 981 existing warnings. No real-board accuracy or headset visual-quality claim.
