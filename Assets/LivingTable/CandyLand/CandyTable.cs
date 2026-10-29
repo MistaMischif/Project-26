@@ -307,6 +307,8 @@ namespace LivingTable.CandyLand
         {
             turnRemaining=0;turnRoot.gameObject.SetActive(false);Phase=CandyPhase.Revealing; BuildUI();
             yield return Cards.Reveal(CreateCard(card),Width,()=>Paused,card.Color==CandyColor.Picture?Width*.05f:0);
+            var magic=Cards.CurrentCard.GetComponent<CandyCardMagic>();
+            while(magic!=null&&magic.enabled&&!magic.TransferComplete)yield return null;
             BeginMove();
         }
         Transform CreateCard(CandyCard card,bool restored=false)
@@ -338,7 +340,7 @@ namespace LivingTable.CandyLand
             if(MoveMagic==null){var root=new GameObject("Candy movement magic");root.transform.SetParent(content,false);MoveMagic=root.AddComponent<CandyMoveMagic>();MoveMagic.IsPaused=()=>Paused;}
             var move=Game.Preview();int index=card.Color==CandyColor.Picture?Array.IndexOf(pictureNames,card.Picture):-1;
             if(!move.Stuck&&move.To!=move.From)
-                MoveMagic.Play(content.InverseTransformPoint(pawns[Game.CurrentPlayer].position),SpacePosition(move.To),-1,Width,colors[(int)Data.spaces[move.To].color],DestinationTangent(move.To),DestinationSize(move.To),null);
+                MoveMagic.Play(content.InverseTransformPoint(pawns[Game.CurrentPlayer].position),SpacePosition(move.To),-1,Width,colors[(int)Data.spaces[move.To].color],DestinationTangent(move.To),DestinationSize(move.To),null,card.Color!=CandyColor.Picture);
             else MoveMagic.Clear();
             lastDrawn=card;Say(PlayerName(Game.CurrentPlayer)+" drew "+card.Label+".");
         }
@@ -446,7 +448,7 @@ namespace LivingTable.CandyLand
         {
             if(content==null) return;
             TickConfirmation(Time.unscaledDeltaTime);
-            bool celebrating=Cards.IsPresenting||(Cards.CurrentCard!=null&&Cards.CurrentCard.TryGetComponent<CandyCardMagic>(out var cardMagic)&&cardMagic.enabled);
+            bool celebrating=Cards.IsPresenting||(Cards.CurrentCard!=null&&Cards.CurrentCard.TryGetComponent<CandyCardMagic>(out var cardMagic)&&cardMagic.ShowingIllustration);
             StatusPanel.gameObject.SetActive(!celebrating);
             if(turnRemaining>0){if(!Paused&&!celebrating)turnRemaining-=Time.unscaledDeltaTime;turnRoot.gameObject.SetActive(turnRemaining>0&&!celebrating);}
             music.SetPaused(Paused,(meta!=null&&meta.IsSpeaking)||CandyCharacterPlay.AnySpeaking);

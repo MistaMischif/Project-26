@@ -24,7 +24,7 @@ namespace LivingTable.CandyLand
         {
             var g=GameObject.CreatePrimitive(shape);Destroy(g.GetComponent<Collider>());g.transform.SetParent(parent,false);g.transform.localPosition=pos;g.transform.localScale=scale;g.GetComponent<Renderer>().sharedMaterial=material;return g.transform;
         }
-        public void Play(Vector3 from,Vector3 to,int theme,float boardWidth,Color landingColor,Vector3 tangent,Vector2 size,Action onArrival)
+        public void Play(Vector3 from,Vector3 to,int theme,float boardWidth,Color landingColor,Vector3 tangent,Vector2 size,Action onArrival,bool emitSparkles=true)
         {
             Clear();From=from;To=to;Theme=theme;width=boardWidth;age=0;arrived=onArrival;signaled=false;releasedAt=-1;LandingColor=landingColor;squareSize=size;
             squareRotation=Quaternion.LookRotation(tangent.sqrMagnitude>.00001f?tangent:Vector3.forward,Vector3.up)*Quaternion.Euler(90,0,0);
@@ -34,7 +34,7 @@ namespace LivingTable.CandyLand
             var sparkle=new Material(Resources.Load<Shader>("CandyMagicGlow"));sparkle.color=neon;materials.Add(sparkle);
             var white=Make(new Color(1,1,.82f));var color=Make(theme>=0?hues[theme]:new Color(1,.8f,.3f));
             // 28 upward twinkles and at most 12 themed trail charms, bounded on every draw.
-            for(int i=0;i<28;i++)
+            for(int i=0;i<(emitSparkles?28:0);i++)
             {
                 var bit=Part(transform,PrimitiveType.Quad,Vector3.zero,Vector3.zero,sparkle);bit.name="Destination rising sparkle";bits.Add(bit);
             }
@@ -62,7 +62,7 @@ namespace LivingTable.CandyLand
         }
         void Update()
         {
-            if(bits.Count==0||IsPaused?.Invoke()==true)return;age+=Time.deltaTime;
+            if((bits.Count==0&&SquareGlow==null)||IsPaused?.Invoke()==true)return;age+=Time.deltaTime;
             float fade=releasedAt<0?1:Mathf.Clamp01(1-(age-releasedAt));
             if(SquareGlow!=null){SquareGlow.localScale=new Vector3(squareSize.x,squareSize.y,1);glowMaterial.SetFloat("_Strength",fade*(1.15f+Mathf.Sin(age*6)*.12f));}
             if(!signaled&&age>=1.5f){signaled=true;arrived?.Invoke();}
