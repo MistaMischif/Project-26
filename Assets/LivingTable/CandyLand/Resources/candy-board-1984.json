@@ -1,6 +1,6 @@
 {
   "source": "Supplied m81702829238_1.avif; 1984 reverse sheet 4700E; deck inventory https://www.donsgamecloset.com/candyland1984.html",
-  "status": "Path manually traced; physical alignment and card counts require device/set validation.",
+  "status": "Revision 2: Mr Mint order and early/final path coordinates corrected against supplied artwork; physical calibration still requires headset validation.",
   "spaces": [
     {
       "x": 0.260156,
@@ -139,33 +139,25 @@
       "releaseColor": -1
     },
     {
-      "x": 0.771094,
-      "y": 0.88828,
-      "color": 4,
-      "picture": null,
-      "shortcut": -1,
-      "releaseColor": -1
-    },
-    {
-      "x": 0.766406,
-      "y": 0.855422,
+      "x": 0.769531,
+      "y": 0.870756,
       "color": 6,
       "picture": "Mr Mint",
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.745313,
-      "y": 0.83023,
-      "color": 5,
+      "x": 0.746875,
+      "y": 0.831325,
+      "color": 4,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
       "x": 0.715625,
-      "y": 0.809419,
-      "color": 0,
+      "y": 0.808324,
+      "color": 5,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
@@ -173,15 +165,15 @@
     {
       "x": 0.677344,
       "y": 0.799562,
-      "color": 1,
+      "color": 0,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
       "x": 0.638281,
-      "y": 0.800657,
-      "color": 2,
+      "y": 0.799562,
+      "color": 1,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
@@ -189,15 +181,15 @@
     {
       "x": 0.599219,
       "y": 0.799562,
-      "color": 3,
+      "color": 2,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.563281,
+      "x": 0.5625,
       "y": 0.788609,
-      "color": 4,
+      "color": 3,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
@@ -205,22 +197,30 @@
     {
       "x": 0.535156,
       "y": 0.761227,
-      "color": 5,
+      "color": 4,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
       "x": 0.524219,
-      "y": 0.721796,
+      "y": 0.720701,
+      "color": 5,
+      "picture": null,
+      "shortcut": -1,
+      "releaseColor": -1
+    },
+    {
+      "x": 0.535937,
+      "y": 0.669222,
       "color": 0,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.545312,
-      "y": 0.67908,
+      "x": 0.565625,
+      "y": 0.656079,
       "color": 1,
       "picture": null,
       "shortcut": -1,
@@ -971,8 +971,8 @@
       "releaseColor": 0
     },
     {
-      "x": 0.210938,
-      "y": 0.245345,
+      "x": 0.226562,
+      "y": 0.240964,
       "color": 1,
       "picture": null,
       "shortcut": -1,
@@ -995,80 +995,80 @@
       "releaseColor": -1
     },
     {
-      "x": 0.125,
-      "y": 0.196057,
+      "x": 0.135937,
+      "y": 0.186199,
       "color": 4,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.113281,
-      "y": 0.157722,
+      "x": 0.135937,
+      "y": 0.140197,
       "color": 5,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.122656,
-      "y": 0.118291,
+      "x": 0.150781,
+      "y": 0.0931,
       "color": 0,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.145313,
-      "y": 0.081051,
+      "x": 0.175,
+      "y": 0.060241,
       "color": 1,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.175781,
-      "y": 0.053669,
+      "x": 0.207031,
+      "y": 0.043812,
       "color": 2,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.210938,
-      "y": 0.042716,
+      "x": 0.235156,
+      "y": 0.044907,
       "color": 3,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.244531,
-      "y": 0.05586,
+      "x": 0.267188,
+      "y": 0.061336,
       "color": 4,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.274219,
-      "y": 0.082147,
+      "x": 0.292969,
+      "y": 0.088719,
       "color": 5,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.302344,
-      "y": 0.11391,
+      "x": 0.317969,
+      "y": 0.121577,
       "color": 0,
       "picture": null,
       "shortcut": -1,
       "releaseColor": -1
     },
     {
-      "x": 0.330469,
-      "y": 0.139102,
+      "x": 0.347656,
+      "y": 0.148959,
       "color": 1,
       "picture": null,
       "shortcut": -1,

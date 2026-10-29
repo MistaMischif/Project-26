@@ -76,6 +76,8 @@ namespace LivingTable.CandyLand
         readonly List<Transform> pawns = new List<Transform>();
         readonly List<Transform> hosts = new List<Transform>();
         readonly List<TextMesh> scores = new List<TextMesh>();
+        public bool EffectsTestMode {get;private set;}
+        int testCharacter;
         readonly string[] pictureNames = { "Plumpy", "Mr Mint", "Jolly", "Gramma Nutt", "Princess Lolly", "Queen Frostine" };
         readonly Color[] colors = { new Color(.94f,.16f,.25f), new Color(.63f,.27f,.83f), new Color(1,.8f,.12f), new Color(.08f,.65f,.95f), new Color(1,.46f,.16f), new Color(.12f,.76f,.48f), new Color(1,.54f,.76f) };
         public TableCardPresentation Cards { get; private set; }
@@ -185,7 +187,21 @@ namespace LivingTable.CandyLand
             Vector3 p;
             if (index < 0) return new Vector3(-Width*.27f+(Mathf.Max(0,player)%2-.5f)*.057f,.004f,-Width*Aspect*.39f+(Mathf.Max(0,player)/2-.5f)*.032f);
             else { var s=Data.spaces[index]; p=new Vector3((s.x-.5f)*Width,.008f,(.5f-s.y)*Width*Aspect); }
-            return player<0?p:SeparatePawn(p,player);
+            if(player<0||Game==null)return p;
+            int count=1,slot=0;for(int i=0;i<Game.Players;i++)if(i!=player&&Game.Position(i)==index){count++;if(i<player)slot++;}
+            if(count>1)p+=new Vector3((slot%2-.5f)*.011f,0,count>2?(slot/2-.5f)*.011f:0)*(Width/.64f);
+            return p;
+        }
+        void ArrangePawnsOnSpaces()
+        {
+            if(Game==null)return;
+            for(int i=0;i<pawns.Count;i++)
+            {
+                int index=Game.Position(i),count=0;for(int j=0;j<Game.Players;j++)if(Game.Position(j)==index)count++;
+                pawns[i].localScale=Vector3.one*(index<0?1:(count>1?.20f:.42f))*(Width/.64f);
+                if(!pieceGrabs.Values.Any(g=>g.index==i))pawns[i].localPosition=SpacePosition(index,i);
+                pawns[i].GetComponent<CandyPlayerPiece>().SetSludged(index>=0&&Data.spaces[index].releaseColor==(int)CandyColor.Red);
+            }
         }
         public Vector3 SeparatePawn(Vector3 desired,int player)
         {
@@ -247,7 +263,7 @@ namespace LivingTable.CandyLand
         }
         public void ReturnToSetup()
         {
-            if(!SaveSession("saved to menu"))return;SessionId=null;SessionRecovering=false;sessionMenu=false;RefreshSaved();
+            if(!SaveSession("saved to menu"))return;SessionId=null;EffectsTestMode=false;SessionRecovering=false;sessionMenu=false;RefreshSaved();
             Celebration?.Clear();Vision?.Invalidate();VisionFallback=false;
             if(TreatBucket!=null){TreatBucket.ResetTreats();TreatBucket.gameObject.SetActive(false);}
             ReleaseCharacterStretches();ReleasePieceGrabs(true);foreach(var play in GetComponentsInChildren<CandyCharacterPlay>())play.StopInteraction();music.SetGameplay(false);StopAllCoroutines();foreach(var bloom in GetComponentsInChildren<CandyShortcutBloom>())Destroy(bloom); turnRemaining=0;turnRoot.gameObject.SetActive(false);buttonBusy=false; Cards.Clear(); if(MoveMagic!=null)MoveMagic.Clear(); Game=null; candidate=null;lastDrawn=null; Phase=CandyPhase.Setup; Paused=false; calibrationStage=0;
@@ -302,13 +318,14 @@ namespace LivingTable.CandyLand
             else
             {
                 int index=Array.IndexOf(pictureNames,card.Picture);
-                var texture=Resources.Load<Texture2D>("Characters/"+CandyCharacterModel.Ids[index]);
-                if(texture==null)texture=Resources.Load<Texture2D>("Characters/"+CandyCharacterModel.Ids[index]);
+                // Frostine's Characters entry is a card-reference photograph; use her existing cutout illustration.
+                var texture=Resources.Load<Texture2D>((index==5?"Celebrations/":"Characters/")+CandyCharacterModel.Ids[index]);
+
                 if(texture!=null)
                 {
-                    var art=GameObject.CreatePrimitive(PrimitiveType.Quad);art.name="Character illustration";Destroy(art.GetComponent<Collider>());art.transform.SetParent(root,false);art.transform.localPosition=Vector3.up*.001f;art.transform.localRotation=Quaternion.Euler(90,0,0);
+                    var art=GameObject.CreatePrimitive(PrimitiveType.Quad);art.name="Character illustration";Destroy(art.GetComponent<Collider>());art.transform.SetParent(root,false);art.transform.localPosition=Vector3.up*.003f;art.transform.localRotation=Quaternion.Euler(90,0,0);
                     float ratio=(float)texture.width/texture.height;float height=Mathf.Min(.09f,.073f/ratio);art.transform.localScale=new Vector3(height*ratio,height,1);
-                    if(!characterCards.TryGetValue(index,out var m)){m=new Material(Resources.Load<Shader>("CharacterCard"));m.mainTexture=texture;materials.Add(m);characterCards[index]=m;}art.GetComponent<Renderer>().sharedMaterial=m;
+                    if(!characterCards.TryGetValue(index,out var m)){m=new Material(Resources.Load<Shader>("CharacterCard"));m.SetTexture("_MainTex",texture);materials.Add(m);characterCards[index]=m;}art.GetComponent<Renderer>().sharedMaterial=m;
                     root.gameObject.AddComponent<CandyCardMagic>().Initialize(art.GetComponent<Renderer>(),index,()=>Paused,()=>Cards.IsPresenting,restored);
                 }
                 Label(root,"Picture card name",card.Picture,new Vector3(0,.001f,-.053f),.0013f,new Color(.5f,.1f,.3f));
@@ -362,6 +379,7 @@ namespace LivingTable.CandyLand
         IEnumerator BloomGumdropPass(){var bloom=content.gameObject.AddComponent<CandyShortcutBloom>();yield return bloom.Show(SpacePosition(33),SpacePosition(46),()=>Paused);}
         IEnumerator AnimateMove(CandyMove move,int player)
         {
+            pawns[player].localScale=Vector3.one*(.42f*Width/.64f);
             int direction=move.Via>=move.From?1:-1;
             int first=move.From;
             LastHopCount=0;int steps=Mathf.Abs(move.Via-move.From)+(move.To!=move.Via?1:0);
@@ -382,13 +400,13 @@ namespace LivingTable.CandyLand
             while(elapsed<duration)
             {
                 if(!Paused) elapsed+=Time.deltaTime;
-                float t=Mathf.Clamp01(elapsed/duration); pawn.localPosition=SeparatePawn(Vector3.Lerp(start,end,t)+Vector3.up*Mathf.Sin(t*Mathf.PI)*.025f,pawns.IndexOf(pawn)); yield return null;
+                float t=Mathf.Clamp01(elapsed/duration); pawn.localPosition=Vector3.Lerp(start,end,t)+Vector3.up*Mathf.Sin(t*Mathf.PI)*.025f; yield return null;
             }
-            pawn.localPosition=SeparatePawn(end,pawns.IndexOf(pawn));
+            pawn.localPosition=end;
         }
         void CompleteMove()
         {
-            var move=Game.Commit(Game.Preview().To);pendingShortcutPassed=false;if(PhysicalOverlay&&(!AutomaticPhysical||VisionFallback))SessionUnverified=true;if(!SaveSession("turn completed"))return;MoveMagic?.Landed(); pawns[lastPlayer].localPosition=SpacePosition(move.To,lastPlayer); destinationRing.gameObject.SetActive(false);
+            var move=Game.Commit(Game.Preview().To);pendingShortcutPassed=false;if(PhysicalOverlay&&(!AutomaticPhysical||VisionFallback))SessionUnverified=true;if(!SaveSession("turn completed"))return;MoveMagic?.Landed(); ArrangePawnsOnSpaces(); destinationRing.gameObject.SetActive(false);
             Debug.Log($"[Candy] Move player={lastPlayer} from={move.From} to={move.To} turn={Game.Turn} visiblePieces={VisiblePawnCount}");
             pawns[lastPlayer].GetComponent<CandyPlayerPiece>().SetSludged(Data.spaces[move.To].releaseColor==(int)CandyColor.Red);
             UpdateNearby();
@@ -400,6 +418,7 @@ namespace LivingTable.CandyLand
                 else Say(PlayerName(Game.CurrentPlayer)+", your turn!");
                 Message=Manual||AutomaticPhysical?"Draw one physical card for "+PlayerName(Game.CurrentPlayer)+".":Game.CurrentPlayer==0?"Your turn. Draw a card!":"Your friend is drawing...";
             }
+            if(EffectsTestMode){turnRemaining=0;turnRoot.gameObject.SetActive(false);Message="Effects test - REPLAY SPECIAL or NEXT SPECIAL. Not saved.";}
             BuildUI();
         }
         void UpdateNearby()
@@ -428,16 +447,16 @@ namespace LivingTable.CandyLand
         {
             if(content==null) return;
             TickConfirmation(Time.unscaledDeltaTime);
-            bool celebrating=Celebration!=null&&Celebration.LiveCount>0;
-            StatusPanel.gameObject.SetActive(!celebrating||Paused);
+            bool celebrating=Cards.IsPresenting||(Cards.CurrentCard!=null&&Cards.CurrentCard.TryGetComponent<CandyCardMagic>(out var cardMagic)&&cardMagic.enabled);
+            StatusPanel.gameObject.SetActive(!celebrating);
             if(turnRemaining>0){if(!Paused&&!celebrating)turnRemaining-=Time.unscaledDeltaTime;turnRoot.gameObject.SetActive(turnRemaining>0&&!celebrating);}
             music.SetPaused(Paused,(meta!=null&&meta.IsSpeaking)||CandyCharacterPlay.AnySpeaking);
             if(Paused){ReleaseCharacterStretches();ReleasePieceGrabs(true);}
             foreach(var id in pieceGrabs.Where(p=>Time.unscaledTime-p.Value.seen>.3f).Select(p=>p.Key).ToArray())EndPieceGrab(id,true);
             foreach(var id in stretchSeen.Where(p=>Time.unscaledTime-p.Value>.3f).Select(p=>p.Key).ToArray())UpdateCharacterStretch(id,Vector3.zero,true);
-            if(Game!=null&&!StorageBlocked&&!SessionRecovering&&!Paused&&!TwoHumans&&!Manual&&!AutomaticPhysical&&Phase==CandyPhase.Ready&&Game.CurrentPlayer>0&&Time.unscaledTime>=aiAt) DrawVirtual();
+            if(Game!=null&&!EffectsTestMode&&!StorageBlocked&&!SessionRecovering&&!Paused&&!TwoHumans&&!Manual&&!AutomaticPhysical&&Phase==CandyPhase.Ready&&Game.CurrentPlayer>0&&Time.unscaledTime>=aiAt) DrawVirtual();
             
-            if(worldStatus!=null) worldStatus.text=Wrap(StorageBlocked?Message:SessionRecovering?"Restore the saved layout, then MANUAL CHECK.":(Paused?"PAUSED":Message)+(Game!=null?" � "+(SessionUnverified?"MANUAL SESSION":"LOCAL SESSION"):""),40);
+            if(worldStatus!=null) worldStatus.text=Wrap(StorageBlocked?Message:SessionRecovering?"Restore the saved layout, then MANUAL CHECK.":(Paused?"PAUSED":Message)+(Game!=null?" � "+(SessionUnverified?"MANUAL SESSION":EffectsTestMode?"EFFECTS TEST - NOT SAVED":"LOCAL SESSION"):""),40);
             if(hostCaption!=null) hostCaption.text=Wrap(HostLine,40);
             if(cardCaption!=null) cardCaption.text=CardText+(Phase==CandyPhase.CheckingCard&&candidate.HasValue&&!scannedAgain?"  ·  "+Mathf.CeilToInt(Countdown)+"s":"");
             if(metaCaption!=null&&meta!=null)metaCaption.text=Wrap(Time.unscaledTime<localLineUntil?localCharacterLine:AutomaticPhysical&&!VisionFallback&&Vision!=null?Vision.Status:meta.CharacterLine,48);
@@ -535,7 +554,7 @@ namespace LivingTable.CandyLand
         void EndPieceGrab(int handId,bool cancelled)
         {
             if(!pieceGrabs.TryGetValue(handId,out var grab))return;
-            if(grab.index<pawns.Count&&pawns[grab.index]!=null){if(Game!=null)pawns[grab.index].localPosition=SpacePosition(Game.Position(grab.index),grab.index);else if(cancelled)pawns[grab.index].localPosition=SeparatePawn(grab.home,grab.index);else{var resting=pawns[grab.index].localPosition;resting.y=.004f;pawns[grab.index].localPosition=SeparatePawn(resting,grab.index);}}
+            if(grab.index<pawns.Count&&pawns[grab.index]!=null){if(Game!=null){pawns[grab.index].localPosition=SpacePosition(Game.Position(grab.index),grab.index);}else if(cancelled)pawns[grab.index].localPosition=SeparatePawn(grab.home,grab.index);else{var resting=pawns[grab.index].localPosition;resting.y=.004f;pawns[grab.index].localPosition=SeparatePawn(resting,grab.index);}}
             pieceGrabs.Remove(handId);
         }
         void ReleasePieceGrabs(bool cancelled){foreach(var hand in pieceGrabs.Keys.ToArray())EndPieceGrab(hand,cancelled);}
@@ -615,6 +634,7 @@ namespace LivingTable.CandyLand
                 AddButton(CharacterVoicesEnabled?"HOST OFF":"HOST ON",3,6,ToggleCharacterVoices);
                 AddButton(CameraEnabled?"CAMERA ON":"CAMERA OFF",2,7,ToggleCamera,active:CameraEnabled);
                 AddButton("CHESS",3,7,()=>FindFirstObjectByType<LivingTableExperience>()?.SelectChess());
+                AddButton("TEST SPECIAL CARDS",0,7,StartEffectsTest);
                 AddButton("YOUR COLOR: "+new[]{"RED","BLUE","GREEN","YELLOW"}[PlayerColor],1,7,CyclePlayerColor);
                 Message=TwoHumans?"Two humans · use your real pieces":Manual?"Manual · move all real pieces yourself":PhysicalOverlay?"Physical board · your real piece + virtual AI":"Virtual game · "+(Opponents+1)+" colored pieces at START";
             }
@@ -637,7 +657,8 @@ namespace LivingTable.CandyLand
                 if(!Paused&&!StorageBlocked&&!SessionRecovering)
                 {
                     if(PhysicalOverlay&&CameraEnabled)AddRound(VisionFallback?"AUTO":"MANUAL",-5,ToggleVisionFallback,new Color(.35f,.2f,.7f));
-                    if(Phase==CandyPhase.Ready&&!Manual&&!AutomaticPhysical&&(Game.CurrentPlayer==0||TwoHumans))AddDrawButton();
+                    if(EffectsTestMode&&Phase==CandyPhase.Ready){AddRound("REPLAY SPECIAL",0,()=>DrawTestSpecial(testCharacter),new Color(.7f,.1f,.9f),true,true);AddRound("NEXT SPECIAL",4,()=>DrawTestSpecial((testCharacter+1)%6),new Color(1,.4f,.1f));}
+                    else if(Phase==CandyPhase.Ready&&!Manual&&!AutomaticPhysical&&(Game.CurrentPlayer==0||TwoHumans))AddDrawButton();
                     if((Manual||VisionFallback)&&NeedsPhysicalCard&&(Phase==CandyPhase.Ready||Phase==CandyPhase.CheckingCard))
                     {
                         AddRound("CHOOSE CARD",4,()=>{cardPicker=true;BuildUI();},new Color(.68f,.47f,.06f));
@@ -670,7 +691,7 @@ namespace LivingTable.CandyLand
             var snapshot=buttons.ToArray();foreach(var b in snapshot) if(GUILayout.Button(b.text,GUILayout.Height(25))) {PressButton(b);break;}
             GUILayout.Space(8);GUILayout.Label("Nearby: "+NearbyCharacter);
             if(meta!=null){GUILayout.Label(meta.Status);GUILayout.Label(meta.CharacterLine);}
-            GUILayout.Label("Candy Land character figures.");
+            GUILayout.Label("Character card illustrations.");
             GUILayout.EndScrollView();GUILayout.EndArea();
         }
         void OnApplicationPause(bool pause) {if(pause){ReleaseCharacterStretches();ReleasePieceGrabs(true);}if(pause&&Game!=null){Paused=true;SaveSession("suspended");BuildUI();}}

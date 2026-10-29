@@ -21,7 +21,7 @@ namespace LivingTable.CandyLand
             {
                 var go=GameObject.CreatePrimitive(PrimitiveType.Quad);go.name="Card sparkle";Destroy(go.GetComponent<Collider>());
                 go.transform.SetParent(transform,false);go.transform.localRotation=Quaternion.Euler(90,0,0);
-                go.transform.localPosition=new Vector3(0,.0008f,0);go.transform.localScale=Vector3.zero;
+                go.transform.localPosition=new Vector3(0,.0015f,0);go.transform.localScale=Vector3.zero;
                 go.GetComponent<Renderer>().sharedMaterial=sparkle;bits[i]=go.transform;
             }
         }
@@ -37,8 +37,8 @@ namespace LivingTable.CandyLand
                 bool edge=i>=24;float t=edge?settledAge-.1f-(i-24)*.025f:age-i*.009f;
                 float life=edge?.85f:1.5f;float u=Mathf.Clamp01(t/life);
                 float angle=i*2.399963f;float radius=(edge?.025f:0)+u*(edge?.035f:.075f);
-                bits[i].localPosition=new Vector3(Mathf.Cos(angle)*radius,.0008f,Mathf.Sin(angle)*radius);
-                float size=t>0&&t<life?(1-u)*(.002f+.002f*(i%3))*(.7f+.3f*Mathf.Sin(age*24+i)):0;
+                bits[i].localPosition=new Vector3(Mathf.Cos(angle)*radius,.0015f,Mathf.Sin(angle)*radius);
+                float size=t>0&&t<life?(1-u)*(.004f+.004f*(i%3))*(.7f+.3f*Mathf.Sin(age*24+i)):0;
                 bits[i].localScale=Vector3.one*size;
             }
             if(settledAge>=1.4f){foreach(var bit in bits)Destroy(bit.gameObject);bits=null;Destroy(sparkle);sparkle=null;enabled=false;}

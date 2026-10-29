@@ -155,7 +155,7 @@ namespace LivingTable.CandyLand
                 if(string.IsNullOrWhiteSpace(reply)){busy=false;yield break;}
                 history.Add(new History{role="user",content=text});history.Add(new History{role="assistant",content=reply});while(history.Count>8)history.RemoveAt(0);
                 while(announcing||table.Paused){if(version!=replyVersion)yield break;yield return null;}
-                CharacterLine=table.NearbyCharacter+": "+reply;Status="Listening…";busy=false;
+                CharacterLine="Game host: "+reply;Status="Listening…";busy=false;
                 speechRoutine=StartCoroutine(Speak(reply,voiceVersion));
             }
         }

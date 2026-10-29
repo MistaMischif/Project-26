@@ -1,0 +1,5 @@
+PASS: 250 seeded complete Candy Land games / deck conservation / rules.
+PASS: local vision fixtures.
+PASS: printed board-color checks, Mr. Mint picture/orange order, corrected destinations, idempotent saved-position migration.
+PASS: all six special-card test draws, real rendered illustration pixel differences (rendered with/without artwork), viewer-facing reveal from alternating sides, no blocking status panel, pause freeze, 2-second flight, sparkle cleanup, matching picture destinations, centered pawn placement, and no test-session saves.
+Preview PNGs are desktop renders; headset appearance and physical board accuracy still need user verification.

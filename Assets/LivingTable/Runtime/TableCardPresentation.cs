@@ -24,6 +24,8 @@ namespace LivingTable
             if(SettledCount>0)end+=new Vector3(Mathf.Sin(SettledCount*1.7f)*.004f,0,Mathf.Cos(SettledCount*2.3f)*.004f);
             Quaternion resting=Quaternion.Euler(0,skew,0);
             Quaternion upright=Quaternion.Euler(-90,0,0);
+            // The table can be placed from either side. Present the printed face to the wearer.
+            if(Camera.main!=null){var viewer=transform.InverseTransformPoint(Camera.main.transform.position)-start;viewer.y=0;if(viewer.sqrMagnitude>.0001f)upright=Quaternion.LookRotation(-viewer.normalized,Vector3.up)*upright;}
             float elapsed=0;
             card.localPosition=start;card.localRotation=upright;card.localScale=Vector3.one*2;
             while(elapsed<Duration)

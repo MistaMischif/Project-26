@@ -28,8 +28,8 @@ namespace LivingTable.CandyLand
         {
             Clear();From=from;To=to;Theme=theme;width=boardWidth;age=0;arrived=onArrival;signaled=false;releasedAt=-1;LandingColor=landingColor;squareSize=size;
             squareRotation=Quaternion.LookRotation(tangent.sqrMagnitude>.00001f?tangent:Vector3.forward,Vector3.up)*Quaternion.Euler(90,0,0);
-            Color.RGBToHSV(landingColor,out float hue,out _,out _);var neon=Color.HSVToRGB(hue,.92f,1);
-            glowMaterial=new Material(Resources.Load<Shader>("CandyMagicGlow"));glowMaterial.color=neon;glowMaterial.SetFloat("_Square",1);materials.Add(glowMaterial);
+            Color.RGBToHSV(landingColor,out float hue,out _,out _);var neon=Color.HSVToRGB(hue,1,1);
+            glowMaterial=new Material(Resources.Load<Shader>("CandyMagicGlow"));glowMaterial.color=neon;glowMaterial.SetFloat("_Square",1);glowMaterial.SetFloat("_Saturated",1);glowMaterial.SetFloat("_DstBlend",10);materials.Add(glowMaterial);
             SquareGlow=Part(transform,PrimitiveType.Quad,new Vector3(to.x,.0018f,to.z),Vector3.zero,glowMaterial);SquareGlow.name="Neon destination square interior";SquareGlow.localRotation=squareRotation;
             var sparkle=new Material(Resources.Load<Shader>("CandyMagicGlow"));sparkle.color=neon;materials.Add(sparkle);
             var white=Make(new Color(1,1,.82f));var color=Make(theme>=0?hues[theme]:new Color(1,.8f,.3f));
@@ -64,7 +64,7 @@ namespace LivingTable.CandyLand
         {
             if(bits.Count==0||IsPaused?.Invoke()==true)return;age+=Time.deltaTime;
             float fade=releasedAt<0?1:Mathf.Clamp01(1-(age-releasedAt));
-            if(SquareGlow!=null){SquareGlow.localScale=new Vector3(squareSize.x,squareSize.y,1);glowMaterial.SetFloat("_Strength",fade*(.75f+Mathf.Sin(age*6)*.18f));}
+            if(SquareGlow!=null){SquareGlow.localScale=new Vector3(squareSize.x,squareSize.y,1);glowMaterial.SetFloat("_Strength",fade*(1.15f+Mathf.Sin(age*6)*.12f));}
             if(!signaled&&age>=1.5f){signaled=true;arrived?.Invoke();}
             if(releasedAt>=0&&age>=2.7f&&age-releasedAt>=1){Clear();return;}
             for(int i=0;i<bits.Count;i++)
@@ -75,7 +75,7 @@ namespace LivingTable.CandyLand
                     float t=Mathf.Clamp01((age-i*.017f)/2.1f),a=i*2.39996f,r=(.002f+t*.010f)*width/.64f;
                     bit.localPosition=new Vector3(To.x+Mathf.Cos(a)*r,.002f+t*width*.19f,To.z+Mathf.Sin(a)*r);
                     float twinkle=.55f+.45f*Mathf.Sin(age*15+i*2.3f);
-                    bit.localScale=Vector3.one*(.011f*width/.64f*Mathf.Sin(t*Mathf.PI)*twinkle);
+                    bit.localScale=Vector3.one*(.022f*width/.64f*Mathf.Sin(t*Mathf.PI)*twinkle);
                     if(Camera.main!=null)bit.rotation=Camera.main.transform.rotation*Quaternion.Euler(0,0,i*31+age*24);
                 }
                 else
