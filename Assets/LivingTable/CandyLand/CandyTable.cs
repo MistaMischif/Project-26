@@ -189,7 +189,7 @@ namespace LivingTable.CandyLand
             else { var s=Data.spaces[index]; p=new Vector3((s.x-.5f)*Width,.008f,(.5f-s.y)*Width*Aspect); }
             if(player<0||Game==null)return p;
             int count=1,slot=0;for(int i=0;i<Game.Players;i++)if(i!=player&&Game.Position(i)==index){count++;if(i<player)slot++;}
-            if(count>1)p+=new Vector3((slot%2-.5f)*.011f,0,count>2?(slot/2-.5f)*.011f:0)*(Width/.64f);
+            if(count>1)p+=Vector3.forward*((slot-(count-1)*.5f)*.026f);
             return p;
         }
         void ArrangePawnsOnSpaces()
@@ -197,8 +197,8 @@ namespace LivingTable.CandyLand
             if(Game==null)return;
             for(int i=0;i<pawns.Count;i++)
             {
-                int index=Game.Position(i),count=0;for(int j=0;j<Game.Players;j++)if(Game.Position(j)==index)count++;
-                pawns[i].localScale=Vector3.one*(index<0?1:(count>1?.20f:.42f))*(Width/.64f);
+                int index=Game.Position(i);
+                pawns[i].localScale=Vector3.one;
                 if(!pieceGrabs.Values.Any(g=>g.index==i))pawns[i].localPosition=SpacePosition(index,i);
                 pawns[i].GetComponent<CandyPlayerPiece>().SetSludged(index>=0&&Data.spaces[index].releaseColor==(int)CandyColor.Red);
             }
@@ -306,7 +306,7 @@ namespace LivingTable.CandyLand
         IEnumerator PresentAndMove(CandyCard card)
         {
             turnRemaining=0;turnRoot.gameObject.SetActive(false);Phase=CandyPhase.Revealing; BuildUI();
-            yield return Cards.Reveal(CreateCard(card),Width,()=>Paused);
+            yield return Cards.Reveal(CreateCard(card),Width,()=>Paused,card.Color==CandyColor.Picture?Width*.05f:0);
             BeginMove();
         }
         Transform CreateCard(CandyCard card,bool restored=false)
@@ -326,7 +326,7 @@ namespace LivingTable.CandyLand
                     var art=GameObject.CreatePrimitive(PrimitiveType.Quad);art.name="Character illustration";Destroy(art.GetComponent<Collider>());art.transform.SetParent(root,false);art.transform.localPosition=Vector3.up*.003f;art.transform.localRotation=Quaternion.Euler(90,0,0);
                     float ratio=(float)texture.width/texture.height;float height=Mathf.Min(.09f,.073f/ratio);art.transform.localScale=new Vector3(height*ratio,height,1);
                     if(!characterCards.TryGetValue(index,out var m)){m=new Material(Resources.Load<Shader>("CharacterCard"));m.SetTexture("_MainTex",texture);materials.Add(m);characterCards[index]=m;}art.GetComponent<Renderer>().sharedMaterial=m;
-                    root.gameObject.AddComponent<CandyCardMagic>().Initialize(art.GetComponent<Renderer>(),index,()=>Paused,()=>Cards.IsPresenting,restored);
+                    root.gameObject.AddComponent<CandyCardMagic>().Initialize(art.GetComponent<Renderer>(),index,()=>Paused,()=>Cards.IsPresenting,restored,content,SpacePosition(!restored&&Game.HasPending?Game.Preview().To:0),Width);
                 }
                 Label(root,"Picture card name",card.Picture,new Vector3(0,.001f,-.053f),.0013f,new Color(.5f,.1f,.3f));
             }
@@ -379,7 +379,6 @@ namespace LivingTable.CandyLand
         IEnumerator BloomGumdropPass(){var bloom=content.gameObject.AddComponent<CandyShortcutBloom>();yield return bloom.Show(SpacePosition(33),SpacePosition(46),()=>Paused);}
         IEnumerator AnimateMove(CandyMove move,int player)
         {
-            pawns[player].localScale=Vector3.one*(.42f*Width/.64f);
             int direction=move.Via>=move.From?1:-1;
             int first=move.From;
             LastHopCount=0;int steps=Mathf.Abs(move.Via-move.From)+(move.To!=move.Via?1:0);

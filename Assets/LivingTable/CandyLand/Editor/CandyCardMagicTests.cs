@@ -9,7 +9,7 @@ namespace LivingTable.Editor
 {
  public static class CandyCardMagicTests
  {
-  static CandyTable table;static Transform card,art;static CandyCardMagic magic;static float began;static int stage,theme,savedCount;static double deadline,pauseAt;static Vector3 pausedPosition;
+  static CandyTable table;static Transform card,art;static CandyCardMagic magic;static float began;static int stage,theme,savedCount;static double deadline,pauseAt;static Vector3 pausedPosition,pausedPopup,startingScale;static bool flightChecked;
   static readonly string[] Names={"Plumpy","Mr Mint","Jolly","Gramma Nutt","Princess Lolly","Queen Frostine"};
   public static void Run(){CandyBuilder.RulesTests();CandyVisionTests.Run();CheckBoard();EditorSceneManager.OpenScene("Assets/LivingTable/CandyLand/CandyLandDesktop.unity");SessionState.SetBool("CardMagicTest",true);EditorApplication.EnterPlaymode();}
   static void CheckBoard()
@@ -37,31 +37,37 @@ namespace LivingTable.Editor
   static void Tick(){try{
    if(EditorApplication.timeSinceStartup>deadline)throw new Exception("Card test timeout");if(!EditorApplication.isPlaying||EditorApplication.isCompiling)return;
    if(stage==0){table=UnityEngine.Object.FindFirstObjectByType<CandyTable>();if(table==null||table.Cards==null||table.Vision==null)return;savedCount=GameSessionStore.List("candy-land-1984").Length;table.StartEffectsTest();Check(table.EffectsTestMode&&table.SessionId==null,"Separate unsaved test mode");Check(table.GetComponentsInChildren<CandyCharacterActor>(true).Length==0&&table.TreatBucket==null,"No legacy characters or bowl");BeginCheck();
-   }else if(stage==1){Check(art.localPosition==Vector3.up*.003f,"Portrait rigidly attached above card");Check(magic.Dissolve==0,"No dissolve during reveal");if(Time.time-began<.25f)return;
+   }else if(stage==1){Check(magic.Dissolve==0,"No dissolve during reveal");if(magic.Elapsed<.55f)return;
+    Check(magic.Popup!=null&&!art.IsChildOf(card),"Illustration has lifted off the card");Check(Mathf.Abs(magic.Popup.localPosition.x)<.0001f&&Mathf.Abs(magic.Popup.localPosition.z)<.0001f,"Lifted illustration centered on board");
     Check(!table.StatusPanel.gameObject.activeSelf,"Status panel cannot cover the card");
-    var viewer=Camera.main.transform.position-card.position;Check(Vector3.Dot(card.up,viewer.normalized)>.1f,"Card face points toward viewer");Capture(card,"Logs/Card-fixed-"+theme+".png");
+    var viewer=Camera.main.transform.position-card.position;Check(Vector3.Dot(card.up,viewer.normalized)>.1f,"Card face points toward viewer");Capture(art,"Logs/Card-popup-"+theme+".png");
     var glow=table.MoveMagic.SquareGlow.GetComponent<Renderer>().sharedMaterial;Color.RGBToHSV(glow.color,out _,out float saturation,out _);Check(saturation>.99f&&glow.GetFloat("_DstBlend")==10,"Saturated glow replaces washed-out additive blend");
-    SetPause(true);pausedPosition=card.position;pauseAt=EditorApplication.timeSinceStartup;stage=2;
-   }else if(stage==2){if(EditorApplication.timeSinceStartup-pauseAt<.35)return;Check(card.position==pausedPosition&&magic.Dissolve==0,"Pause freezes card and illustration");SetPause(false);stage=3;
-   }else if(stage==3){if(table.Cards.IsPresenting){Check(magic.Dissolve==0,"Artwork remains through flight");return;}Check(Mathf.Abs(table.Cards.LastDuration-2)<.001f,"Two-second reveal preserved");if(table.Phase!=CandyPhase.Ready||magic.enabled)return;
+    SetPause(true);pausedPosition=card.position;pausedPopup=magic.Popup.position;pauseAt=EditorApplication.timeSinceStartup;stage=2;
+   }else if(stage==2){if(EditorApplication.timeSinceStartup-pauseAt<.35)return;Check(card.position==pausedPosition&&magic.Popup.position==pausedPopup&&magic.Dissolve==0,"Pause freezes card and illustration");SetPause(false);stage=3;
+   }else if(stage==3){Check(table.GetComponentsInChildren<CandyPlayerPiece>().First(p=>p.name=="Your avatar").transform.localScale==startingScale,"Pawn keeps starting scale while moving");if(table.Cards.IsPresenting){Check(magic.Dissolve==0,"Central illustration remains through flight");if(magic.Elapsed>1.3f){Check(card.localPosition.x>.05f,"Card is flying toward discard");Check(magic.Popup!=null&&Mathf.Abs(magic.Popup.localPosition.x)<.0001f&&Mathf.Abs(magic.Popup.localPosition.z)<.0001f,"Illustration stays centered while card flies away");if(!flightChecked&&theme==0)CaptureOverview();flightChecked=true;}return;}Check(Mathf.Abs(table.Cards.LastDuration-2)<.001f,"Two-second reveal preserved");if(table.Phase!=CandyPhase.Ready||magic.enabled)return;
     int target=Array.FindIndex(table.Data.spaces,s=>s.picture==Names[theme]);Check(table.Game.Position(0)==target,"Special card lands on matching illustration space");
     var pawn=table.GetComponentsInChildren<CandyPlayerPiece>().First(p=>p.name=="Your avatar");Check(Vector3.Distance(pawn.transform.localPosition,table.SpacePosition(target))<.0001f,"Pawn stays centered on its square");
-    Check(magic.Dissolve==1&&magic.ParticleCount==0&&table.Cards.SettledCount==1,"Dissolve cleanup keeps discard");Check(GameSessionStore.List("candy-land-1984").Length==savedCount,"Tests do not create saved games");
+    Check(flightChecked&&magic.ArrivedParticles==40&&Vector3.Distance(magic.Target,table.SpacePosition(target))<.0001f,"Every burst particle reaches the legal destination");Check(magic.Dissolve==1&&magic.ParticleCount==0&&magic.Popup==null&&table.Cards.SettledCount==1,"Detached illustration and particle cleanup keeps discard");Check(GameSessionStore.List("candy-land-1984").Length==savedCount,"Tests do not create saved games");
     if(++theme==6){table.ReturnToSetup();Check(!table.EffectsTestMode,"Exit restores ordinary setup");Finish(0,"CARD_MAGIC_TESTS_PASSED");return;}
     Camera.main.transform.position=table.transform.position+new Vector3(0,.8f,theme%2==0?-.8f:.8f);table.DrawTestSpecial(theme);BeginCheck();
    }
   }catch(Exception e){Finish(1,e.ToString());}}
-  static void BeginCheck(){card=table.Cards.CurrentCard;art=card.Find("Character illustration");magic=card.GetComponent<CandyCardMagic>();Check(art!=null&&magic!=null&&art.GetComponent<Renderer>().sharedMaterial.GetTexture("_MainTex")!=null,"Illustration texture loaded for "+Names[theme]);Check(table.Game.PendingCard.Value.Picture==Names[theme],"Test control drew requested character");began=Time.time;stage=1;}
-  public static void Capture(Transform card,string path)
+  static void BeginCheck(){card=table.Cards.CurrentCard;art=card.Find("Character illustration");magic=card.GetComponent<CandyCardMagic>();Check(art!=null&&magic!=null&&art.GetComponent<Renderer>().sharedMaterial.GetTexture("_MainTex")!=null,"Illustration texture loaded for "+Names[theme]);Check(table.Game.PendingCard.Value.Picture==Names[theme],"Test control drew requested character");startingScale=table.GetComponentsInChildren<CandyPlayerPiece>().First(p=>p.name=="Your avatar").transform.localScale;flightChecked=false;began=Time.time;stage=1;}
+  public static void Capture(Transform art,string path)
   {
    var go=new GameObject("Card verification camera");var camera=go.AddComponent<Camera>();camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=Color.gray;
-   camera.transform.position=card.TransformPoint(new Vector3(0,.32f,0));camera.transform.rotation=Quaternion.LookRotation(-card.up,card.forward);camera.orthographic=true;camera.orthographicSize=.15f;camera.nearClipPlane=.001f;
+   camera.transform.position=art.position-art.forward*.4f;camera.transform.rotation=Quaternion.LookRotation(art.forward,art.up);camera.orthographic=true;camera.orthographicSize=.15f;camera.nearClipPlane=.001f;
    var rt=new RenderTexture(600,800,24);camera.targetTexture=rt;camera.Render();var previous=RenderTexture.active;RenderTexture.active=rt;var image=new Texture2D(600,800,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,600,800),0,0);image.Apply();File.WriteAllBytes(path,image.EncodeToPNG());
-   var visible=image.GetPixels32();var renderer=card.Find("Character illustration").GetComponent<Renderer>();renderer.enabled=false;camera.Render();image.ReadPixels(new Rect(0,0,600,800),0,0);image.Apply();renderer.enabled=true;
+   var visible=image.GetPixels32();var renderer=art.GetComponent<Renderer>();renderer.enabled=false;camera.Render();image.ReadPixels(new Rect(0,0,600,800),0,0);image.Apply();renderer.enabled=true;
    var hidden=image.GetPixels32();int changed=0;for(int i=0;i<visible.Length;i++)if(Mathf.Abs(visible[i].r-hidden[i].r)+Mathf.Abs(visible[i].g-hidden[i].g)+Mathf.Abs(visible[i].b-hidden[i].b)>35)changed++;
    Check(changed>4000,"Rendered illustration contributes visible pixels (not occluded): "+path+" pixels="+changed);
 
    RenderTexture.active=previous;camera.targetTexture=null;UnityEngine.Object.Destroy(image);UnityEngine.Object.Destroy(rt);UnityEngine.Object.Destroy(go);
+  }
+  static void CaptureOverview()
+  {
+   var go=new GameObject("Celebration overview camera");var camera=go.AddComponent<Camera>();camera.transform.position=table.transform.TransformPoint(new Vector3(0,.65f,-.8f));camera.transform.LookAt(table.transform.TransformPoint(new Vector3(0,.10f,0)));camera.fieldOfView=55;camera.nearClipPlane=.01f;
+   var rt=new RenderTexture(1200,900,24);camera.targetTexture=rt;camera.Render();var previous=RenderTexture.active;RenderTexture.active=rt;var image=new Texture2D(1200,900,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1200,900),0,0);image.Apply();File.WriteAllBytes("Logs/Center-celebration-flight.png",image.EncodeToPNG());RenderTexture.active=previous;camera.targetTexture=null;UnityEngine.Object.Destroy(image);UnityEngine.Object.Destroy(rt);UnityEngine.Object.Destroy(go);
   }
   static void Finish(int code,string message){SessionState.SetBool("CardMagicTest",false);EditorApplication.update-=Tick;if(code==0)Debug.Log(message);else Debug.LogError(message);EditorApplication.Exit(code);}
  }

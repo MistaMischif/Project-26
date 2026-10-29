@@ -1,0 +1,4 @@
+PASS: Candy Land rules, 250 seeded complete games, deck conservation, vision fixtures, board-color alignment and saved-position migration.
+PASS: all six special illustrations visibly render after lifting off the card; center position remains fixed while the card travels; two-second card presentation retained; pause freezes the card and detached illustration; all 40 particles reach the legal destination; effects clean up while the discard remains; test mode does not create saved games.
+PASS: player piece retains its starting scale during movement and landing.
+Desktop render evidence: Celebration-preview.png. On-headset visual appearance and physical-board camera accuracy require user verification.
