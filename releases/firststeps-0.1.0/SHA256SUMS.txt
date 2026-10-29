@@ -1,0 +1,2 @@
+13f073ff56cd7b37a302dd8912d6a40f31c72ee934f5af84993fbf748a9fee9b  LivingTable-FirstSteps-0.1.0.apk
+b2c7ffe324caeb80cee201939626f8439fa9f39cc0e7d8e9481384339fe50cce  FirstSteps-Host-0.1.0.zip

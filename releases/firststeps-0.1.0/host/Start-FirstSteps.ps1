@@ -1,0 +1,24 @@
+param([string]$OllamaUrl='http://127.0.0.1:11435',[string]$Adb='', [string]$Apk='')
+$ErrorActionPreference='Stop'
+$configPath=Join-Path $PSScriptRoot 'first-steps-connection.json'
+if(!(Test-Path -LiteralPath $configPath)) {
+ $bytes=New-Object byte[] 32
+ [Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+ @{url='http://127.0.0.1:8790';deviceToken=[Convert]::ToBase64String($bytes)} | ConvertTo-Json | Set-Content -LiteralPath $configPath
+}
+$config=Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
+$env:LIVING_TABLE_DEVICE_TOKEN=$config.deviceToken
+$env:OLLAMA_URL=$OllamaUrl
+$running=$false
+try{$health=Invoke-RestMethod 'http://127.0.0.1:8790/health';$running=$health.service -eq 'Living Table First Steps'}catch{}
+if(!$running){Start-Process (Get-Command node).Source -ArgumentList ('"'+(Join-Path $PSScriptRoot 'server.mjs')+'"') -WindowStyle Hidden -RedirectStandardOutput (Join-Path $PSScriptRoot 'host.log') -RedirectStandardError (Join-Path $PSScriptRoot 'host-error.log') | Out-Null}
+if($Adb){
+ if($Apk){& $Adb install -r $Apk;if($LASTEXITCODE -ne 0){throw 'APK install failed'}}
+ & $Adb reverse tcp:8790 tcp:8790
+ if($LASTEXITCODE -ne 0){throw 'USB forwarding failed'}
+ & $Adb shell mkdir -p /sdcard/Android/data/com.livingtable.firststeps/files
+ & $Adb push $configPath /sdcard/Android/data/com.livingtable.firststeps/files/first-steps-connection.json
+ if($LASTEXITCODE -ne 0){throw 'Connection installation failed'}
+}
+Remove-Item Env:LIVING_TABLE_DEVICE_TOKEN
+Write-Output 'Local First Steps host configured; connection token was not printed. Keep USB connected for headset inference.'

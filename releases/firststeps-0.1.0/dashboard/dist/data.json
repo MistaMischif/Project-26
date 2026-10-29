@@ -1,0 +1,1672 @@
+{
+  "schema": 1,
+  "asOf": "2026-10-25",
+  "projects": [
+    {
+      "id": "hack",
+      "name": "Meta Global AI",
+      "entry": "Studio Pipeline Agent",
+      "color": "#916cdb",
+      "status": "Acceptance unverified",
+      "deadline": "2026-11-04T20:00:00-06:00",
+      "target": "Nov 4 \u00b7 2 PM",
+      "when": "Nov 4 \u00b7 8 PM CT",
+      "url": "https://cerebralvalley.ai/e/meta-ai-developer-hackathon",
+      "baseline": "Uploaded plan reports application submitted Oct 13 and four offline prototypes. No current acceptance, running entry or submission was verified. \u201cTrack 2\u201d is the internal idea label; the official participation track is Indie developer.",
+      "rules": "Acceptance is required. Applications close Oct 25 at 10:59 PM Central (or earlier at capacity); notifications are due Oct 26 at 8 AM Central. Submission closes Nov 4 at 8 PM Central. Rules must be accepted by selected participants; public waiver text was not retrievable. Finals Nov 9.",
+      "next": "Confirm acceptance + applicable terms; prove one real-model pipeline run.",
+      "risk": "Do not treat expected approval as received. Keep the Living Table concept separate until organizer/disclosure questions are resolved."
+    },
+    {
+      "id": "unity",
+      "name": "Unity Game Jam",
+      "entry": "New theme-driven game",
+      "color": "#d79817",
+      "status": "Tooling not verified",
+      "deadline": "2026-11-14T06:00:00-06:00",
+      "target": "Nov 12 \u00b7 submit early",
+      "when": "Nov 14 \u00b7 6 AM CT",
+      "url": "https://itch.io/jam/official-unity-game-jam-2026",
+      "baseline": "Uploaded plan describes a shell, but no distinct jam project or tested WebGL build was found in the reviewed workspace. Living Table cannot be counted as the new Unity jam game.",
+      "rules": "New Unity game; no prior-jam game. Submit on itch with build, controls, description, team and credits; disclose generative AI use. Upload limit 1 GB. Deadline Nov 14 at 6 AM Central. Freeze files during judging through Dec 7; results Dec 10. Official rules link still pending. Start-time and voting-window text conflict.",
+      "next": "Test an empty export; verify rules and exact start; build only in the jam window.",
+      "risk": "The source\u2019s prebuilt menu \u2192 gameplay \u2192 win/lose shell is not automatically allowed. Prepare tooling, not the game."
+    },
+    {
+      "id": "mega",
+      "name": "Epic AI MegaJam",
+      "entry": "New Unreal Engine game",
+      "color": "#4f7dd0",
+      "status": "Tooling not verified",
+      "deadline": "2026-11-15T19:59:00-06:00",
+      "target": "Nov 15 \u00b7 noon",
+      "when": "Nov 15 \u00b7 7:59 PM CT",
+      "url": "https://itch.io/jam/2026-epic-ai-megajam",
+      "baseline": "Unreal is the uploaded plan\u2019s selected engine. No packaged jam build or toolchain verification was found in reviewed project records. Full Box rules could not be retrieved in this research pass.",
+      "rules": "Theme Nov 11 at 1 PM Central; build opens Nov 11 at 11 PM Central (Nov 12 Eastern). Close Nov 15 at 7:59 PM Central. Choose Unreal or UEFN. Declare premade materials. Unreal needs a packaged build and 30\u201360 second video; devlog is optional unless entering Glass Box. Winners by Jan 29.",
+      "next": "Verify empty-project packaging and full rules; build a tiny theme game in the window.",
+      "risk": "Uploaded Nov 12 daily card places opening one day late. Declaring a prebuilt game does not make early gameplay development compliant."
+    },
+    {
+      "id": "lt",
+      "name": "Living Table",
+      "entry": "Quest 3 \u00b7 Chess continuity",
+      "color": "#159b90",
+      "status": "Chess implemented \u00b7 physical acceptance open",
+      "deadline": "2026-11-18T14:00:00-06:00",
+      "target": "Nov 17 \u00b7 5 PM recovery target",
+      "when": "Nov 18 \u00b7 2 PM CT",
+      "url": "https://start-developer-competition-26.devpost.com/rules",
+      "baseline": "Updated Oct 29: chess rules, local AI, saved sessions and handoff regression checks exist. General build 0.6.3 is installed; separate chess profile 0.4.0 exists. Real-board acceptance, measured performance and judging access remain unverified.",
+      "rules": "Official rules rechecked Oct 29. See the current chess rundown for submission gates and evidence. Membership, division, final content audit and judging-channel access remain open.",
+      "next": "Run the 29-check chess rundown: physical handoff, first-five-minute usability, then final judging package.",
+      "risk": "Return from virtual play currently requires a manual physical check. Automatic reconciliation remains a blocker for the frictionless claim. Keep the contest package separately audited."
+    }
+  ],
+  "tasks": [
+    {
+      "id": "hack-2026-10-25",
+      "project": "hack",
+      "date": "2026-10-25",
+      "minutes": 90,
+      "title": "Confirm entry and acceptance readiness",
+      "output": "Locate application receipt, approval state, account tier/model access, waiver and rules. Keep Studio Pipeline Agent as the working entry; do not transfer Living Table materials. Record unresolved questions and daily availability.",
+      "depends": [],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "mega-2026-10-25",
+      "project": "mega",
+      "date": "2026-10-25",
+      "minutes": 60,
+      "title": "Verify Unreal tooling only",
+      "output": "Test empty-project Windows packaging and agent connection. Record versions and premade tools. No theme game or gameplay shell before the allowed window.",
+      "depends": [],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "unity-2026-10-25",
+      "project": "unity",
+      "date": "2026-10-25",
+      "minutes": 60,
+      "title": "Verify Unity tooling only",
+      "output": "Test an empty WebGL export; prepare license and AI-use records. Do not prebuild the jam game or its win/lose loop. Store a separate project location.",
+      "depends": [],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-10-25-1",
+      "title": "Run the installed-build baseline",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 45,
+      "output": "Record the eight existing headset checks with observations. Rank the top three failures; do not claim they passed merely because the app installed.",
+      "depends": [],
+      "project": "lt",
+      "date": "2026-10-25",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-25-2",
+      "title": "Collect the original project decisions",
+      "owner": "Jay \u00b7 project records",
+      "minutes": 30,
+      "output": "Locate the design-lockdown document and current Start/Devpost status. Record missing decisions and confirm daily capacity.",
+      "depends": [],
+      "project": "lt",
+      "date": "2026-10-25",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-25-3",
+      "title": "Back up today\u2019s implementation",
+      "owner": "Codex + Jay \u00b7 Git",
+      "minutes": 45,
+      "output": "Review untracked LivingTable/MRBoardMVP source, stage only intended project files, commit, and verify the private remote backup. Save the APK hash; close with done/blocked/next.",
+      "depends": [],
+      "project": "lt",
+      "date": "2026-10-25",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-10-26",
+      "project": "hack",
+      "date": "2026-10-26",
+      "minutes": 240,
+      "title": "Kickoff and real-model connection",
+      "output": "Confirm acceptance and applicable rules before participation; obtain any needed written clarification. In a separate repository, demonstrate a real API response, budgets and failure handling. Check kickoff time in the invitation; public page mixes ET and EST.",
+      "depends": [
+        "hack-2026-10-25"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-10-26-1",
+      "title": "Freeze one ruleset and the win condition",
+      "owner": "Jay + Codex \u00b7 design",
+      "minutes": 90,
+      "output": "One agreed rules page: legal moves, turns, captures, score/result, setup, round end, and 5\u201310 minute target. Reuse the original design if it exists.",
+      "depends": [
+        "lt-2026-10-25-2"
+      ],
+      "project": "lt",
+      "date": "2026-10-26",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-26-2",
+      "title": "Verify eligibility and submission setup",
+      "owner": "Jay \u00b7 Meta / Devpost",
+      "minutes": 45,
+      "output": "Record Start membership status, entry link, team/track/division choice, and Competition-channel access. Resolve the original disclosure-review gate before any public assets.",
+      "depends": [],
+      "project": "lt",
+      "date": "2026-10-26",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-26-3",
+      "title": "Lock the physical-piece interaction contract",
+      "owner": "Jay + Codex \u00b7 Unity",
+      "minutes": 105,
+      "output": "Choose and document hand-release-to-cell confirmation and how physical pieces map to virtual IDs. Mark the optional fiducial as a fallback; do not claim camera recognition.",
+      "depends": [
+        "lt-2026-10-26-1"
+      ],
+      "project": "lt",
+      "date": "2026-10-26",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-10-27",
+      "project": "hack",
+      "date": "2026-10-27",
+      "minutes": 240,
+      "title": "Ship the first pipeline run",
+      "output": "Intake \u2192 staged agent work \u2192 useful output on one repeatable test case. Save input, output, model and error trace. Keep scope to one workflow.",
+      "depends": [
+        "hack-2026-10-26"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-10-27-1",
+      "title": "Fix placement / restore failures first",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 45,
+      "output": "Rebuild and install a candidate with the worst baseline anchoring defects fixed. Preserve calm retry and reposition paths.",
+      "depends": [
+        "lt-2026-10-25-1",
+        "lt-2026-10-26-3"
+      ],
+      "project": "lt",
+      "date": "2026-10-27",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-27-2",
+      "title": "Measure 20 placements on two tables",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 135,
+      "output": "Record table, lighting, placement, drift at 5 minutes, and restore outcome. Fail the stability gate if drift exceeds 2 cm; two consecutive failures trigger fallback evaluation. Budget includes at least 100 minutes of timed observation; do not compress the measurement.",
+      "depends": [
+        "lt-2026-10-27-1"
+      ],
+      "project": "lt",
+      "date": "2026-10-27",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-27-3",
+      "title": "Retest recovery and choose alignment fallback",
+      "owner": "Jay + Codex \u00b7 Quest / Unity",
+      "minutes": 60,
+      "output": "Verify save-failure retry and relaunch; document whether marker support must be implemented. A required fallback replaces cosmetic work, not test time.",
+      "depends": [
+        "lt-2026-10-27-2"
+      ],
+      "project": "lt",
+      "date": "2026-10-27",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-10-28",
+      "project": "hack",
+      "date": "2026-10-28",
+      "minutes": 240,
+      "title": "Add controls and recovery",
+      "output": "Budget meter, stage progress, safe retry and exhausted-credit handling. Run normal, missing-input and API-failure cases.",
+      "depends": [
+        "hack-2026-10-27"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-10-28-1",
+      "title": "Bind hand release to the agreed move path",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 120,
+      "output": "Map a physical-piece grab/release to piece ID and candidate cell, with explicit confirmation/correction and single-event behavior.",
+      "depends": [
+        "lt-2026-10-26-3",
+        "lt-2026-10-27-3"
+      ],
+      "project": "lt",
+      "date": "2026-10-28",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-28-2",
+      "title": "Log move accuracy and difficult conditions",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 60,
+      "output": "Run ten attempts per hand, then occlusion/fast-move/low-light trials. Record intended vs registered cells. If 2+ of 10 fail, fix forgiveness and repeat.",
+      "depends": [
+        "lt-2026-10-28-1"
+      ],
+      "project": "lt",
+      "date": "2026-10-28",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-28-3",
+      "title": "Add candidate-square preview and seated retest",
+      "owner": "Codex + Jay \u00b7 Unity / Quest",
+      "minutes": 60,
+      "output": "Implement hover/preview distinct from selection. Complete two seated hands-only ten-move drills with physical pieces, recording errors.",
+      "depends": [
+        "lt-2026-10-28-2"
+      ],
+      "project": "lt",
+      "date": "2026-10-28",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-10-29",
+      "project": "hack",
+      "date": "2026-10-29",
+      "minutes": 240,
+      "title": "Polish one usable workflow",
+      "output": "Make the useful result obvious. Test confusing inputs and confirmations. Remove optional integrations before adding another workflow.",
+      "depends": [
+        "hack-2026-10-28"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-10-29-1",
+      "title": "Implement turns and legal moves",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 120,
+      "output": "Rule validation and turn ownership enforce the frozen rules; illegal moves cannot advance the game.",
+      "depends": [
+        "lt-2026-10-26-1"
+      ],
+      "project": "lt",
+      "date": "2026-10-29",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-29-2",
+      "title": "Implement capture, scoring, and round end",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Captures update occupancy and visuals; result/score state has deterministic win/lose/draw handling and restart.",
+      "depends": [
+        "lt-2026-10-29-1"
+      ],
+      "project": "lt",
+      "date": "2026-10-29",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-29-3",
+      "title": "Verify complete local rounds",
+      "owner": "Jay + Codex \u00b7 tests / Quest",
+      "minutes": 30,
+      "output": "Record at least two start-to-finish rounds and targeted edge-case tests. Fix state bugs before effects.",
+      "depends": [
+        "lt-2026-10-29-2",
+        "lt-2026-10-28-3"
+      ],
+      "project": "lt",
+      "date": "2026-10-29",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-10-30",
+      "project": "hack",
+      "date": "2026-10-30",
+      "minutes": 240,
+      "title": "Independent use test",
+      "output": "Observe a new user completing the workflow; rank failures. Fix the top blocking issue and repeat the same test.",
+      "depends": [
+        "hack-2026-10-29"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-10-30-1",
+      "title": "Implement the simplest legal AI",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 120,
+      "output": "AI selects legal actions, takes its turn, and stops at the round result without locking input.",
+      "depends": [
+        "lt-2026-10-29-3"
+      ],
+      "project": "lt",
+      "date": "2026-10-30",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-30-2",
+      "title": "Tune first-session difficulty",
+      "owner": "Jay + Codex \u00b7 Quest",
+      "minutes": 60,
+      "output": "Document beginner wins/losses and obvious exploits; adjust for learnability rather than adding complex search.",
+      "depends": [
+        "lt-2026-10-30-1"
+      ],
+      "project": "lt",
+      "date": "2026-10-30",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-30-3",
+      "title": "Play and log two vs-AI rounds",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 60,
+      "output": "Record round time, result, confusion, and any state/turn bug; both rounds finish hands-only.",
+      "depends": [
+        "lt-2026-10-30-2"
+      ],
+      "project": "lt",
+      "date": "2026-10-30",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-10-31",
+      "project": "hack",
+      "date": "2026-10-31",
+      "minutes": 180,
+      "title": "Second complete run and hardening",
+      "output": "Run the demo scenario from a clean session; check failures, budget and output quality. Hold family time separately until availability is confirmed.",
+      "depends": [
+        "hack-2026-10-30"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-10-31-1",
+      "title": "Add clear capture and turn feedback",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Use the existing jump/pulse; add a readable capture effect under 1.2 seconds and an unambiguous turn indicator.",
+      "depends": [
+        "lt-2026-10-29-3"
+      ],
+      "project": "lt",
+      "date": "2026-10-31",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-31-2",
+      "title": "Add spatial interaction audio",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Grabs, moves, captures, and a restrained ambient bed have usable levels, correct positioning, and recorded asset licenses.",
+      "depends": [
+        "lt-2026-10-31-1"
+      ],
+      "project": "lt",
+      "date": "2026-10-31",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-10-31-3",
+      "title": "Test the whole living layer",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 60,
+      "output": "Play two complete rounds; remove distracting effects and ensure a newcomer can identify whose turn it is and why a capture happened.",
+      "depends": [
+        "lt-2026-10-30-3",
+        "lt-2026-10-31-2"
+      ],
+      "project": "lt",
+      "date": "2026-10-31",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-11-01",
+      "project": "hack",
+      "date": "2026-11-01",
+      "minutes": 120,
+      "title": "Capture the demo",
+      "output": "Record a clean end-to-end result and concise explanation. Capture backup footage and avoid unsupported claims.",
+      "depends": [
+        "hack-2026-10-31"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-01-1",
+      "title": "Rank the three largest feel problems",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 30,
+      "output": "List observed friction by frequency and severity from complete rounds.",
+      "depends": [
+        "lt-2026-10-31-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-01",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-01-2",
+      "title": "Fix the highest-impact feel issue",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 60,
+      "output": "One targeted fix; remove optional visual work if reliability is behind.",
+      "depends": [
+        "lt-2026-11-01-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-01",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-01-3",
+      "title": "Retest and close the day",
+      "owner": "Jay \u00b7 Quest / records",
+      "minutes": 30,
+      "output": "Repeat the same scenario, record before/after behavior, and check any pending Start membership status.",
+      "depends": [
+        "lt-2026-11-01-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-01",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-11-02",
+      "project": "hack",
+      "date": "2026-11-02",
+      "minutes": 240,
+      "title": "Package and repair",
+      "output": "Assemble demo cut, screenshots and description. Test reviewer access and fix failures from the prior runs.",
+      "depends": [
+        "hack-2026-11-01"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-02-1",
+      "title": "Add concise round-state UI",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 60,
+      "output": "Readable score/result and turn state appear above the table; retain the move counter only as a separate debug metric.",
+      "depends": [
+        "lt-2026-10-29-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-02",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-02-2",
+      "title": "Polish idle life only if core gates pass",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 60,
+      "output": "Use restrained board-edge/idle feedback. Spend this block on overdue P1/P2 defects if those gates remain open.",
+      "depends": [
+        "lt-2026-10-31-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-02",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-02-3",
+      "title": "Build hands-only onboarding",
+      "owner": "Codex + Jay \u00b7 Unity / Quest",
+      "minutes": 120,
+      "output": "A short show-and-do sequence teaches placement, selection, movement, and reset; verify without verbal coaching.",
+      "depends": [
+        "lt-2026-11-02-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-02",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-11-03",
+      "project": "hack",
+      "date": "2026-11-03",
+      "minutes": 240,
+      "title": "Freeze at noon and rehearse submission",
+      "output": "Freeze features by noon Central. Verify account-specific requirements and all links; prepare final submission and archive candidate.",
+      "depends": [
+        "hack-2026-11-02"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-03-1",
+      "title": "Implement pause and headset-removal recovery",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Round, turn, score, and piece state survive headset removal and resume without duplicate actions.",
+      "depends": [
+        "lt-2026-10-29-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-03",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-03-2",
+      "title": "Measure and improve cold start",
+      "owner": "Jay + Codex \u00b7 Quest",
+      "minutes": 60,
+      "output": "Time five launches to the usable hand-tracked table; record each result and target under 30 seconds.",
+      "depends": [
+        "lt-2026-11-02-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-03",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-03-3",
+      "title": "Time five complete rounds",
+      "owner": "Jay + Codex \u00b7 Quest",
+      "minutes": 90,
+      "output": "Measure complete rounds and tune toward 5\u201310 minutes without hiding hard rules or resetting state.",
+      "depends": [
+        "lt-2026-10-30-3",
+        "lt-2026-11-03-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-03",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-11-04",
+      "project": "hack",
+      "date": "2026-11-04",
+      "minutes": 180,
+      "title": "Submit Meta Global AI by 2 PM Central",
+      "output": "Submit the completed entry manually, retain confirmation and exact build, check access. Hard close is 8 PM Central. If acceptance never arrived, mark this lane blocked rather than submitted.",
+      "depends": [
+        "hack-2026-11-03"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-04-1",
+      "title": "Build player handoff and seat recalibration",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Clear player ownership, handoff prompt, and recalibration when table-side position changes.",
+      "depends": [
+        "lt-2026-10-29-3",
+        "lt-2026-11-03-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-04",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-04-2",
+      "title": "Run the full hands-only soak",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 90,
+      "output": "Cold start \u2192 onboarding \u2192 AI round \u2192 pass-and-play round \u2192 pause/resume. Record each transition and failure.",
+      "depends": [
+        "lt-2026-11-04-1",
+        "lt-2026-11-03-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-04",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-04-3",
+      "title": "Fix blockers and preserve a candidate",
+      "owner": "Codex \u00b7 Unity / Git",
+      "minutes": 60,
+      "output": "Resolve critical session bugs, rebuild, install, archive the hash and source commit, and write the P3 gate evidence.",
+      "depends": [
+        "lt-2026-11-04-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-04",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "unity-2026-11-05",
+      "project": "unity",
+      "date": "2026-11-05",
+      "minutes": 240,
+      "title": "Confirm start time, then build the theme",
+      "output": "Watch the 11 AM Central theme reveal; official start information conflicts (noon table / 12:30 PM timer). Verify allowed start before game work. Choose one mechanic and a short round; start a new jam game.",
+      "depends": [
+        "unity-2026-10-25"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-05-1",
+      "title": "Profile worst-case Quest frame time",
+      "owner": "Jay + Codex \u00b7 profiler",
+      "minutes": 120,
+      "output": "Capture CPU/GPU behavior during idle effects, capture, audio, and AI; name the top five costs.",
+      "depends": [
+        "lt-2026-11-04-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-05",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-05-2",
+      "title": "Remove the largest measured cost",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Optimize the measured bottleneck; target sustained 72 fps (about 13.9 ms frame budget).",
+      "depends": [
+        "lt-2026-11-05-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-05",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-05-3",
+      "title": "Triage build warnings",
+      "owner": "Codex \u00b7 build logs",
+      "minutes": 30,
+      "output": "Group the 978 baseline warnings; separate unused-package warnings from player-facing risks and assign unresolved issues.",
+      "depends": [],
+      "project": "lt",
+      "date": "2026-11-05",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "unity-2026-11-06",
+      "project": "unity",
+      "date": "2026-11-06",
+      "minutes": 240,
+      "title": "Complete one playable round",
+      "output": "Implement start \u2192 action \u2192 result \u2192 restart. A first-time player must understand the goal in 60 seconds. Export WebGL today.",
+      "depends": [
+        "unity-2026-11-05"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-06-1",
+      "title": "Repeat worst-case profiling",
+      "owner": "Jay + Codex \u00b7 Quest",
+      "minutes": 120,
+      "output": "Verify sustained 72 fps over a representative session; reduce effects if the target fails.",
+      "depends": [
+        "lt-2026-11-05-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-06",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-06-2",
+      "title": "Implement comfort and accessibility controls",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Effect-intensity and volume controls, appropriate vignette option, non-color piece cues, key-audio labels, and seated defaults.",
+      "depends": [
+        "lt-2026-11-02-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-06",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-06-3",
+      "title": "Validate controls on device",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 30,
+      "output": "Record which controls work, whether state persists as intended, and any readability or reach problem.",
+      "depends": [
+        "lt-2026-11-06-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-06",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "unity-2026-11-07",
+      "project": "unity",
+      "date": "2026-11-07",
+      "minutes": 180,
+      "title": "Unify art, audio and feedback",
+      "output": "Use one coherent style, record asset licenses and AI use. Test the browser build. Confirm family availability; no recurring soccer assumption.",
+      "depends": [
+        "unity-2026-11-06"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-07-1",
+      "title": "Run a clean-install session",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 60,
+      "output": "Back up needed data first; obtain confirmation before uninstalling. Verify onboarding, placement, a full round, and restart from a genuinely clean state. An update install is not this test.",
+      "depends": [
+        "lt-2026-11-06-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-07",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-07-2",
+      "title": "Arrange five external testers",
+      "owner": "Jay \u00b7 scheduling",
+      "minutes": 60,
+      "output": "Secure five board-game players for Nov 10\u201311 and two retests for Nov 13. Confirm availability and prepare the observation sheet.",
+      "depends": [],
+      "project": "lt",
+      "date": "2026-11-07",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-07-3",
+      "title": "Fix clean-install and remaining high-severity issues",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 120,
+      "output": "Resolve crash, inaccessible-control, and state-corruption defects before cosmetic polish.",
+      "depends": [
+        "lt-2026-11-07-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-07",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "unity-2026-11-08",
+      "project": "unity",
+      "date": "2026-11-08",
+      "minutes": 120,
+      "title": "Playtest and cut scope",
+      "output": "Observe a complete round, rank problems, remove unfinished mechanics. Preserve a working build.",
+      "depends": [
+        "unity-2026-11-07"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-08-1",
+      "title": "Run an uncoached candidate session",
+      "owner": "Jay / helper \u00b7 Quest",
+      "minutes": 60,
+      "output": "Observe first touch through full round without explaining the controls.",
+      "depends": [
+        "lt-2026-11-07-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-08",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-08-2",
+      "title": "Choose final cuts",
+      "owner": "Jay + Codex \u00b7 scope",
+      "minutes": 30,
+      "output": "Remove rough optional effects. Keep hands-only use, legal complete rounds, recovery, and judge access as mandatory. Record any proposed original-scope reduction explicitly.",
+      "depends": [
+        "lt-2026-11-08-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-08",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-08-3",
+      "title": "Prepare freeze notes and test kit",
+      "owner": "Codex + Jay \u00b7 records",
+      "minutes": 30,
+      "output": "List remaining blockers, candidate commit/hash, table setup, observation form, and tester instructions.",
+      "depends": [
+        "lt-2026-11-08-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-08",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "hack-2026-11-09",
+      "project": "hack",
+      "date": "2026-11-09",
+      "minutes": 30,
+      "title": "Check finals and results",
+      "output": "Check official results/closing-ceremony information; save outcome. This is a short check, not a reserved full livestream.",
+      "depends": [
+        "hack-2026-11-04"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "unity-2026-11-09",
+      "project": "unity",
+      "date": "2026-11-09",
+      "minutes": 240,
+      "title": "Tune pacing and feedback",
+      "output": "Fix the largest player-facing issues; keep one strong loop. Archive a playable browser build.",
+      "depends": [
+        "unity-2026-11-08"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-09-1",
+      "title": "Freeze the feature candidate",
+      "owner": "Codex + Jay \u00b7 Git / build",
+      "minutes": 60,
+      "output": "Tag the reviewed source and APK. Any unresolved critical defect blocks freeze; later work is bug fixes only.",
+      "depends": [
+        "lt-2026-11-08-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-09",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-09-2",
+      "title": "Create the Competition release-channel path",
+      "owner": "Jay \u00b7 Meta Developer Dashboard",
+      "minutes": 90,
+      "output": "Configure the Competition channel, upload the candidate, and generate an invite link for testing. Do not confuse this with ADB installation.",
+      "depends": [
+        "lt-2026-11-09-1",
+        "lt-2026-10-26-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-09",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-09-3",
+      "title": "Confirm testers can obtain the build",
+      "owner": "Jay \u00b7 Quest / testing",
+      "minutes": 90,
+      "output": "Verify access and launch using the distribution path; prepare a clean, repeatable test setup for five testers.",
+      "depends": [
+        "lt-2026-11-09-2",
+        "lt-2026-11-07-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-09",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "unity-2026-11-10",
+      "project": "unity",
+      "date": "2026-11-10",
+      "minutes": 240,
+      "title": "Harden the WebGL candidate",
+      "output": "Test load, controls, sound, restart and performance on another browser. Fix blocking failures and prepare submission text.",
+      "depends": [
+        "unity-2026-11-09"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-10-1",
+      "title": "Run two uncoached sessions",
+      "owner": "Jay + testers \u00b7 Quest",
+      "minutes": 120,
+      "output": "Log onboarding, anchoring, incorrect moves, round completion, duration, comfort, and any help requested.",
+      "depends": [
+        "lt-2026-11-09-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-10",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-10-2",
+      "title": "Fix the highest-severity observed blockers",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 90,
+      "output": "Fix blockers only; retain reproduction steps and map fixes to issues.",
+      "depends": [
+        "lt-2026-11-10-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-10",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-10-3",
+      "title": "Publish a tested bug-fix candidate",
+      "owner": "Jay + Codex \u00b7 build / channel",
+      "minutes": 30,
+      "output": "Run regression checks, record the new hash and change list, and keep testers on the intended candidate.",
+      "depends": [
+        "lt-2026-11-10-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-10",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "mega-2026-11-11",
+      "project": "mega",
+      "date": "2026-11-11",
+      "minutes": 60,
+      "title": "Theme reveal and rules checkpoint",
+      "output": "Theme reveal at 1 PM Central. Read full rules and list premade materials. Plan only; build opens tonight at 11 PM Central. Scheduled build work starts tomorrow.",
+      "depends": [
+        "mega-2026-10-25"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "unity-2026-11-11",
+      "project": "unity",
+      "date": "2026-11-11",
+      "minutes": 240,
+      "title": "Feature-complete Unity",
+      "output": "Finish the smallest complete game by end of day. Archive candidate; only packaging and defects from now on.",
+      "depends": [
+        "unity-2026-11-10"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-11-1",
+      "title": "Test three additional players",
+      "owner": "Jay + testers \u00b7 Quest",
+      "minutes": 150,
+      "output": "Reach at least five unique external testers; use the same observation sheet and no coaching.",
+      "depends": [
+        "lt-2026-11-10-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-11",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-11-2",
+      "title": "Rank the top ten issues",
+      "owner": "Jay + Codex \u00b7 issue log",
+      "minutes": 60,
+      "output": "Rank by frequency \u00d7 severity; mark crashes, inaccessible controls, and state loss as blockers.",
+      "depends": [
+        "lt-2026-11-11-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-11",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-11-3",
+      "title": "Assign fixes and retests",
+      "owner": "Codex + Jay \u00b7 plan",
+      "minutes": 30,
+      "output": "Each issue has an owner, reproduction, acceptance condition, and target candidate.",
+      "depends": [
+        "lt-2026-11-11-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-11",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "mega-2026-11-12",
+      "project": "mega",
+      "date": "2026-11-12",
+      "minutes": 300,
+      "title": "First Unreal playable slice",
+      "output": "Build one theme mechanic and a complete short loop; test a packaged executable. Record development steps and all premade materials.",
+      "depends": [
+        "mega-2026-11-11"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "unity-2026-11-12",
+      "project": "unity",
+      "date": "2026-11-12",
+      "minutes": 120,
+      "title": "Package and submit Unity early",
+      "output": "Final WebGL package, controls, credits and AI disclosure; upload, test, submit and save receipt. Target today; Nov 13 reserved for access verification.",
+      "depends": [
+        "unity-2026-11-11"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-12-1",
+      "title": "Resolve the ranked issues",
+      "owner": "Codex \u00b7 Unity",
+      "minutes": 180,
+      "output": "Work from the top-ten list in severity order. If ten cannot be closed, list remaining items and cut optional scope; never relabel them done.",
+      "depends": [
+        "lt-2026-11-11-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-12",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-12-2",
+      "title": "Run targeted regression on Quest",
+      "owner": "Jay + Codex \u00b7 Quest",
+      "minutes": 60,
+      "output": "Repeat each changed interaction plus a complete round. Record the candidate hash and failures.",
+      "depends": [
+        "lt-2026-11-12-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-12",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "mega-2026-11-13",
+      "project": "mega",
+      "date": "2026-11-13",
+      "minutes": 360,
+      "title": "Finish the loop and test packaging",
+      "output": "Finish start, progression, result and restart. Cut unfinished systems. Package and run outside the editor; record development evidence.",
+      "depends": [
+        "mega-2026-11-12"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "unity-2026-11-13",
+      "project": "unity",
+      "date": "2026-11-13",
+      "minutes": 30,
+      "title": "Verify Unity entry",
+      "output": "Confirm entry and browser build access before Nov 14 at 6 AM Central. Keep the exact candidate archived.",
+      "depends": [
+        "unity-2026-11-12"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-13-1",
+      "title": "Run two independent retests",
+      "owner": "Jay + testers \u00b7 Quest",
+      "minutes": 120,
+      "output": "Confirm fixes with at least two players; they must self-serve from launch through a full round.",
+      "depends": [
+        "lt-2026-11-12-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-13",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-13-2",
+      "title": "Recheck performance and session recovery",
+      "owner": "Jay + Codex \u00b7 Quest",
+      "minutes": 90,
+      "output": "Repeat worst-case profiling, pause/resume, handoff, and saved-anchor restoration on the same candidate.",
+      "depends": [
+        "lt-2026-11-13-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-13",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-13-3",
+      "title": "Close or reopen issues with evidence",
+      "owner": "Jay + Codex \u00b7 log",
+      "minutes": 30,
+      "output": "Attach observations; a failed retest reopens the issue and prevents a green gate.",
+      "depends": [
+        "lt-2026-11-13-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-13",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "mega-2026-11-14",
+      "project": "mega",
+      "date": "2026-11-14",
+      "minutes": 360,
+      "title": "Polish and cut the gameplay video",
+      "output": "Repair major failures, unify visuals/audio and cut the 30\u201360 second video. Lock scope. Unity deadline is 6 AM: preserve its submitted files.",
+      "depends": [
+        "mega-2026-11-13"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-14-1",
+      "title": "Run final complete regression",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 90,
+      "output": "Validate the hands-only loop, two tables, restore, AI, handoff, cold start, and performance.",
+      "depends": [
+        "lt-2026-11-13-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-14",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-14-2",
+      "title": "Archive source and final APK",
+      "owner": "Codex \u00b7 Git / builds",
+      "minutes": 60,
+      "output": "Record commit, APK SHA-256, version, test results, known issues, and backups. Keep final build identity consistent across materials.",
+      "depends": [
+        "lt-2026-11-14-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-14",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-14-3",
+      "title": "Draft entry and asset checklist",
+      "owner": "Jay + Codex \u00b7 submission",
+      "minutes": 90,
+      "output": "Draft title/tagline, description, track/division evidence, credits, and the planned screenshots/video. Reconfirm eligibility and original disclosure gate.",
+      "depends": [
+        "lt-2026-11-14-2",
+        "lt-2026-10-26-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-14",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "mega-2026-11-15",
+      "project": "mega",
+      "date": "2026-11-15",
+      "minutes": 240,
+      "title": "Submit MegaJam by noon target",
+      "output": "Test final package and links; include credits, premade declaration, video and optional Glass Box devlog. Save receipt and submitted build. Hard close is 7:59 PM Central.",
+      "depends": [
+        "mega-2026-11-14"
+      ],
+      "owner": "Jay + Codex \u00b7 implementation; Jay \u00b7 account / device actions",
+      "basis": "Proposed recovery time box"
+    },
+    {
+      "id": "lt-2026-11-15-1",
+      "title": "Fresh-install and play the final candidate",
+      "owner": "Jay \u00b7 Quest 3",
+      "minutes": 45,
+      "output": "Use a backed-up, approved clean-install procedure and complete a seated hands-only round.",
+      "depends": [
+        "lt-2026-11-14-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-15",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-15-2",
+      "title": "Storyboard the short demo",
+      "owner": "Jay + Codex \u00b7 media plan",
+      "minutes": 45,
+      "output": "Use the original 60\u201390 second target, which fits the official under-three-minute limit. Show actual physical-piece behavior only if implemented and tested.",
+      "depends": [
+        "lt-2026-11-15-1"
+      ],
+      "project": "lt",
+      "date": "2026-11-15",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-15-3",
+      "title": "Verify capture and access setup",
+      "owner": "Jay \u00b7 Quest / channel",
+      "minutes": 30,
+      "output": "Check recording, audio, camera framing, channel invitation, and the media shot list.",
+      "depends": [
+        "lt-2026-11-15-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-15",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-16-1",
+      "title": "Capture and edit the demo",
+      "owner": "Jay + Codex \u00b7 media",
+      "minutes": 120,
+      "output": "Produce the 60\u201390 second demo, verify playback/audio on a second device, and prepare its public link only after the disclosure gate is resolved.",
+      "depends": [
+        "lt-2026-11-15-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-16",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-16-2",
+      "title": "Finish screenshots and entry text",
+      "owner": "Jay + Codex \u00b7 Devpost draft",
+      "minutes": 60,
+      "output": "Create 4\u20136 screenshots from the tested build and complete accurate entry text, team/track/division fields, and credits.",
+      "depends": [
+        "lt-2026-11-14-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-16",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-16-3",
+      "title": "Verify judge access to the final build",
+      "owner": "Jay \u00b7 Meta / Quest",
+      "minutes": 60,
+      "output": "Upload the intended final APK to Competition and test the invite URL. Check the public video URL and keep access available for judging.",
+      "depends": [
+        "lt-2026-11-16-1",
+        "lt-2026-11-16-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-16",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-17-1",
+      "title": "Run the final checklist",
+      "owner": "Jay + Codex \u00b7 submission review",
+      "minutes": 60,
+      "output": "Confirm hands-first operation, eligibility, accurate permissions/privacy, credits, media links, and exact build identity.",
+      "depends": [
+        "lt-2026-11-16-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-17",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-17-2",
+      "title": "Submit the completed entry",
+      "owner": "Jay \u00b7 Devpost",
+      "minutes": 90,
+      "output": "Submit by the internal 5 PM Central target, with Competition invite and working demo link. Save the receipt and rendered-entry URL.",
+      "depends": [
+        "lt-2026-11-17-1",
+        "lt-2026-11-16-1",
+        "lt-2026-11-16-2",
+        "lt-2026-11-16-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-17",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-17-3",
+      "title": "Verify the submitted entry and archive proof",
+      "owner": "Jay \u00b7 independent browser / records",
+      "minutes": 60,
+      "output": "Inspect the rendered entry and all links, retain submission confirmation, and archive the exact submitted candidate.",
+      "depends": [
+        "lt-2026-11-17-2"
+      ],
+      "project": "lt",
+      "date": "2026-11-17",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-17-4",
+      "title": "Reserve same-day correction time",
+      "owner": "Jay + Codex",
+      "minutes": 30,
+      "output": "Correct any access or form defect while the entry period is still open; do not start another feature.",
+      "depends": [
+        "lt-2026-11-17-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-17",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "lt-2026-11-18-1",
+      "title": "Check receipt and availability before the hard close",
+      "owner": "Jay \u00b7 submission records",
+      "minutes": 60,
+      "output": "Resolve only emergency access/submission defects before 2 PM Central. After the deadline, preserve the submitted state and keep judge access available.",
+      "depends": [
+        "lt-2026-11-17-3"
+      ],
+      "project": "lt",
+      "date": "2026-11-18",
+      "basis": "Recovery estimate; original Muse scope"
+    },
+    {
+      "id": "unity-rating-19",
+      "project": "unity",
+      "date": "2026-11-19",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-20",
+      "project": "unity",
+      "date": "2026-11-20",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-21",
+      "project": "unity",
+      "date": "2026-11-21",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-22",
+      "project": "unity",
+      "date": "2026-11-22",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-23",
+      "project": "unity",
+      "date": "2026-11-23",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-24",
+      "project": "unity",
+      "date": "2026-11-24",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-25",
+      "project": "unity",
+      "date": "2026-11-25",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-26",
+      "project": "unity",
+      "date": "2026-11-26",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-27",
+      "project": "unity",
+      "date": "2026-11-27",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-rating-28",
+      "project": "unity",
+      "date": "2026-11-28",
+      "minutes": 30,
+      "title": "Community rating / preserve submitted build",
+      "output": "Rate the initial three-game queue first, then additional games within this time box. Check the voting window; official page conflicts with a five-day paragraph. No game-file changes during judging.",
+      "depends": [
+        "unity-2026-11-13"
+      ],
+      "owner": "Jay \u00b7 itch.io",
+      "basis": "Proposed rating allocation"
+    },
+    {
+      "id": "unity-freeze",
+      "project": "unity",
+      "date": "2026-12-07",
+      "minutes": 15,
+      "title": "Check judging closure",
+      "output": "Verify official judging closure before changing the submitted build.",
+      "depends": [],
+      "owner": "Jay \u00b7 contest records",
+      "basis": "Official milestone; proposed check"
+    },
+    {
+      "id": "unity-results",
+      "project": "unity",
+      "date": "2026-12-10",
+      "minutes": 30,
+      "title": "Check Unity results",
+      "output": "Save results and next steps from the official page.",
+      "depends": [],
+      "owner": "Jay \u00b7 contest records",
+      "basis": "Official milestone; proposed check"
+    },
+    {
+      "id": "lt-results",
+      "project": "lt",
+      "date": "2026-12-11",
+      "minutes": 30,
+      "title": "Check VR Start results and access",
+      "output": "Results expected around this date; confirm actual announcement before retiring judge access.",
+      "depends": [],
+      "owner": "Jay \u00b7 contest records",
+      "basis": "Official milestone; proposed check"
+    },
+    {
+      "id": "mega-results",
+      "project": "mega",
+      "date": "2027-01-29",
+      "minutes": 30,
+      "title": "Check MegaJam results",
+      "output": "Winners are due by this date, not necessarily announced on it. Save the outcome and continuation opportunities.",
+      "depends": [],
+      "owner": "Jay \u00b7 contest records",
+      "basis": "Official milestone; proposed check"
+    }
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Foundation & lockdown",
+      "originalDates": "Oct 1\u20135",
+      "status": "Incomplete / evidence gap",
+      "original": "Muse marks 7 of 13 foundation tasks complete and logs setup on Oct 5. Application submitted is not approval. The design freeze and anchor-persistence exit test were still open.",
+      "current": "Unity 6.0 (6000.3.9f1), Meta XR 207, a configured Git remote, and a working APK exist. No MRUK package was found in the current manifest/lockfile; the code uses OVRSpatialAnchor. Today\u2019s new Unity source folders are untracked.",
+      "next": "Confirm eligibility, freeze the rules and physical-piece workflow, commit and back up the current source, and validate the on-device foundation."
+    },
+    {
+      "id": "P1",
+      "title": "Table & hands",
+      "originalDates": "Oct 6\u201314",
+      "status": "Partially implemented / unverified",
+      "original": "Original gate: drift below 2 cm at 5 minutes; hand-release move registration; hover/preview; two seated hands-only runs.",
+      "current": "Grid, fingertip pinch selection, anchor save/restore, and repositioning are coded. The current gesture is pinch-to-select then pinch-to-move virtual pieces. No physical-piece release binding, drift measurements, per-attempt accuracy log, hover preview, or fiducial path is verified.",
+      "next": "Measure anchoring on two tables and implement/test the chosen physical-piece confirmation flow. Do not treat virtual movement as physical-piece tracking."
+    },
+    {
+      "id": "P2",
+      "title": "The living layer",
+      "originalDates": "Oct 15\u201324",
+      "status": "Visual foundation only",
+      "original": "Original gate: animation, captures, score, spatial audio, beatable AI, and a complete round a newcomer can follow.",
+      "current": "Jump animations, landing pulse, selection color, move counter, and breathing frame exist. A move counter is not score or round state. Rules, turns, captures, victory, spatial audio, and AI are absent from the delivered game runtime.",
+      "next": "Build one complete ruleset and round first, then AI and concise audio/visual feedback."
+    },
+    {
+      "id": "P3",
+      "title": "Game feel & session",
+      "originalDates": "Oct 25\u201331",
+      "status": "Not reached",
+      "original": "Original gate: 5\u201310 minute rounds, launch under 30 seconds, pause/removal recovery, hands-only onboarding, pass-and-play.",
+      "current": "No complete game round exists to time. Reset and layout switching exist; they do not satisfy pause/resume, onboarding, or pass-and-play.",
+      "next": "Reach a legal start-to-finish round before tuning pacing. Recover session state and add the handoff flow."
+    },
+    {
+      "id": "P4",
+      "title": "Polish & performance",
+      "originalDates": "Nov 1\u20139",
+      "status": "Not verified",
+      "original": "Original gate: sustained 72 fps, comfort/accessibility controls, clean install, frozen candidate.",
+      "current": "APK compilation and an update install succeeded. There is no recorded FPS profile, fresh-install play session, or comfort/accessibility acceptance. 978 build warnings remain untriaged.",
+      "next": "Profile actual Quest sessions, close reliability defects, add readable/seated controls, and freeze by Nov 9."
+    },
+    {
+      "id": "P5",
+      "title": "Playtest",
+      "originalDates": "Nov 10\u201314",
+      "status": "Not started in available evidence",
+      "original": "Original gate: at least five external testers; ranked issue fixes; two retests proving self-service.",
+      "current": "No external test reports or completed current-build headset checks have been recorded in the project chat.",
+      "next": "Recruit ahead of time, test five people without coaching, fix issues by severity, and retest at least two."
+    },
+    {
+      "id": "P6",
+      "title": "Submission",
+      "originalDates": "Nov 15\u201317",
+      "status": "Packaging foundation only",
+      "original": "Original gate: tested candidate, trailer, screenshots, full entry; submit Nov 16\u201317.",
+      "current": "A local APK is available and installed. No Competition channel invite, public demo video, final entry, or submission confirmation has been verified.",
+      "next": "Prepare judge access through the Competition channel, finish media and entry, submit Nov 17, and retain Nov 18 as emergency time."
+    }
+  ],
+  "corrections": [
+    [
+      "Calendar vs completion",
+      "Muse: Day 25 / P3, 7 of 63 boxes checked.",
+      "Current implementation is P0/P1 validation with visual elements of P2. No complete round exists to polish.",
+      "Current code + Muse review"
+    ],
+    [
+      "Delivery vs readiness",
+      "Living Table dashboard shows 4/4 prototype delivery steps.",
+      "Build and install are verified; headset acceptance and contest exit gates are not. No overall readiness percentage is asserted.",
+      "Build report + installation record"
+    ],
+    [
+      "One relay vs parallel demand",
+      "Uploaded plan freezes Living Table Oct 26\u2013Nov 15.",
+      "This recovery proposal reserves daily Living Table work alongside the current contest. Time boxes expose the added demand; capacity remains unconfirmed.",
+      "Cross-plan analysis"
+    ],
+    [
+      "Submission target",
+      "Uploaded plan targets Living Table Nov 16.",
+      "Recovery target is Nov 17 at 5 PM Central, leaving Nov 18 for emergencies. This is an internal target, not an organizer extension.",
+      "Proposed recovery"
+    ],
+    [
+      "MegaJam opening",
+      "Nov 12 daily card says build opens at 11 PM.",
+      "Correct conversion is Nov 11 at 11 PM Central. Schedule starts game work Nov 12 morning.",
+      "Official itch schedule"
+    ],
+    [
+      "Unity kickoff",
+      "Source assumes a single Nov 5 start.",
+      "Official page lists 11 AM Central theme reveal, noon in timezone table, 12:30 PM in timer. Confirm allowed start. Voting text also conflicts: Nov 14\u201328 vs five days.",
+      "Official itch page"
+    ],
+    [
+      "Prebuilt shells",
+      "Uploaded setup includes complete loop skeletons before jams.",
+      "Toolchain and empty export checks only in prep. Declarations do not override game-development start restrictions.",
+      "Official jam summaries"
+    ],
+    [
+      "Stale family events",
+      "Source repeats Oct 24 soccer as future Saturday commitments.",
+      "No future family appointment is assumed. Enter available hours after family commitments.",
+      "Uploaded source, not current calendar"
+    ],
+    [
+      "Duplicate checklist totals",
+      "Source counts setup, gates, daily tasks and silo copies together.",
+      "One task ID across every view. Evidence note + dependencies required for done; blocked and deferred never count as complete.",
+      "Dashboard correction"
+    ]
+  ]
+}

@@ -16,6 +16,7 @@ namespace LivingTable
         public bool desktopPreview;
         public bool candyLandMode;
         public bool chessOnlyMode;
+        public bool firstStepsMode;
         public bool startWithChess;
         CandyLand.CandyTable candy;
         Chess.ChessTable chess;

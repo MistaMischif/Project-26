@@ -1,0 +1,126 @@
+{
+  "kind": "synthetic 2D crop smoke test, not physical-board accuracy",
+  "model": "llama3.2-vision:11b",
+  "results": [
+    {
+      "fixturePair": 0,
+      "status": 200,
+      "elapsedMs": 30923,
+      "expected": [
+        "empty",
+        "empty"
+      ],
+      "response": {
+        "revision": 0,
+        "model": "llama3.2-vision:11b",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "empty"
+          },
+          {
+            "square": "e4",
+            "piece": "black_rook"
+          }
+        ],
+        "elapsedMs": 30905
+      }
+    },
+    {
+      "fixturePair": 2,
+      "status": 200,
+      "elapsedMs": 5542,
+      "expected": [
+        "white_pawn",
+        "black_pawn"
+      ],
+      "response": {
+        "revision": 2,
+        "model": "llama3.2-vision:11b",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "black_pawn"
+          }
+        ],
+        "elapsedMs": 5531
+      }
+    },
+    {
+      "fixturePair": 4,
+      "status": 200,
+      "elapsedMs": 6008,
+      "expected": [
+        "white_pawn",
+        "black_pawn"
+      ],
+      "response": {
+        "revision": 4,
+        "model": "llama3.2-vision:11b",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "black_pawn"
+          }
+        ],
+        "elapsedMs": 6003
+      }
+    },
+    {
+      "fixturePair": 6,
+      "status": 200,
+      "elapsedMs": 5879,
+      "expected": [
+        "uncertain",
+        "uncertain"
+      ],
+      "response": {
+        "revision": 6,
+        "model": "llama3.2-vision:11b",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "empty"
+          }
+        ],
+        "elapsedMs": 5874
+      }
+    },
+    {
+      "fixturePair": 8,
+      "status": 200,
+      "elapsedMs": 5896,
+      "expected": [
+        "uncertain",
+        "uncertain"
+      ],
+      "response": {
+        "revision": 8,
+        "model": "llama3.2-vision:11b",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "empty"
+          }
+        ],
+        "elapsedMs": 5893
+      }
+    }
+  ]
+}
