@@ -10,5 +10,6 @@
   "status": "Installed and launched on Quest 3",
   "publishedVersion": "0.1.2",
   "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.2",
-  "acceptance": "Pending real-board and founder testing"
+  "acceptance": "Pending real-board and founder testing",
+  "sourceCommit": "552db3b0a4b5d995ad1267741bb462c4bc3916aa"
 }
