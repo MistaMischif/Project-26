@@ -1,0 +1,12 @@
+{
+  "version": "0.1.1",
+  "sha256": "a28f59e8c743790ccdf0d16ad033243f8ae7557b1c8ba0d103963f917fc0de28",
+  "bytes": 99854300,
+  "file": "LivingTable-FirstSteps-0.1.1.apk",
+  "applicationId": "com.livingtable.firststeps",
+  "built": "2026-10-29",
+  "reviewed": "2026-10-31",
+  "status": "Local build succeeded; installation and headset acceptance not verified",
+  "publishedVersion": "0.1.0",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.0"
+}
