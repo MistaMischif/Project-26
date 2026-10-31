@@ -1,0 +1,20 @@
+{
+  "kind": "Synthetic two-crop service readiness check; not real-board accuracy",
+  "status": 200,
+  "elapsedMs": 24374,
+  "response": {
+    "revision": 12,
+    "model": "llama3.2-vision:11b",
+    "cells": [
+      {
+        "square": "e2",
+        "piece": "empty"
+      },
+      {
+        "square": "e4",
+        "piece": "black_rook"
+      }
+    ],
+    "elapsedMs": 24332
+  }
+}

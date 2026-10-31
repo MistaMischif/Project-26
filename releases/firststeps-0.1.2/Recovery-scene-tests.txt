@@ -1,0 +1,1 @@
+14 scene transition checks passed using synthetic identity approval; no camera accuracy claim.

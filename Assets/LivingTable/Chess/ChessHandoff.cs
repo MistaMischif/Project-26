@@ -24,9 +24,10 @@ namespace LivingTable.Chess
   {
    get {
     if(StorageBlocked)return Message;
+    if(relocating)return "Board held. Move or turn, then release to place.";
     if(!Playing)return Message;
-    if(Recovering)return !Aligned?"1 / 2 - Align the real board. Game held.":"2 / 2 - Match the guide pieces. "+Vision.Status;
     if(Paused)return "Game paused. Your position is saved.";
+    if(Recovering)return !Aligned?"1 / 2 - Align the real board. Game held.":"2 / 2 - Match the guide pieces. "+Vision.Status;
     if(sessionMenu)return "Game held while you choose. Same position and history.";
     if(PendingAi.HasValue)return "Move for AI: "+MoveInstruction(Match.Position,PendingAi.Value)+(Physical?" Lift your hands when finished.":"");
     if(Busy)return "Moving...";
@@ -65,7 +66,7 @@ namespace LivingTable.Chess
     return;
    }
    Add("HANDOFF",-2,0,ToggleSessionMenu,Purple);Add(Paused?"RESUME":"PAUSE",2,0,TogglePause,Orange);
-   if(Recovering){Add(Aligned?"ALIGN AGAIN":"ALIGN BOARD",0,0,AlignBoard,Teal,true);if(Aligned)Add("MANUAL CHECK",0,1,AttestRecovery,Orange);}
+   if(Recovering){Add(Aligned?"SCAN BOARD":"ALIGN BOARD",0,0,()=>{if(Aligned)Vision.RetryRecovery();else AlignBoard();},Teal,true);if(Aligned){Add("MANUAL CHECK",0,1,AttestRecovery,Orange);Add("ALIGN AGAIN",-2,1,AlignBoard,Teal);}}
    else if(Physical&&ManualFallback&&PendingAi.HasValue)Add("MOVED IT",0,0,()=>Play(PendingAi.Value),new Color(.05f,.8f,.3f),true);
    else if(Physical&&!ManualFallback)Add("CAMERA HELP",0,0,()=>{Message="Use HANDOFF then MANUAL MODE if camera cannot see your move.";ToggleSessionMenu();},Teal);
    if(Match.CanClaim)Add("CLAIM DRAW",0,1,()=>{if(!Paused&&!Busy&&Match.CanClaim){Match.Claim();Version++;SaveSession("draw claimed");DrawUI();}},Teal);

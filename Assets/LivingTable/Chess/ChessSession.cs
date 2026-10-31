@@ -50,15 +50,15 @@ namespace LivingTable.Chess
    SaveSession("surface changed; position retained");ApplyRoom();DrawScene();
    if(!Physical&&PendingAi.HasValue&&!Paused&&!sessionMenu)Play(PendingAi.Value);
   }
-  public void AcceptRecovery(int version)
+  public bool AcceptRecovery(int version,bool identityVerified=false)
   {
-   if(version!=Version||!Recovering||!Aligned||!HandsClear||StorageBlocked)return;
-   Recovering=false;Version++;Message="Board appearance matches the saved checkpoint.";SaveSession("camera appearance reconciliation");DrawMen();DrawUI();
+   if(version!=Version||!Recovering||!Aligned||!HandsClear||StorageBlocked||Paused||sessionMenu||!Physical||Vision.RequiresIdentity&&!identityVerified)return false;
+   Recovering=false;if(identityVerified)ManualFallback=false;Version++;Message=identityVerified?"Saved position verified. Continue the same game.":"Board appearance matches the saved checkpoint.";bool savedOk=SaveSession(identityVerified?"full board identity reconciliation":"camera appearance reconciliation");DrawMen();DrawUI();return savedOk;
   }
   public void AttestRecovery()
   {
    if(!Recovering||!Aligned||StorageBlocked)return;
-   Unverified=true;Recovering=false;Version++;Vision.ResetBoard();Message="Manual board check recorded. This is not camera verification.";
+   Unverified=true;ManualFallback=true;Recovering=false;Version++;Vision.ResetBoard();Message="Manual board check recorded. This is not camera verification.";
    SaveSession("manual board reconciliation; unverified");DrawMen();DrawUI();
   }
   void ToggleRoom(){if(Physical||StorageBlocked)return;VirtualRoom=!VirtualRoom;ApplyRoom();SaveSession("view changed");DrawUI();}

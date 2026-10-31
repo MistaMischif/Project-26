@@ -12,7 +12,7 @@ Existing Astra-derived Quest chess runtime, with an optional isolated First Step
 6. A fresh camera check must still match; any intervening hand movement, session change, pause, or revision invalidates the response.
 7. A mismatch, unavailable service or uncertain observation leaves the position unchanged. MANUAL remains an explicitly assisted fallback.
 
-This does not recognize arbitrary starting layouts, infer missing historical castling rights, prove absence of cheating, or automatically reconcile a board after virtual moves. Physical camera accuracy and crop framing require Quest testing. The model runs on the host PC, not the headset.
+This does not recognize arbitrary starting layouts, infer missing historical castling rights, prove absence of cheating, or prove physical-set recognition accuracy. First Steps 0.1.2 adds a guarded full-board reconciliation path after virtual moves; it is not yet validated on a real board. Physical camera accuracy and crop framing require Quest testing. The model runs on the host PC, not the headset.
 
 ## Self-host
 
@@ -35,3 +35,7 @@ Next acceptance: physical pawn move; wrong destination; captured piece still pre
 APK build succeeded with zero build errors; installed and launched on the connected Quest. Connection file and USB reverse installed. No Unity script exceptions appeared in the startup check; existing OVR extension warnings remain. This is not a visual or physical-board acceptance pass.
 
 Actual local inference completed five requests / ten synthetic crops. Cold pair: 30.9 seconds. Warm pairs: 5.5–6.0 seconds. Five of ten labels differed from fixture expectations, including a blank square called a rook and occluded crops not returning uncertain. These fixtures are deliberately simple 2D drawings, not board photographs; they expose issues but do not measure physical-set accuracy. The next iteration must improve abstention and latency and test real camera framing. See evaluation.json for exact outputs.
+
+## 0.1.2 reconciliation
+
+The host protocol is unchanged. The Quest requests batches of four cells and never supplies the saved answer to the model. Each batch must match exactly and all 64 squares must pass. A mismatch or interruption leaves play locked and permits an explicit retry. Full scans can take minutes at the measured model speed; do not describe this as frictionless or real-camera-validated. First Steps manual checks stay in manual mode; switching back to camera requires reconciliation. The general app is separate.

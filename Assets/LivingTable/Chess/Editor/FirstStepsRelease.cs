@@ -13,7 +13,7 @@ namespace LivingTable.Editor
  {
   static void Check(bool ok,string name){if(!ok)throw new Exception("FIRST STEPS: "+name);}
   public static void Tests(){
-   ChessBuilder.RulesTests();int count=0;
+   ReconciliationTests.Run();BoardPlacementTests.OffsetFrame();ChessBuilder.RulesTests();int count=0;
    foreach(var fixture in new[]{
     new[]{"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1","12","28","0"},
     new[]{"4k3/8/8/8/8/3p4/4P3/4K3 w - - 0 1","12","19","0"},
@@ -27,14 +27,19 @@ namespace LivingTable.Editor
    File.WriteAllText("Builds/FirstSteps-tests.txt",count+" observation gate cases and chess regression suite passed");Debug.Log("FIRST_STEPS_TESTS_PASSED "+count);
   }
   public static void Build(){
+   const string resources="Assets/LivingTable/CandyLand/Resources",excluded="Assets/LivingTable/CandyLand/ContestExcluded";
+   if(AssetDatabase.IsValidFolder(excluded)&&!AssetDatabase.IsValidFolder(resources)){string restored=AssetDatabase.MoveAsset(excluded,resources);if(!string.IsNullOrEmpty(restored))throw new Exception(restored);}
    Tests();var scene=EditorSceneManager.OpenScene(ChessContestRelease.QuestScene);var experience=UnityEngine.Object.FindFirstObjectByType<LivingTableExperience>();experience.firstStepsMode=true;experience.chessOnlyMode=true;experience.desktopPreview=false;
    const string target="Assets/LivingTable/Chess/FirstStepsQuest.unity";EditorSceneManager.SaveScene(scene,target);
    var oldHttp=PlayerSettings.insecureHttpOption;string oldName=PlayerSettings.productName;
    string oldId=PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android),oldVersion=PlayerSettings.bundleVersion;int oldCode=PlayerSettings.Android.bundleVersionCode;
-   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.0";PlayerSettings.Android.bundleVersionCode=1;
-    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.0.apk",target=BuildTarget.Android,options=BuildOptions.Development});
+   string exclusionError=AssetDatabase.MoveAsset(resources,excluded);if(!string.IsNullOrEmpty(exclusionError))throw new Exception(exclusionError);
+   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.2";PlayerSettings.Android.bundleVersionCode=3;
+    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.2.apk",target=BuildTarget.Android,options=BuildOptions.Development|BuildOptions.DetailedBuildReport});
+    var packed=result.packedAssets.SelectMany(p=>p.contents).Select(a=>a.sourceAssetPath).Distinct().OrderBy(p=>p).ToArray();File.WriteAllLines("Builds/FirstSteps-packed-assets.txt",packed);
+    if(packed.Any(p=>p.StartsWith(excluded+"/",StringComparison.OrdinalIgnoreCase)||p.StartsWith(resources+"/",StringComparison.OrdinalIgnoreCase)))throw new Exception("First Steps contains excluded Candy Land assets");
     File.WriteAllText("Builds/FirstSteps-build.txt",result.summary.result+" Errors: "+result.summary.totalErrors);if(result.summary.result!=BuildResult.Succeeded)throw new Exception("First Steps build failed");
-   }finally{PlayerSettings.productName=oldName;PlayerSettings.insecureHttpOption=oldHttp;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,oldId);PlayerSettings.bundleVersion=oldVersion;PlayerSettings.Android.bundleVersionCode=oldCode;AssetDatabase.SaveAssets();}
+   }finally{string restoreError=AssetDatabase.MoveAsset(excluded,resources);if(!string.IsNullOrEmpty(restoreError))Debug.LogError("Restore Candy Land resources: "+restoreError);PlayerSettings.productName=oldName;PlayerSettings.insecureHttpOption=oldHttp;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,oldId);PlayerSettings.bundleVersion=oldVersion;PlayerSettings.Android.bundleVersionCode=oldCode;AssetDatabase.SaveAssets();}
   }
  }
 }

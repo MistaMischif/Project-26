@@ -37,6 +37,9 @@ namespace LivingTable
         TextMesh placementPrompt;
         Renderer rim;
         bool busy, placed, destroyed, anchorSaved;
+        readonly TableBoardGrip boardGrip=new TableBoardGrip();
+        bool gripArmed=true;
+        public bool BoardHeld=>boardGrip.Active;
         float nextHandScan;
         int gameIndex;
         readonly string[] games = { "tabletop-sandbox", "constellation" };
@@ -109,6 +112,7 @@ namespace LivingTable
                 hands = FindObjectsByType<OVRHand>(FindObjectsSortMode.None);
                 nextHandScan = Time.unscaledTime + 2f;
             }
+            if(PollBoardGrip())return;
             foreach (var hand in hands)
             {
                 if (hand == null) continue;
@@ -151,6 +155,46 @@ namespace LivingTable
                 }
             }
         }
+
+        bool PollBoardGrip()
+        {
+            if(!ChessActive||!placed||busy)return false;
+            OVRHand a=null,b=null;Vector3 pa=default,pb=default;float sa=0,sb=0;
+            foreach(var hand in hands){
+                if(hand==null||!hand.IsTracked||hand.HandConfidence!=OVRHand.TrackingConfidence.High||hand.IsSystemGestureInProgress||!TryPinchPoint(hand,out var point))continue;
+                if(a==null){a=hand;pa=point;sa=hand.GetFingerPinchStrength(OVRHand.HandFinger.Index);}
+                else if(b==null){b=hand;pb=point;sb=hand.GetFingerPinchStrength(OVRHand.HandFinger.Index);}
+            }
+            if(a!=null&&b!=null&&a.GetInstanceID()>b.GetInstanceID()){var h=a;a=b;b=h;var p=pa;pa=pb;pb=p;float v=sa;sa=sb;sb=v;}
+            bool valid=a!=null&&b!=null;
+            bool consumed=UpdateBoardGrip(pa,pb,valid&&sa>=(boardGrip.Active ? .4f : .7f)&&sb>=(boardGrip.Active ? .4f : .7f),valid&&sa<.4f&&sb<.4f);
+            if(consumed)foreach(var hand in hands)if(hand!=null){held[hand]=true;chess.ForgetHand(hand.GetInstanceID());}
+            return consumed;
+        }
+
+        public bool UpdateBoardGrip(Vector3 a,Vector3 b,bool pinching,bool released=false)
+        {
+            if(!pinching){if(released)gripArmed=true;if(!boardGrip.Active)return false;boardGrip.End();gripArmed=false;_ = FinishBoardGrip();return true;}
+            if(!placed||busy||!ChessActive)return false;
+            if(boardGrip.Active){boardGrip.Follow(mount,a,b);return true;}
+            if(!gripArmed||chess.Busy||chess.StorageBlocked||platform.board.IsAnimating||!boardGrip.Begin(mount,chess.Size*.5f,chess.Size*.5f,a,b,chess.transform))return false;
+            chess.BeginRelocation();mount.SetParent(transform,true);Status="Hold both sides to move or turn. Release to place.";return true;
+        }
+
+        async Task FinishBoardGrip()
+        {
+            busy=true;var position=mount.position;var rotation=mount.rotation;
+            try{
+                var previous=spatialAnchor;bool saved=anchorSaved;spatialAnchor=null;anchorSaved=false;
+                PlayerPrefs.DeleteKey(AnchorKey);PlayerPrefs.Save();
+                if(previous!=null){try{if(saved)await previous.EraseAnchorAsync();}catch(Exception error){Debug.LogWarning("[Living Table] Old anchor cleanup: "+error.Message);}finally{if(previous!=null)Destroy(previous.gameObject);}}
+                if(!destroyed)await Place(position,rotation);
+            }finally{if(!destroyed){chess?.EndRelocation();busy=false;}}
+        }
+
+        void OnApplicationPause(bool paused){if(paused&&boardGrip.Active){boardGrip.End();gripArmed=false;_ = FinishBoardGrip();}}
+        public Task RepositionBoard()=>Reposition();
+        public Task PlaceBoard(Vector3 position,Quaternion rotation)=>Place(position,rotation);
 
         static bool TryPinchPoint(OVRHand hand, out Vector3 point)
         {
@@ -207,17 +251,18 @@ namespace LivingTable
             platform.board.InteractCell(new Vector2Int(Mathf.FloorToInt((p.x + half) / d.cellSize), Mathf.FloorToInt((p.z + depth) / d.cellSize)));
         }
 
-        async Task Place(Vector3 position)
+        async Task Place(Vector3 position,Quaternion? orientation=null)
         {
             busy = true;
             GameObject anchorObject = null;
             Status = "Saving table position...";
+            if(desktopPreview){mount.SetPositionAndRotation(position,orientation??Quaternion.identity);ShowTable();busy=false;return;}
             try
             {
                 anchorObject = new GameObject("Living Table Spatial Anchor");
                 var camera = Camera.main;
                 float yaw = camera != null ? camera.transform.eulerAngles.y : 0;
-                anchorObject.transform.SetPositionAndRotation(position, Quaternion.Euler(0, yaw, 0));
+                anchorObject.transform.SetPositionAndRotation(position, orientation??Quaternion.Euler(0, yaw, 0));
                 var anchor = anchorObject.AddComponent<OVRSpatialAnchor>();
                 float deadline = Time.realtimeSinceStartup + 12f;
                 while (!anchor.Created && Time.realtimeSinceStartup < deadline && !destroyed) await Task.Yield();
@@ -241,7 +286,7 @@ namespace LivingTable
             }
             catch (Exception error)
             {
-                if (anchorObject != null && !placed) Destroy(anchorObject);
+                if (anchorObject != null && (spatialAnchor==null||spatialAnchor.gameObject!=anchorObject)) Destroy(anchorObject);
                 Status = error.Message;
                 Debug.LogWarning("[Living Table] " + error.Message);
             }
@@ -294,7 +339,7 @@ namespace LivingTable
             if (!candyLandMode) BuildTrim();
         }
 
-        public void MoveCandyTable() { if (candyLandMode) _ = Reposition(); }
+        public void MoveCandyTable() { if (candyLandMode||ChessActive) _ = Reposition(); }
 
         public void SwitchGame()
         {
@@ -313,8 +358,10 @@ namespace LivingTable
 
         async Task Reposition()
         {
-            if (!placed || busy || platform.board.IsAnimating) return;
+            if (!placed || busy || boardGrip.Active || platform.board.IsAnimating || (ChessActive&&chess.Busy)) return;
             busy = true;
+            if(ChessActive)chess.BeginRelocation();else if(candyLandMode&&candy!=null)candy.BeginRelocation();
+            placed=false;mount.gameObject.SetActive(false);Status="Preparing a new placement...";
             try
             {
                 if (spatialAnchor != null)
@@ -323,7 +370,7 @@ namespace LivingTable
                     {
                         var result = await spatialAnchor.EraseAnchorAsync();
                         if (destroyed) return;
-                        if (!result.Success) { Status = "Could not forget saved position. Try Move table again."; return; }
+                        if (!result.Success) { ShowTable();Status = "Could not forget saved position. Try Move table again."; return; }
                     }
                     mount.SetParent(transform, true);
                     Destroy(spatialAnchor.gameObject);
@@ -333,10 +380,11 @@ namespace LivingTable
                 PlayerPrefs.DeleteKey(AnchorKey);
                 PlayerPrefs.Save();
                 placed = false;
-                if(ChessActive)chess.BeginRelocation();else if(candyLandMode&&candy!=null)candy.BeginRelocation();else mount.gameObject.SetActive(false);
+                mount.gameObject.SetActive(false);
+                if(ChessActive)chess.transform.SetLocalPositionAndRotation(new Vector3(0,.012f,0),Quaternion.identity);
                 Status = "Pinch at the new table center to place it.";
             }
-            catch (Exception error) { Status = "Could not move table: " + error.Message; }
+            catch (Exception error) { ShowTable();Status = "Could not move table: " + error.Message; }
             finally { busy = false; }
         }
 

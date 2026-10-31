@@ -151,6 +151,8 @@ MonoBehaviour:
   desktopPreview: 1
   candyLandMode: 1
   chessOnlyMode: 1
+  firstStepsMode: 0
+  startWithChess: 0
   surfaceMaterial: {fileID: 2100000, guid: a92bd63659805e04da39477d87d44ecc, type: 2}
   boardMaterial: {fileID: 2100000, guid: 14c3b117ad4f6ba4492edc41f0c0ff98, type: 2}
 --- !u!4 &264559047

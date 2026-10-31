@@ -12,7 +12,8 @@ namespace LivingTable.Chess
   [Serializable] public sealed class Crop {public string square,image;}
   [Serializable] sealed class Request {public int revision;public Crop[] cells;}
   UnityWebRequest activeRequest;
-  void OnDisable(){activeRequest?.Abort();Busy=false;}
+  public void Cancel(){activeRequest?.Abort();activeRequest?.Dispose();activeRequest=null;Busy=false;}
+  void OnDisable()=>Cancel();
   Connection connection;public bool Required;public bool Busy {get;private set;}public string Status {get;private set;}="Local Meta vision not configured";
   public bool Configured=>connection!=null&&Uri.TryCreate(connection.url,UriKind.Absolute,out var uri)&&(uri.Scheme=="https"||uri.Scheme=="http"&&uri.IsLoopback)&&!string.IsNullOrWhiteSpace(connection.deviceToken);
   void Awake(){try{var path=Path.Combine(Application.persistentDataPath,"first-steps-connection.json");if(File.Exists(path))connection=JsonUtility.FromJson<Connection>(File.ReadAllText(path));}catch{Status="Check First Steps connection file";}}

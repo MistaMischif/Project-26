@@ -12,8 +12,15 @@ namespace LivingTable.Chess
   {
    if(position==null||observation==null||observation.revision!=revision||observation.cells==null||!position.LegalMoves().Contains(move))return false;
    var after=position.After(move);var changed=Enumerable.Range(0,64).Where(s=>position.Board[s]!=after.Board[s]).ToArray();
-   if(observation.cells.Length!=changed.Length)return false;
-   foreach(int square in changed){var cells=observation.cells.Where(c=>c!=null&&c.square==ChessMove.Square(square)).ToArray();if(cells.Length!=1||cells[0].piece!=Piece(after.Board[square]))return false;}
+   return AcceptCells(after,changed,revision,observation,out _);
+  }
+  // Reconciliation never changes the authoritative position, including its hidden chess rights.
+  public static bool AcceptBoard(ChessPosition position,int revision,Observation observation,out int mismatch)=>AcceptCells(position,Enumerable.Range(0,64).ToArray(),revision,observation,out mismatch);
+  public static bool AcceptCells(ChessPosition position,int[] squares,int revision,Observation observation,out int mismatch)
+  {
+   mismatch=-1;
+   if(position==null||squares==null||squares.Length==0||squares.Distinct().Count()!=squares.Length||squares.Any(s=>s<0||s>63)||observation==null||observation.revision!=revision||observation.cells==null||observation.cells.Length!=squares.Length)return false;
+   foreach(int square in squares){var cells=observation.cells.Where(c=>c!=null&&c.square==ChessMove.Square(square)).ToArray();if(cells.Length!=1||cells[0].piece!=Piece(position.Board[square])){mismatch=square;return false;}}
    return true;
   }
  }
