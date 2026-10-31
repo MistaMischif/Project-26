@@ -1,0 +1,259 @@
+{
+  "kind": "Synthetic perturbation holdout; related to development fixtures, not independent real-board data",
+  "correct": 18,
+  "total": 18,
+  "results": [
+    {
+      "files": [
+        "0-0.jpg",
+        "0-1.jpg"
+      ],
+      "expected": [
+        "empty",
+        "empty"
+      ],
+      "status": 200,
+      "ms": 752,
+      "response": {
+        "revision": 0,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "empty"
+          },
+          {
+            "square": "e4",
+            "piece": "empty"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 734
+      }
+    },
+    {
+      "files": [
+        "0-2.jpg",
+        "1-0.jpg"
+      ],
+      "expected": [
+        "empty",
+        "empty"
+      ],
+      "status": 200,
+      "ms": 457,
+      "response": {
+        "revision": 2,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "empty"
+          },
+          {
+            "square": "e4",
+            "piece": "empty"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 453
+      }
+    },
+    {
+      "files": [
+        "1-1.jpg",
+        "1-2.jpg"
+      ],
+      "expected": [
+        "empty",
+        "empty"
+      ],
+      "status": 200,
+      "ms": 488,
+      "response": {
+        "revision": 4,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "empty"
+          },
+          {
+            "square": "e4",
+            "piece": "empty"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 484
+      }
+    },
+    {
+      "files": [
+        "2-0.jpg",
+        "2-1.jpg"
+      ],
+      "expected": [
+        "white_pawn",
+        "white_pawn"
+      ],
+      "status": 200,
+      "ms": 1526,
+      "response": {
+        "revision": 6,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "white_pawn"
+          }
+        ],
+        "modelCalls": 4,
+        "elapsedMs": 1523
+      }
+    },
+    {
+      "files": [
+        "2-2.jpg",
+        "3-0.jpg"
+      ],
+      "expected": [
+        "white_pawn",
+        "black_pawn"
+      ],
+      "status": 200,
+      "ms": 1332,
+      "response": {
+        "revision": 8,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "black_pawn"
+          }
+        ],
+        "modelCalls": 4,
+        "elapsedMs": 1329
+      }
+    },
+    {
+      "files": [
+        "3-1.jpg",
+        "3-2.jpg"
+      ],
+      "expected": [
+        "black_pawn",
+        "black_pawn"
+      ],
+      "status": 200,
+      "ms": 1149,
+      "response": {
+        "revision": 10,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "black_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "black_pawn"
+          }
+        ],
+        "modelCalls": 4,
+        "elapsedMs": 1146
+      }
+    },
+    {
+      "files": [
+        "6-0.jpg",
+        "6-1.jpg"
+      ],
+      "expected": [
+        "uncertain",
+        "uncertain"
+      ],
+      "status": 200,
+      "ms": 505,
+      "response": {
+        "revision": 12,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "uncertain"
+          },
+          {
+            "square": "e4",
+            "piece": "uncertain"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 503
+      }
+    },
+    {
+      "files": [
+        "6-2.jpg",
+        "7-0.jpg"
+      ],
+      "expected": [
+        "uncertain",
+        "uncertain"
+      ],
+      "status": 200,
+      "ms": 486,
+      "response": {
+        "revision": 14,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "uncertain"
+          },
+          {
+            "square": "e4",
+            "piece": "uncertain"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 483
+      }
+    },
+    {
+      "files": [
+        "7-1.jpg",
+        "7-2.jpg"
+      ],
+      "expected": [
+        "uncertain",
+        "uncertain"
+      ],
+      "status": 200,
+      "ms": 481,
+      "response": {
+        "revision": 16,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "uncertain"
+          },
+          {
+            "square": "e4",
+            "piece": "uncertain"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 478
+      }
+    }
+  ]
+}

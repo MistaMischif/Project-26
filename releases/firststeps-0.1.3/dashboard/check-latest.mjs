@@ -1,0 +1,15 @@
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const html=fs.readFileSync('dist/index.html','utf8'),nodes=new Map();
+for(const [,id] of html.matchAll(/id="([^"]+)"/g))nodes.set(id,{value:['group','status'].includes(id)?'all':'',textContent:'',innerHTML:'',addEventListener(){}});
+const box={window:{},document:{getElementById:id=>{assert(nodes.has(id),'Missing '+id);return nodes.get(id)},addEventListener(){},querySelectorAll:()=>[]},localStorage:{getItem:()=>null,setItem(){}},console};
+for(const f of ['contest-plan.js','contest-model.js','contest-app.js'])vm.runInNewContext(fs.readFileSync('dist/'+f,'utf8'),box);
+assert.equal(nodes.get('candidate').value,box.window.CONTEST_PLAN.firstSteps.sha256);
+assert.match(nodes.get('firststeps-build').innerHTML,/0.1.3/);
+assert.match(nodes.get('coverage').textContent,/0 \/ 29/);
+nodes.get('general-candidate').onclick();assert.equal(nodes.get('candidate').value,box.window.CONTEST_PLAN.build.sha256);
+nodes.get('firststeps-candidate').onclick();assert.equal(nodes.get('candidate').value,box.window.CONTEST_PLAN.firstSteps.sha256);
+assert.equal(fs.readFileSync('dist/contest.html','utf8'),html);
+box.localStorage.getItem=()=>JSON.stringify({schema:1,plan:'living-table-chess-2026',hash:'b'.repeat(64),events:[]});
+vm.runInNewContext(fs.readFileSync('dist/contest-app.js','utf8'),box);
+assert.equal(nodes.get('candidate').value,'b'.repeat(64));
+console.log('PASS: homepage mounts, no seeded passes, build selectors, matching entry pages.');

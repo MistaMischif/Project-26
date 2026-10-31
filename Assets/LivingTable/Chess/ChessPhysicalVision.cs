@@ -60,8 +60,8 @@ namespace LivingTable.Chess
      if(baseline==null){Status="Match the saved layout, then use MANUAL CHECK. No camera reference exists.";return;}if(!Matches(baseline,descriptor)){stable.Reset();Status="Board differs from the saved view. Restore pieces or use an explicit manual check.";return;}if(stable.Observe("reconcile",captured,1))table.AcceptRecovery(version);return;}
     if(baseline==null){if(candidate==null||AverageChange(candidate,descriptor)>.035f){candidate=descriptor;stable.Reset();Status="Keep the starting position still for a moment";return;}if(stable.Observe("baseline",captured,.8f)){baseline=descriptor;candidate=null;stable.Reset();Status="Camera ready - make your move";table.SaveSession("camera baseline captured");}return;}
     var move=Infer(table.Match.Position,baseline,descriptor,table.Promotion,table.PendingAi);if(!move.HasValue){stable.Reset();Status=Enumerable.Range(0,64).Any(s=>Difference(baseline[s],descriptor[s])>.075f)?"Incomplete or unexpected move. Finish the requested move, or restore the last position.":"Your move - camera watching";return;}
-    if(approved.HasValue){var checkedMove=approved.Value;bool valid=approvedVersion==version&&table.LastHandAt<=approvedCapture&&checkedMove.Equals(move.Value)&&Matches(approvedView,descriptor);approved=null;approvedView=null;if(valid){Commit(checkedMove,descriptor,version);return;}stable.Reset();Status="Board changed during Meta check - checking again";return;}
-    if(meta.Required&&!meta.Configured){Status="Connect local Meta vision, or choose MANUAL";return;}
+    if(approved.HasValue){var checkedMove=approved.Value;bool valid=approvedVersion==version&&table.LastHandAt<=approvedCapture&&checkedMove.Equals(move.Value)&&Matches(approvedView,descriptor);approved=null;approvedView=null;if(valid){Commit(checkedMove,descriptor,version);return;}stable.Reset();Status="Board changed during vision check - checking again";return;}
+    if(meta.Required&&!meta.Configured){Status="Connect local vision, or choose MANUAL";return;}
     Status="Checking "+move.Value+"...";if(stable.Observe(move.Value.ToString(),captured,.8f)){
      if(meta.Required){
       var proposed=move.Value;var position=table.Match.Position.Copy();var changed=ChangedSquares(position,proposed);var crops=new ChessMetaVision.Crop[changed.Length];
@@ -70,8 +70,8 @@ namespace LivingTable.Chess
       }
       stable.Reset();StartCoroutine(meta.Observe(version,crops,observation=>{
        if(this==null||!Active||generation!=session||table.Version!=version||table.LastHandAt>captured)return;
-       if(ChessObservationGate.Accept(position,proposed,version,observation)){approved=proposed;approvedView=descriptor;approvedVersion=version;approvedCapture=captured;Status="Meta agrees - checking the board is still unchanged";}
-       else{Status=observation==null?meta.Status:"Meta view unclear or piece mismatch - hold still to retry, or choose MANUAL";next=Time.unscaledTime+4;}
+       if(ChessObservationGate.Accept(position,proposed,version,observation)){approved=proposed;approvedView=descriptor;approvedVersion=version;approvedCapture=captured;Status="Vision agrees - checking the board is still unchanged";}
+       else{Status=observation==null?meta.Status:"Vision unclear or piece mismatch - hold still to retry, or choose MANUAL";next=Time.unscaledTime+4;}
       }));return;
      }Commit(move.Value,descriptor,version);
     }
@@ -108,7 +108,7 @@ namespace LivingTable.Chess
    }
   }
   bool RecoveryCurrent(int version,int session,double captured)=>this!=null&&Active&&table.Recovering&&table.Version==version&&generation==session&&table.LastHandAt<=captured;
-  void Commit(ChessMove move,float[][] descriptor,int version){var previous=baseline;baseline=descriptor;if(table.ApplyCameraMove(move,version)){stable.Reset();Status=meta.Required?"Meta + legal rules confirmed the move":"Move recognized";}else if(table.Version==version)baseline=previous;}
+  void Commit(ChessMove move,float[][] descriptor,int version){var previous=baseline;baseline=descriptor;if(table.ApplyCameraMove(move,version)){stable.Reset();Status=meta.Required?"Vision + legal rules confirmed the move":"Move recognized";}else if(table.Version==version)baseline=previous;}
   public static float Difference(float[] a,float[] b){float total=0;for(int i=0;i<a.Length;i++)total+=Mathf.Abs(a[i]-b[i]);return total/6;}
   static float AverageChange(float[][] a,float[][] b){float sum=0;for(int s=0;s<64;s++)sum+=Difference(a[s],b[s]);return sum/64;}
   public static int[] ChangedSquares(ChessPosition position,ChessMove move){var after=position.After(move);return Enumerable.Range(0,64).Where(i=>position.Board[i]!=after.Board[i]).ToArray();}

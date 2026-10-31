@@ -1,0 +1,12 @@
+✔ strict input and observation contracts (1.2362ms)
+✔ empty and obscured squares bypass piece guessing; clear pieces get independent classification (55.5558ms)
+✔ stage disagreement, malformed output and provider errors fail closed (21.5308ms)
+✔ disconnect cancels provider work and frees the next scan (12.5156ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 184.3171

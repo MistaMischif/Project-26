@@ -1,0 +1,24 @@
+{
+  "elapsedMs": 751,
+  "expected": [
+    "empty",
+    "uncertain"
+  ],
+  "response": {
+    "revision": 1,
+    "model": "qwen3.5:latest",
+    "cells": [
+      {
+        "square": "e2",
+        "piece": "empty"
+      },
+      {
+        "square": "e4",
+        "piece": "uncertain"
+      }
+    ],
+    "modelCalls": 2,
+    "elapsedMs": 659
+  },
+  "kind": "Synthetic live-host smoke, not camera acceptance"
+}

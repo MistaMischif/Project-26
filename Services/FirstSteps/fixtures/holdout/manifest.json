@@ -1,0 +1,131 @@
+{
+  "kind": "Synthetic perturbation holdout; related to development fixtures, not independent real-board data",
+  "items": [
+    {
+      "file": "0-0.jpg",
+      "expected": "empty",
+      "source": 0,
+      "brightness": 0.85,
+      "rotation": -3
+    },
+    {
+      "file": "0-1.jpg",
+      "expected": "empty",
+      "source": 0,
+      "brightness": 1.1,
+      "rotation": 3
+    },
+    {
+      "file": "0-2.jpg",
+      "expected": "empty",
+      "source": 0,
+      "brightness": 1.0,
+      "rotation": 0
+    },
+    {
+      "file": "1-0.jpg",
+      "expected": "empty",
+      "source": 1,
+      "brightness": 0.85,
+      "rotation": -3
+    },
+    {
+      "file": "1-1.jpg",
+      "expected": "empty",
+      "source": 1,
+      "brightness": 1.1,
+      "rotation": 3
+    },
+    {
+      "file": "1-2.jpg",
+      "expected": "empty",
+      "source": 1,
+      "brightness": 1.0,
+      "rotation": 0
+    },
+    {
+      "file": "2-0.jpg",
+      "expected": "white_pawn",
+      "source": 2,
+      "brightness": 0.85,
+      "rotation": -3
+    },
+    {
+      "file": "2-1.jpg",
+      "expected": "white_pawn",
+      "source": 2,
+      "brightness": 1.1,
+      "rotation": 3
+    },
+    {
+      "file": "2-2.jpg",
+      "expected": "white_pawn",
+      "source": 2,
+      "brightness": 1.0,
+      "rotation": 0
+    },
+    {
+      "file": "3-0.jpg",
+      "expected": "black_pawn",
+      "source": 3,
+      "brightness": 0.85,
+      "rotation": -3
+    },
+    {
+      "file": "3-1.jpg",
+      "expected": "black_pawn",
+      "source": 3,
+      "brightness": 1.1,
+      "rotation": 3
+    },
+    {
+      "file": "3-2.jpg",
+      "expected": "black_pawn",
+      "source": 3,
+      "brightness": 1.0,
+      "rotation": 0
+    },
+    {
+      "file": "6-0.jpg",
+      "expected": "uncertain",
+      "source": 6,
+      "brightness": 0.85,
+      "rotation": -3
+    },
+    {
+      "file": "6-1.jpg",
+      "expected": "uncertain",
+      "source": 6,
+      "brightness": 1.1,
+      "rotation": 3
+    },
+    {
+      "file": "6-2.jpg",
+      "expected": "uncertain",
+      "source": 6,
+      "brightness": 1.0,
+      "rotation": 0
+    },
+    {
+      "file": "7-0.jpg",
+      "expected": "uncertain",
+      "source": 7,
+      "brightness": 0.85,
+      "rotation": -3
+    },
+    {
+      "file": "7-1.jpg",
+      "expected": "uncertain",
+      "source": 7,
+      "brightness": 1.1,
+      "rotation": 3
+    },
+    {
+      "file": "7-2.jpg",
+      "expected": "uncertain",
+      "source": 7,
+      "brightness": 1.0,
+      "rotation": 0
+    }
+  ]
+}

@@ -7,7 +7,7 @@ Existing Astra-derived Quest chess runtime, with an optional isolated First Step
 1. Align a known physical chess board and establish the current registered position.
 2. Existing on-device appearance detection proposes exactly one legal move after hands are clear.
 3. The Quest sends only 2–4 cropped affected-square images to your local computer.
-4. Meta Llama 3.2 Vision identifies each piece (or empty/uncertain). It is not told the expected move or expected identities.
+4. A local vision model first checks visibility, then identifies a clear piece. Empty surfaces skip classification; obscured or inconsistent observations become uncertain. It is not told the expected move or expected identities.
 5. Deterministic chess rules compare every affected square to the proposed legal result, including captures, castling, en passant and promotion.
 6. A fresh camera check must still match; any intervening hand movement, session change, pause, or revision invalidates the response.
 7. A mismatch, unavailable service or uncertain observation leaves the position unchanged. MANUAL remains an explicitly assisted fallback.
@@ -16,11 +16,13 @@ This does not recognize arbitrary starting layouts, infer missing historical cas
 
 ## Self-host
 
-Requires Node 20+ and a compatible Ollama runtime with Meta Llama 3.2 Vision 11B. Model download is approximately 7.8 GB; development host has an RTX 3080 Ti with 12 GB VRAM. License: Meta Llama 3.2 Community License and Acceptable Use Policy, https://www.llama.com/llama3_2/license/ . No provider API key or paid service is required. Contest acceptance of this particular model remains an entrant rules check.
+Requires Node 22+ and Ollama with the multimodal `qwen3.5:latest` model (about 6.6 GB). This revision uses the already-installed model and Ollama 0.40.13 on the development RTX 3080 Ti (12 GB). No download, paid API or external provider was added. Model information: https://ollama.com/library/qwen3.5 . This Qwen recognition path is not evidence of Meta/Llama hackathon qualification.
 
-Ollama 0.40.11 fails to load mllama here. Upstream recommends 0.24.0: https://github.com/ollama/ollama/issues/16490 . Use a separate runtime bound to 127.0.0.1:11435; do not replace the machine's existing service. Download from https://github.com/ollama/ollama/releases/tag/v0.24.0 and reuse the installed model cache.
+Start an isolated local Ollama runtime with `OLLAMA_HOST=127.0.0.1:11436` and your existing `OLLAMA_MODELS` directory, then run `ollama serve`. Keep it loopback-only. Set `OLLAMA_URL=http://127.0.0.1:11436`, `FIRST_STEPS_MODEL=qwen3.5:latest` and a random `LIVING_TABLE_DEVICE_TOKEN`, then run `node server.mjs`. `Start-FirstSteps.ps1` configures the authenticated host and optional USB bridge; it does not start Ollama. Existing service processes must be stopped explicitly before loading changed host source. No startup service is installed.
 
-Set OLLAMA_URL=http://127.0.0.1:11435 and a random LIVING_TABLE_DEVICE_TOKEN, then run `node server.mjs`. Default host is loopback, port 8790. GET /health reports configuration, not model readiness. POST /observe performs actual inference. Camera crops are held in memory and not logged or persisted by the host. Do not expose the older runtime on a public interface.
+Default host is loopback, port 8790. GET /health reports configuration, not model readiness. POST /observe performs actual inference. Camera crops are held in memory and not logged, persisted or cached across frames. Client disconnection cancels provider work. Only one request runs at a time. The model is kept resident for 30 minutes after a request (override FIRST_STEPS_KEEP_ALIVE); first use after unloading remains slower.
+
+Other compatible local models remain configurable. The previous Llama 3.2 Vision 11B setup used isolated Ollama 0.24.0 on port 11435 because newer mllama loading failed here. Its measured recognition failures are retained below; do not treat it as equally verified. The default model has changed, not the authoritative chess rules or observation protocol.
 
 For USB Quest testing: `adb reverse tcp:8790 tcp:8790`. Put `first-steps-connection.json` in /sdcard/Android/data/com.livingtable.firststeps/files (Unity persistent data directory) with url http://127.0.0.1:8790 and the same deviceToken. Never commit that file. The development APK supports `adb shell run-as com.livingtable.firststeps`. HTTPS endpoints are also supported; cleartext non-loopback endpoints are rejected.
 
@@ -38,4 +40,18 @@ Actual local inference completed five requests / ten synthetic crops. Cold pair:
 
 ## 0.1.2 reconciliation
 
-The host protocol is unchanged. The Quest requests batches of four cells and never supplies the saved answer to the model. Each batch must match exactly and all 64 squares must pass. A mismatch or interruption leaves play locked and permits an explicit retry. Full scans can take minutes at the measured model speed; do not describe this as frictionless or real-camera-validated. First Steps manual checks stay in manual mode; switching back to camera requires reconciliation. The general app is separate.
+The host protocol is unchanged. The Quest requests batches of four cells and never supplies the saved answer to the model. Each batch must match exactly and all 64 squares must pass. A mismatch or interruption leaves play locked and permits an explicit retry. Full scans remain slow (see the current measurement below); do not describe this as frictionless or real-camera-validated. First Steps manual checks stay in manual mode; switching back to camera requires reconciliation. The general app is separate.
+
+## 0.1.3 recognition iteration — October 31
+
+Host 0.2.0 uses two independent stages: visibility, then piece type/color only when clear. Unknown output, visibility/type disagreement and provider failures leave the move unverified. The headset uses neutral local-vision wording. The 64-square reconciliation and stale-frame/hand guards remain intact.
+
+- Existing fixture suite: 10/10 labels matched (six unique images, with duplicate cases). Warm two-square requests: 0.35–1.06 seconds; first pair in this run: 5.1 seconds.
+- Related brightness/rotation/JPEG variants: 18/18 matched; two-square requests 0.46–1.53 seconds. These are transformations of the same six sources, not independent camera photographs.
+- 64-crop synthetic workload: 64/64 matched in 30.731 seconds, including a 9.765-second outlier while Unity was building. Inputs repeat empty squares and pawns; this is throughput, not full chess-set accuracy.
+- Direct cold-model probe took 48.3 seconds, including 30.4 seconds of loading. Keeping the model resident reduces repeated load cost, but cold start is still a gap.
+- A faster multi-image visibility experiment reintroduced covered-piece misreads and was rejected. Production retains per-image checks.
+
+Run `node --test server.test.mjs`, `node evaluate.mjs`, `node evaluate-holdout.mjs`, and `node evaluate-64.mjs` from this directory with the model available. `make-holdout.py` requires Pillow to regenerate variants. Evaluation scripts use ephemeral authenticated hosts, not live device credentials. Historical `evaluation.json` is preserved; new output is separate.
+
+These results cover empty surfaces, white/black pawns and covered pawns only. Knights, bishops, rooks, queens, kings, real sets, lighting, camera framing and total headset handoff latency remain unverified. The next hardware run must reject wrong identities and occlusions without advancing the journal, then measure correct moves and a complete return scan. Do not label this seamless or founder-accepted from synthetic tests.

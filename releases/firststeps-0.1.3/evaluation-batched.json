@@ -1,0 +1,131 @@
+{
+  "kind": "synthetic 2D crop smoke test, not physical-board accuracy",
+  "model": "qwen3.5:latest",
+  "results": [
+    {
+      "fixturePair": 0,
+      "status": 200,
+      "elapsedMs": 625,
+      "expected": [
+        "empty",
+        "empty"
+      ],
+      "response": {
+        "revision": 0,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "empty"
+          },
+          {
+            "square": "e4",
+            "piece": "empty"
+          }
+        ],
+        "modelCalls": 1,
+        "elapsedMs": 608
+      }
+    },
+    {
+      "fixturePair": 2,
+      "status": 200,
+      "elapsedMs": 655,
+      "expected": [
+        "white_pawn",
+        "black_pawn"
+      ],
+      "response": {
+        "revision": 2,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "black_pawn"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 652
+      }
+    },
+    {
+      "fixturePair": 4,
+      "status": 200,
+      "elapsedMs": 613,
+      "expected": [
+        "white_pawn",
+        "black_pawn"
+      ],
+      "response": {
+        "revision": 4,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_pawn"
+          },
+          {
+            "square": "e4",
+            "piece": "black_pawn"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 611
+      }
+    },
+    {
+      "fixturePair": 6,
+      "status": 200,
+      "elapsedMs": 623,
+      "expected": [
+        "uncertain",
+        "uncertain"
+      ],
+      "response": {
+        "revision": 6,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_king"
+          },
+          {
+            "square": "e4",
+            "piece": "uncertain"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 622
+      }
+    },
+    {
+      "fixturePair": 8,
+      "status": 200,
+      "elapsedMs": 486,
+      "expected": [
+        "uncertain",
+        "uncertain"
+      ],
+      "response": {
+        "revision": 8,
+        "model": "qwen3.5:latest",
+        "cells": [
+          {
+            "square": "e2",
+            "piece": "white_king"
+          },
+          {
+            "square": "e4",
+            "piece": "uncertain"
+          }
+        ],
+        "modelCalls": 2,
+        "elapsedMs": 485
+      }
+    }
+  ]
+}
