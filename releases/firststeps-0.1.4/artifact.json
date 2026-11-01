@@ -10,5 +10,6 @@
   "status": "Installed and launched on Quest 3",
   "publishedVersion": "0.1.4",
   "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.4",
-  "acceptance": "Pending founder headset acceptance"
+  "acceptance": "Pending founder headset acceptance",
+  "sourceCommit": "7029592e9b99c2813961d44fed914f5bfdf5bb95"
 }
