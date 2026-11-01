@@ -48,7 +48,16 @@ namespace LivingTable.Editor
      if(table.Busy||table.Match.Position.Ply<2)return;
      Check(table.Match.Position.Board[36]==-1&&!table.PendingAi.HasValue&&table.TwoPlayers,"Exact pending AI move plays once then human takes over");
      Check(table.Match.Position.Ply==2,"No duplicate move");table.NewGame();table.ResumeSession(id);Check(table.Match.Position.Ply==2&&!table.PendingAi.HasValue,"Executed proposal is durably consumed");
-     table.ToggleSessionMenu();SaveView();Finish(0,"CHESS_HANDOFF_TESTS_PASSED");
+     table.NewGame();table.Configure(false,true,-1);
+     foreach(var fen in new[]{"7k/6Q1/6K1/8/8/8/8/8 b - - 0 1","8/8/8/8/8/6k1/6q1/7K w - - 0 1","7k/5Q2/6K1/8/8/8/8/8 b - - 0 1"}){
+      if(table.Playing)table.NewGame();Check(table.ImportPosition(ChessPosition.FromFen(fen)),"Completed fixture imports");table.SendMessage("Update");Check(table.GameOver,"Terminal result detected");Check(!table.TurnGuidance.Contains("Your move")&&!table.TurnGuidance.Contains("Pinch"),"No stale turn guidance after game");
+      var result=table.GetComponentsInChildren<TextMesh>().Single(t=>t.name=="Game result");Check(Mathf.Approximately(result.characterSize,.0026f*4)&&result.fontStyle==FontStyle.Bold,"Result exactly four times larger and bold");
+      var controls=table.GetComponentsInChildren<TableButtonVisual>();Check(controls.Any(b=>b.name=="PLAY AGAIN button")&&controls.Any(b=>b.name=="MENU button")&&!controls.Any(b=>b.name=="PAUSE button"||b.name=="HANDOFF button"),"Focused postgame controls");
+      string endedId=table.SessionId;table.PlayAgain();Check(table.Playing&&!table.GameOver&&table.Match.Position.Ply==0&&table.VisiblePieceCount==32,"One action starts next game");Check(table.SessionId!=endedId&&GameSessionStore.Load(endedId)!=null,"Finished game preserved under old session");Check(table.TwoPlayers&&table.HumanSide==-1&&!table.Physical,"Replay keeps selected settings");
+      string newId=table.SessionId;table.PlayAgain();Check(table.SessionId==newId,"Repeated replay cannot reset active game");
+     }
+     table.NewGame();table.ImportPosition(ChessPosition.FromFen("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1"));
+     SaveView();File.WriteAllText("Builds/EndGame-tests.txt","PASS: white mate, black mate, stalemate; four-times bold result; contextual guidance; PLAY AGAIN/MENU controls; fresh session and 32 pieces; saved result retained; settings preserved; duplicate replay refused.\n");Finish(0,"CHESS_HANDOFF_TESTS_PASSED");
     }
    }catch(Exception e){Finish(1,e.ToString());}
   }

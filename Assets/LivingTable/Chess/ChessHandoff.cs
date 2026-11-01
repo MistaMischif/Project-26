@@ -26,6 +26,7 @@ namespace LivingTable.Chess
     if(StorageBlocked)return Message;
     if(relocating)return "Board held. Move or turn, then release to place.";
     if(!Playing)return Message;
+    if(GameOver)return sessionMenu?"Game complete. PLAY AGAIN starts a fresh game with the same settings.":"Game complete. Press PLAY AGAIN for a new game.";
     if(Paused)return "Game paused. Your position is saved.";
     if(Recovering)return !Aligned?"1 / 2 - Align the real board. Game held.":"2 / 2 - Match the guide pieces. "+Vision.Status;
     if(sessionMenu)return "Game held while you choose. Same position and history.";
@@ -46,7 +47,8 @@ namespace LivingTable.Chess
   void DrawHandoffUI()
   {
    if(ui!=null){ui.gameObject.SetActive(false);Destroy(ui.gameObject);}ui=Node("Chess controls");buttons.Clear();
-   var p=new GameObject("Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",Vector3.zero,.0026f);p.AddComponent<TableCabinetVisual>().Panel(.50f,.21f,false);status.color=new Color(.10f,.04f,.008f);
+   var p=new GameObject("Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",GameOver?new Vector3(0,-.115f,0):Vector3.zero,.0026f);p.AddComponent<TableCabinetVisual>().Panel(GameOver?.72f:.50f,GameOver?.34f:.21f,false);status.color=new Color(.10f,.04f,.008f);
+   if(GameOver){var result=Label(p.transform,Match.Result.Replace(" wins by "," wins\nby ").Replace("Draw \u2014 ","Draw\n"),new Vector3(0,.06f,-.003f),.0026f*4);result.name="Game result";result.fontStyle=FontStyle.Bold;result.color=status.color;}
    if(editing){SessionUI();return;}
    if(!Playing){
     if(saved.Length>0){Add("RESUME GAME",0,0,()=>ResumeSession(saved[savedIndex].id),Purple,true);Add("NEW GAME",2,1,StartGame,Purple);}else Add("PLAY NOW",0,0,StartGame,Purple,true);Add(Physical?"REAL BOARD":"VIRTUAL BOARD",-2,0,()=>Configure(!Physical,TwoPlayers,HumanSide),Purple);Add(TwoPlayers?"HUMAN OPPONENT":"AI OPPONENT",2,0,()=>Configure(Physical,!TwoPlayers,HumanSide),Purple);
@@ -56,6 +58,12 @@ namespace LivingTable.Chess
     SessionUI();return;
    }
    if(StorageBlocked){Add("RETRY SAVE",0,0,()=>{if(SaveSession("save retry")){Message="Saved. Resume to continue.";DrawUI();}},Orange,true);return;}
+   if(GameOver){
+    Add("PLAY AGAIN",0,0,PlayAgain,new Color(.05f,.8f,.3f),true);
+    Add(sessionMenu?"BACK":"MENU",-2,0,ToggleSessionMenu,Purple);
+    if(sessionMenu){Add("GAME SETTINGS",2,0,NewGame,Purple);Add("MOVE BOARD",0,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);}
+    return;
+   }
    if(sessionMenu){
     Add("BACK TO GAME",0,0,ToggleSessionMenu,Teal,true);
     Add(TwoPlayers?"AI TAKE OVER":"HUMAN RETURNS",-2,0,SwitchOpponent,Purple);Add(Physical?"GO VIRTUAL":"USE REAL BOARD",2,0,SwitchSurface,Purple);
@@ -65,10 +73,10 @@ namespace LivingTable.Chess
     Add("PROMOTE: "+PieceName(Promotion).ToUpperInvariant(),2,1,()=>{Promotion=Promotion==5?4:Promotion==4?3:Promotion==3?2:5;Version++;SaveSession("promotion preference changed");DrawUI();},Purple);
     return;
    }
-   Add("HANDOFF",-2,0,ToggleSessionMenu,Purple);Add(Paused?"RESUME":"PAUSE",2,0,TogglePause,Orange);
+   Add("MENU",-2,0,ToggleSessionMenu,Purple);Add(Paused?"RESUME":"PAUSE",2,0,TogglePause,Orange);
    if(Recovering){Add(Aligned?"SCAN BOARD":"ALIGN BOARD",0,0,()=>{if(Aligned)Vision.RetryRecovery();else AlignBoard();},Teal,true);if(Aligned){Add("MANUAL CHECK",0,1,AttestRecovery,Orange);Add("ALIGN AGAIN",-2,1,AlignBoard,Teal);}}
    else if(Physical&&ManualFallback&&PendingAi.HasValue)Add("MOVED IT",0,0,()=>Play(PendingAi.Value),new Color(.05f,.8f,.3f),true);
-   else if(Physical&&!ManualFallback)Add("CAMERA HELP",0,0,()=>{Message="Use HANDOFF then MANUAL MODE if camera cannot see your move.";ToggleSessionMenu();},Teal);
+   else if(Physical&&!ManualFallback)Add("CAMERA HELP",0,0,()=>{Message="Use MENU then MANUAL MODE if camera cannot see your move.";ToggleSessionMenu();},Teal);
    if(Match.CanClaim)Add("CLAIM DRAW",0,1,()=>{if(!Paused&&!Busy&&Match.CanClaim){Match.Claim();Version++;SaveSession("draw claimed");DrawUI();}},Teal);
   }
  }
