@@ -43,7 +43,7 @@ namespace LivingTable.Chess
    sessionMenu=!sessionMenu;Version++;CancelGrab();Vision.ClearEvidence();
    SaveSession(sessionMenu?"handoff controls opened":"handoff controls closed");DrawUI();
   }
-  void AlignBoard(){alignStage=1;Message="Pinch the near-left outer corner, then the near-right. Your color faces you.";}
+  void AlignBoard(){BeginAlignment();}
   void DrawHandoffUI()
   {
    if(ui!=null){ui.gameObject.SetActive(false);Destroy(ui.gameObject);}ui=Node("Chess controls");buttons.Clear();
@@ -58,7 +58,7 @@ namespace LivingTable.Chess
     SessionUI();return;
    }
    if(StorageBlocked){Add("RETRY SAVE",0,0,()=>{if(SaveSession("save retry")){Message="Saved. Resume to continue.";DrawUI();}},Orange,true);return;}
-   if(companionOpen){Add("WHAT HAPPENED",-2,0,()=>AskCompanion("what"),Teal);Add("EXPLAIN MOVE",0,0,()=>AskCompanion("explain"),Purple,true);Add("HELP CONTINUE",2,0,()=>AskCompanion("continue"),Teal);Add("BACK TO GAME",0,1,CloseCompanion,Orange);return;}
+   if(companionOpen){Add("WHAT HAPPENED",-2,0,()=>AskCompanion("what"),Teal);Add("EXPLAIN MOVE",0,0,()=>AskCompanion("explain"),Purple,true);Add("HELP CONTINUE",2,0,()=>AskCompanion("continue"),Teal);Add("BACK TO GAME",0,1,CloseCompanion,Orange);Add("CHECK CONNECTION",2,1,CheckCompanionConnection,Teal);return;}
    if(GameOver){
     Add("PLAY AGAIN",0,0,PlayAgain,new Color(.05f,.8f,.3f),true);
     Add(sessionMenu?"BACK":"MENU",-2,0,ToggleSessionMenu,Purple);

@@ -67,3 +67,9 @@ On Windows, install Node 22+ and Ollama, then double-click Prepare-Local-AI.cmd.
 `Launch-FirstSteps-Test.ps1` without PrepareModels refuses missing models instead of downloading. Optional ModelDirectory reuses an existing cache. A host running from another folder must be closed explicitly; the launcher will not kill an unrelated process. The project now uses a PowerShell 5-compatible random token generator.
 
 Run `node --test server.test.mjs companion.test.mjs` and `node evaluate-companion.mjs`. Three actual local Meta fixture responses were checked, followed by a live Unity client response and stale-revision rejection. This is development evidence, not tournament-strength coaching or headset acceptance. A cold model load remains slower than warm responses.
+
+## Host 0.3.1 / app 0.1.6
+
+Authenticated GET /ready checks the runtime and installed Meta model. The app reloads pairing on retry and reports missing pairing, lost USB transport, missing model/runtime and busy scans separately. The companion has a 90-second server budget / 100-second client budget for a cold model. This does not guarantee a fast cold response.
+
+USB reconnection and Unity shutdown may remove adb reverse forwarding. Rerun Prepare-Local-AI.cmd afterward, then CHECK CONNECTION in game. No background reconnect job or startup service is installed. Chess opponent search is on-device and independent of Meta. Camera verification still needs the host; use the explicitly labeled manual fallback when it is unavailable.

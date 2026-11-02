@@ -1,0 +1,1 @@
+PASS: white mate, black mate, stalemate; four-times bold result; contextual guidance; PLAY AGAIN/MENU controls; fresh session and 32 pieces; saved result retained; settings preserved; duplicate replay refused.

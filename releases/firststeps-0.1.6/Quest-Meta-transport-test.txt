@@ -1,0 +1,11 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+Cache-Control: no-store
+Date: Mon, 02 Nov 2026 14:43:24 GMT
+Connection: close
+Transfer-Encoding: chunked
+
+c1
+{"answer":"The player should execute the suggested move e2e4.","move":"e2e4","factIds":["f1"],"model":"llama3.2:3b","sessionId":"headset-connection-test","revision":1,"positionKey":"test-only"}
+0
+

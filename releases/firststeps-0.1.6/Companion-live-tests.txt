@@ -1,0 +1,1 @@
+PASS: actual local Meta response through Unity client; same session and board unchanged; changed revision rejects stale response.

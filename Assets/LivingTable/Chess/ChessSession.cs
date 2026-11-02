@@ -53,13 +53,13 @@ namespace LivingTable.Chess
   public bool AcceptRecovery(int version,bool identityVerified=false)
   {
    if(version!=Version||!Recovering||!Aligned||!HandsClear||StorageBlocked||Paused||sessionMenu||!Physical||Vision.RequiresIdentity&&!identityVerified)return false;
-   Recovering=false;if(identityVerified)ManualFallback=false;Version++;Message=identityVerified?"Saved position verified. Continue the same game.":"Board appearance matches the saved checkpoint.";bool savedOk=SaveSession(identityVerified?"full board identity reconciliation":"camera appearance reconciliation");DrawMen();DrawUI();return savedOk;
+   Recovering=false;if(identityVerified)ManualFallback=false;Version++;Message=identityVerified?"Saved position verified. Continue the same game.":"Board appearance matches the saved checkpoint.";bool savedOk=SaveSession(identityVerified?"full board identity reconciliation":"camera appearance reconciliation");DrawScene();return savedOk;
   }
   public void AttestRecovery()
   {
    if(!Recovering||!Aligned||StorageBlocked)return;
    Unverified=true;ManualFallback=true;Recovering=false;Version++;Vision.ResetBoard();Message="Manual board check recorded. This is not camera verification.";
-   SaveSession("manual board reconciliation; unverified");DrawMen();DrawUI();
+   SaveSession("manual board reconciliation; unverified");DrawScene();
   }
   void ToggleRoom(){if(Physical||StorageBlocked)return;VirtualRoom=!VirtualRoom;ApplyRoom();SaveSession("view changed");DrawUI();}
   void ApplyRoom()=>FindFirstObjectByType<LivingTableExperience>()?.SetVirtualRoom(VirtualRoom&&!Physical);
@@ -75,11 +75,11 @@ namespace LivingTable.Chess
   {
    var purple=new Color(.55f,.1f,.8f);
    if(editing){Add("USE POSITION",0,0,()=>ImportPosition(importPosition),purple,true);Add("PIECE "+new[]{"ERASE","PAWN","KNIGHT","BISHOP","ROOK","QUEEN","KING"}[Math.Abs(brush)],-2,0,()=>{brush=(Math.Abs(brush)+1)%7*(brush<0?-1:1);DrawUI();},purple);Add(brush<0?"BLACK PIECE":"WHITE PIECE",2,0,()=>{brush=brush==0?-1:-brush;DrawUI();},purple);Add(importPosition.Side==1?"WHITE TURN":"BLACK TURN",-2,1,()=>{importPosition.Side=-importPosition.Side;DrawUI();},purple);Add("CLEAR",-1,1,()=>{Array.Clear(importPosition.Board,0,64);importPosition.Rights=0;DrawScene();},purple);Add("CANCEL",2,1,()=>{editing=false;DrawScene();},purple);
-    string[] rights={"WHITE O-O","WHITE O-O-O","BLACK O-O","BLACK O-O-O"};for(int i=0;i<4;i++){int bit=i;Add(rights[i]+(((importPosition.Rights>>i)&1)!=0?" YES":" NO"),i-2,2,()=>{importPosition.Rights^=1<<bit;DrawUI();},purple);}Add("EP "+(importPosition.Ep<0?"NONE":ChessMove.Square(importPosition.Ep)),2,2,()=>{int rank=importPosition.Side==1?5:2;int file=importPosition.Ep<0?0:importPosition.Ep%8+1;importPosition.Ep=file>7?-1:rank*8+file;DrawUI();},purple);if(Physical)Add("ALIGN BOARD",0,3,()=>{alignStage=1;Message="Pinch near-left, then near-right corner.";},purple);return;}
+    string[] rights={"WHITE O-O","WHITE O-O-O","BLACK O-O","BLACK O-O-O"};for(int i=0;i<4;i++){int bit=i;Add(rights[i]+(((importPosition.Rights>>i)&1)!=0?" YES":" NO"),i-2,2,()=>{importPosition.Rights^=1<<bit;DrawUI();},purple);}Add("EP "+(importPosition.Ep<0?"NONE":ChessMove.Square(importPosition.Ep)),2,2,()=>{int rank=importPosition.Side==1?5:2;int file=importPosition.Ep<0?0:importPosition.Ep%8+1;importPosition.Ep=file>7?-1:rank*8+file;DrawUI();},purple);if(Physical)Add("ALIGN BOARD",0,3,AlignBoard,purple);return;}
    if(!Playing){Add("IMPORT GAME",-1,1,BeginImport,purple);if(saved.Length>0){Add("SAVE "+(savedIndex+1)+" / "+saved.Length,1,1,()=>{savedIndex=(savedIndex+1)%saved.Length;Message="Saved "+saved[savedIndex].utc;DrawUI();},purple);}return;}
    Add(TwoPlayers?"AI TAKE OVER":"HUMAN RETURNS",-2,2,SwitchOpponent,purple);Add(Physical?"GO VIRTUAL":"USE REAL BOARD",0,2,SwitchSurface,purple);
    if(!Physical)Add(VirtualRoom?"SEE ROOM":"VIRTUAL ROOM",2,2,ToggleRoom,purple);
-   if(Physical&&(!Aligned||Recovering)){Add("ALIGN BOARD",-2,3,()=>{alignStage=1;Message="Pinch near-left, then near-right corner.";},purple);if(Aligned)Add("MANUAL CHECK",0,3,AttestRecovery,new Color(.85f,.4f,.05f));}
+   if(Physical&&(!Aligned||Recovering)){Add("ALIGN BOARD",-2,3,AlignBoard,purple);if(Aligned)Add("MANUAL CHECK",0,3,AttestRecovery,new Color(.85f,.4f,.05f));}
    if(StorageBlocked)Add("RETRY SAVE",0,4,()=>{if(SaveSession("save retry")){DrawScene();Message="Saved. Resume to continue.";}},purple);
   }
  }

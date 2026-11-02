@@ -1,0 +1,25 @@
+#if UNITY_EDITOR
+using System;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using LivingTable.Chess;
+namespace LivingTable.Editor {
+ public static class AlignmentConnectionTests {
+  static int stage;static double deadline;static ChessTable t;
+  static void Check(bool ok,string why){if(!ok)throw new Exception(why);}
+  public static void Run(){ChessContestRelease.Prepare();SessionState.SetString("AlignmentTestRoot",Path.GetFullPath("Logs/alignment-"+Guid.NewGuid().ToString("N")));EditorSceneManager.OpenScene(ChessContestRelease.DesktopScene);SessionState.SetBool("AlignmentTests",true);EditorApplication.EnterPlaymode();}
+  [InitializeOnLoadMethod]static void Resume(){if(!SessionState.GetBool("AlignmentTests",false))return;GameSessionStore.TestRoot=SessionState.GetString("AlignmentTestRoot","");stage=0;deadline=EditorApplication.timeSinceStartup+100;EditorApplication.update+=Tick;}
+  static bool Grid()=>t.GetComponentsInChildren<Transform>().Any(x=>x.name=="Alignment grid");
+  static void Tick(){try{if(EditorApplication.timeSinceStartup>deadline)throw new Exception("Alignment/AI test timed out");if(!EditorApplication.isPlaying||EditorApplication.isCompiling)return;
+   if(stage==0){t=UnityEngine.Object.FindFirstObjectByType<ChessTable>();if(t==null||t.Vision==null)return;t.Configure(true,false,1);t.GetComponent<ChessMetaVision>().Required=true;Check(t.VisiblePieceCount==32&&Grid(),"Pre-game physical grid and 32 ghosts");t.BeginAlignment();t.TouchWorld(new Vector3(-.32f,.8f,-.32f));t.HoverWorld(new Vector3(.32f,.8f,-.32f));Check(Mathf.Abs(t.Size-.64f)<.001f&&!t.Aligned,"Live size preview does not accept alignment");t.TouchWorld(new Vector3(.32f,.8f,-.32f));Check(t.Aligned&&Grid(),"Alignment retains guide");Check(Mathf.Abs(Vector3.Distance(t.SquareWorld(0),t.SquareWorld(1))-.08f)<.001f,"Eight equal physical square pitches");Check(t.GetComponentsInChildren<Renderer>().Any(r=>r.sharedMaterial!=null&&r.sharedMaterial.shader.name=="LivingTable/ChessAlignmentGhost"),"Transparent ghost shader assigned");SaveView();t.StartGame();Check(t.Recovering&&t.VisiblePieceCount==32,"Physical start waits for reconciliation with guides");t.AttestRecovery();Check(t.ManualFallback&&!Grid()&&t.VisiblePieceCount==0,"Manual check removes guides and remains explicit");Check(t.Play(t.Match.Position.LegalMoves().Single(m=>m.From==12&&m.To==28)),"Human physical move");stage=1;}
+   else if(stage==1){if(!t.PendingAi.HasValue)return;Check(t.Match.Position.Ply==1&&t.Match.Position.LegalMoves().Contains(t.PendingAi.Value),"Offline AI proposes legal physical move without committing");Check(t.Play(t.PendingAi.Value),"Correct physical AI instruction commits");Check(t.Match.Position.Ply==2,"Physical AI plays exactly once");t.NewGame();t.Configure(false,false,1);t.StartGame();t.Play(t.Match.Position.LegalMoves().Single(m=>m.From==12&&m.To==28));stage=2;}
+   else if(stage==2){if(t.Match.Position.Ply<2||t.Busy)return;Check(t.Match.Position.Ply==2&&t.Match.Position.Side==1,"Offline virtual AI returns turn to human");t.NewGame();Finish(0,"PASS: live grid sizing, 32 transparent guide pieces, correct square pitch, guide removal, physical AI locked proposal and virtual AI response without Meta requests.");}
+  }catch(Exception e){Finish(1,e.ToString());}}
+  static void SaveView(){t.SendMessage("Update");var camera=Camera.main;camera.transform.position=new Vector3(.1f,1.65f,-.85f);camera.transform.LookAt(new Vector3(0,.8f,0));foreach(var p in t.GetComponentsInChildren<TableFacingPanel>())p.FaceViewer();var rt=new RenderTexture(1600,1200,24);camera.targetTexture=rt;camera.Render();var old=RenderTexture.active;RenderTexture.active=rt;var image=new Texture2D(1600,1200,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1600,1200),0,0);image.Apply();File.WriteAllBytes("Logs/Chess-Alignment.png",image.EncodeToPNG());RenderTexture.active=old;camera.targetTexture=null;UnityEngine.Object.Destroy(rt);UnityEngine.Object.Destroy(image);}
+  static void Finish(int code,string message){SessionState.SetBool("AlignmentTests",false);EditorApplication.update-=Tick;if(code==0){File.WriteAllText("Builds/Alignment-AI-tests.txt",message);Debug.Log(message);}else Debug.LogError(message);EditorApplication.Exit(code);}
+ }
+}
+#endif

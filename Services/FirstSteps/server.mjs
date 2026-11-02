@@ -19,15 +19,16 @@ export function createHost({env=process.env,fetchImpl=fetch}={}){
  const model=env.FIRST_STEPS_MODEL||'qwen3.5:latest',base=env.OLLAMA_URL||'http://127.0.0.1:11436';let busy=false;
  const send=(res,status,data)=>{if(res.destroyed)return;res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
  return http.createServer(async(req,res)=>{
-  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.3.0',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy});
-  if(req.method!=='POST'||!['/observe','/companion'].includes(req.url))return send(res,404,{error:'Unknown route'});
+  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.3.1',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy});
+  if(!(req.method==='GET'&&req.url==='/ready')&&(req.method!=='POST'||!['/observe','/companion'].includes(req.url)))return send(res,404,{error:'Unknown route'});
   const actual=Buffer.from(req.headers.authorization||''),expected=Buffer.from('Bearer '+(env.LIVING_TABLE_DEVICE_TOKEN||''));
   if(!env.LIVING_TABLE_DEVICE_TOKEN||actual.length!==expected.length||!timingSafeEqual(actual,expected))return send(res,401,{error:'Device connection required'});
+  if(req.url==='/ready'){try{const r=await fetchImpl((env.COMPANION_OLLAMA_URL||base)+'/api/tags',{signal:AbortSignal.timeout(3000)});if(!r.ok)throw Error('runtime');const tags=await r.json(),companionModel=env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b';if(!tags.models?.some(m=>m.name===companionModel))return send(res,503,{error:'Meta model missing; run Prepare-Local-AI'});return send(res,200,{companionModel,ready:true,busy});}catch{return send(res,503,{error:'Local model runtime unavailable; run Prepare-Local-AI'});}}
   if(busy)return send(res,429,{error:'Local AI busy; keep the board still and retry'});
   busy=true;const cancel=new AbortController();const onClose=()=>{if(!res.writableEnded)cancel.abort();};res.on('close',onClose);
   try{
    let size=0;const chunks=[];for await(const chunk of req){size+=chunk.length;if(size>2100000){send(res,413,{error:'Request too large'});return;}chunks.push(chunk);}
-   if(req.url==='/companion'){let context;try{context=validateCompanion(JSON.parse(Buffer.concat(chunks).toString()));}catch{return send(res,400,{error:'Invalid chess context'});}return send(res,200,await explain(context,{env,fetchImpl,signal:AbortSignal.any([cancel.signal,AbortSignal.timeout(45000)])}));}
+   if(req.url==='/companion'){let context;try{context=validateCompanion(JSON.parse(Buffer.concat(chunks).toString()));}catch{return send(res,400,{error:'Invalid chess context'});}return send(res,200,await explain(context,{env,fetchImpl,signal:AbortSignal.any([cancel.signal,AbortSignal.timeout(90000)])}));}
    let input;try{input=validateInput(JSON.parse(Buffer.concat(chunks).toString()));}catch{return send(res,400,{error:'Invalid revision or square crops'});}
    const started=Date.now(),cells=[];let modelCalls=0;
    const ask=async(image,prompt,format)=>{

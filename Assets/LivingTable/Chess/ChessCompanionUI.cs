@@ -9,7 +9,8 @@ namespace LivingTable.Chess {
   bool companionOpen;string companionText="Choose a question. Your game is held while we talk.";ChessCompanion companion;int companionRequest;
   public bool CompanionOpen=>companionOpen;public string CompanionDisplay=>companionText;
   public static string MoveCode(ChessMove m)=>ChessMove.Square(m.From)+ChessMove.Square(m.To)+(m.Promotion==0?"":" pnbrqk"[m.Promotion].ToString());
-  public void OpenCompanion(){if(!Playing||Busy||StorageBlocked)return;companionOpen=true;sessionMenu=true;Version++;CancelGrab();Vision.ClearEvidence();companionText="Choose a question. Your game is held while we talk.";SaveSession("companion opened");DrawUI();}
+  public void OpenCompanion(){if(!Playing||Busy||StorageBlocked)return;companionOpen=true;sessionMenu=true;Version++;CancelGrab();Vision.ClearEvidence();companionText="Choose a question. Your game is held while we talk.";SaveSession("companion opened");DrawUI();CheckCompanionConnection();}
+  void CheckCompanionConnection(){int requestId=++companionRequest;companionText="Checking local Meta connection...";companion.CheckConnection(ok=>{if(companionOpen&&requestId==companionRequest)companionText=companion.Status;});}
   public void CloseCompanion(){companionRequest++;companion?.Cancel();companionOpen=false;sessionMenu=false;Version++;SaveSession("companion closed");DrawUI();}
   void AskCompanion(string kind){if(!companionOpen||StorageBlocked)return;companion?.Cancel();int requestId=++companionRequest;companionText="Meta Llama is thinking... Your board stays unchanged.";StartCoroutine(PrepareQuestion(kind,requestId));}
   IEnumerator PrepareQuestion(string kind,int requestId){
@@ -28,7 +29,7 @@ namespace LivingTable.Chess {
    var context=new ChessCompanion.Context{sessionId=id,revision=revision,positionKey=key,kind=kind,legalMoves=legal.Select(MoveCode).ToArray(),suggestedMove=chosen.HasValue?MoveCode(chosen.Value):"",facts=facts.ToArray()};
    companion.Ask(context,answer=>{if(!companionOpen||requestId!=companionRequest)return;if(Version!=revision||SessionId!=id||Match.Position.Key()!=key){companionText="The game changed. Ask again for the current position.";return;}
     bool valid=answer!=null&&answer.sessionId==id&&answer.revision==revision&&answer.positionKey==key&&answer.model!=null&&answer.model.StartsWith("llama")&&!string.IsNullOrWhiteSpace(answer.answer)&&answer.answer.Length<=500&&answer.factIds!=null&&answer.factIds.Length>0&&answer.factIds.All(f=>facts.Any(x=>x.id==f))&&(answer.move==""||answer.move==context.suggestedMove&&context.legalMoves.Contains(answer.move));
-    companionText=valid?"META LLAMA - AI EXPLANATION\n"+answer.answer+(kind=="continue"?"\nVerified next step: "+facts[4].text:kind=="what"?"\n"+facts[2].text:"")+(answer.move!=""?"\nEngine move: "+answer.move:""):"Companion unavailable or reply rejected. Your game is unchanged. Check the local companion connection and retry.";
+    companionText=valid?"META LLAMA - AI EXPLANATION\n"+answer.answer+(kind=="continue"?"\nVerified next step: "+facts[4].text:kind=="what"?"\n"+facts[2].text:"")+(answer.move!=""?"\nEngine move: "+answer.move:""):answer==null?companion.Status+" Your game is unchanged.":"Meta reply did not match the current engine facts. Retry; your game is unchanged.";
    });
   }
  }
