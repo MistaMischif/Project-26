@@ -24,7 +24,7 @@ namespace LivingTable.Chess
   public float[] CaptureAppearance()=>baseline==null?null:baseline.SelectMany(x=>x).ToArray();
   public void RestoreAppearance(float[] values){ClearEvidence();baseline=values!=null&&values.Length==768?Enumerable.Range(0,64).Select(i=>values.Skip(i*12).Take(12).ToArray()).ToArray():null;}
   public static bool Matches(float[][] expected,float[][] actual)=>expected!=null&&actual!=null&&expected.Length==64&&actual.Length==64&&Enumerable.Range(0,64).All(s=>Difference(expected[s],actual[s])<.075f);
-  bool Active=>table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&table.Playing&&(table.Match.Result==""||table.Recovering)&&!table.StorageBlocked&&!table.Paused&&!table.SessionMenuOpen&&(!table.ManualFallback||table.Recovering);
+  bool Active=>table!=null&&table.isActiveAndEnabled&&!table.CalibrationBusy&&!table.AlignmentInProgress&&table.Physical&&table.Aligned&&table.Playing&&(table.Match.Result==""||table.Recovering)&&!table.StorageBlocked&&!table.Paused&&!table.SessionMenuOpen&&(!table.ManualFallback||table.Recovering);
   void Update()
   {
    if(!Active){if(cameraAccess!=null)cameraAccess.enabled=false;stable.Reset();return;}

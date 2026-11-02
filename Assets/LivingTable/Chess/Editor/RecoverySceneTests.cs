@@ -19,7 +19,7 @@ namespace LivingTable.Editor
    var t=UnityEngine.Object.FindFirstObjectByType<ChessTable>();if(t==null||t.Vision==null)return;
    t.GetComponent<ChessMetaVision>().Required=true;t.Configure(false,true,1);t.StartGame();var id=t.SessionId;var key=t.Match.Position.Key();t.SwitchSurface();
    Check(t.Recovering&&!t.Aligned,"Physical return locked before alignment");
-   t.SendMessage("AlignBoard");t.TouchWorld(new Vector3(-.28f,.8f,-.28f));t.TouchWorld(new Vector3(.28f,.8f,-.28f));
+   t.BeginManualAlignment();t.TouchWorld(new Vector3(-.28f,.8f,-.28f));t.TouchWorld(new Vector3(.28f,.8f,-.28f));
    Check(t.Aligned&&t.Recovering,"Alignment alone cannot unlock play");Check(!t.AcceptRecovery(t.Version),"Appearance alone rejected in First Steps");Check(!t.AcceptRecovery(t.Version-1,true),"Stale identity revision rejected");
    t.TogglePause();Check(!t.AcceptRecovery(t.Version,true),"Paused recovery rejected");t.TogglePause();t.ToggleSessionMenu();Check(!t.AcceptRecovery(t.Version,true),"Handoff menu recovery rejected");t.ToggleSessionMenu();
    Check(t.AcceptRecovery(t.Version,true)&&!t.Recovering,"Validated recovery unlocks without a move");Check(t.SessionId==id&&t.Match.Position.Key()==key&&t.Match.Position.Ply==0,"Same session, exact position and turn");

@@ -70,7 +70,7 @@ namespace LivingTable
         {
             try
             {
-                OVRManager.TrackingOriginChangePending+=OriginChanging;
+                OVRManager.TrackingOriginChangePending+=OriginChanging;if(firstStepsMode&&GetComponent<Chess.ChessHostMonitor>()==null)gameObject.AddComponent<Chess.ChessHostMonitor>();
                 var root = new GameObject("Living Table Platform");
                 root.transform.SetParent(transform, false);
                 platform = root.AddComponent<MRBoardPlatform>();

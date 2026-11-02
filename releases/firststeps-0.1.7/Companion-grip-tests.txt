@@ -1,0 +1,1 @@
+PASS: OpenXR and legacy joint mapping; grabbed piece follows pinch point; tracking loss does not commit; companion holds game and close retains session; room reach detection, old board hidden, same session restored at new placement.

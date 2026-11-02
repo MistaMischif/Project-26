@@ -1,0 +1,1 @@
+PASS: live grid sizing, 32 transparent guide pieces, correct square pitch, guide removal, physical AI locked proposal and virtual AI response without Meta requests.

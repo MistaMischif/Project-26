@@ -1,5 +1,9 @@
 import {explain,validateCompanion} from './companion.mjs';
 import http from 'node:http';
+import https from 'node:https';
+import {readFileSync,existsSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
 import {timingSafeEqual} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 export const pieces=['empty','white_pawn','white_knight','white_bishop','white_rook','white_queen','white_king','black_pawn','black_knight','black_bishop','black_rook','black_queen','black_king','uncertain'];
@@ -19,7 +23,7 @@ export function createHost({env=process.env,fetchImpl=fetch}={}){
  const model=env.FIRST_STEPS_MODEL||'qwen3.5:latest',base=env.OLLAMA_URL||'http://127.0.0.1:11436';let busy=false;
  const send=(res,status,data)=>{if(res.destroyed)return;res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
  return http.createServer(async(req,res)=>{
-  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.3.1',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy});
+  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.4.0',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy});
   if(!(req.method==='GET'&&req.url==='/ready')&&(req.method!=='POST'||!['/observe','/companion'].includes(req.url)))return send(res,404,{error:'Unknown route'});
   const actual=Buffer.from(req.headers.authorization||''),expected=Buffer.from('Bearer '+(env.LIVING_TABLE_DEVICE_TOKEN||''));
   if(!env.LIVING_TABLE_DEVICE_TOKEN||actual.length!==expected.length||!timingSafeEqual(actual,expected))return send(res,401,{error:'Device connection required'});
@@ -55,4 +59,9 @@ export function createHost({env=process.env,fetchImpl=fetch}={}){
   finally{res.off('close',onClose);busy=false;}
  });
 }
-if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){if(!process.env.LIVING_TABLE_DEVICE_TOKEN)throw Error('Set LIVING_TABLE_DEVICE_TOKEN');createHost().listen(Number(process.env.PORT||8790),process.env.HOST||'127.0.0.1',()=>console.log('First Steps local vision ready. Images and tokens are not logged.'));}
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
+ if(!process.env.LIVING_TABLE_DEVICE_TOKEN)throw Error('Set LIVING_TABLE_DEVICE_TOKEN');
+ const host=createHost();host.listen(Number(process.env.PORT||8790),'127.0.0.1',()=>console.log('Loopback host ready'));
+ const dir=path.join(path.dirname(fileURLToPath(import.meta.url)),'private-tls');
+ if(existsSync(path.join(dir,'host-cert.pem')))https.createServer({key:readFileSync(path.join(dir,'host-key.pem')),cert:readFileSync(path.join(dir,'host-cert.pem')),minVersion:'TLSv1.2'},host.listeners('request')[0]).listen(8791,'0.0.0.0',()=>console.log('Paired wireless TLS host ready on 8791. Tokens/images are not logged.'));
+}

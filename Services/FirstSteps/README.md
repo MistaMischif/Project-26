@@ -73,3 +73,7 @@ Run `node --test server.test.mjs companion.test.mjs` and `node evaluate-companio
 Authenticated GET /ready checks the runtime and installed Meta model. The app reloads pairing on retry and reports missing pairing, lost USB transport, missing model/runtime and busy scans separately. The companion has a 90-second server budget / 100-second client budget for a cold model. This does not guarantee a fast cold response.
 
 USB reconnection and Unity shutdown may remove adb reverse forwarding. Rerun Prepare-Local-AI.cmd afterward, then CHECK CONNECTION in game. No background reconnect job or startup service is installed. Chess opponent search is on-device and independent of Meta. Camera verification still needs the host; use the explicitly labeled manual fallback when it is unavailable.
+
+## Host 0.4.0 / app 0.1.7: wireless HTTPS
+
+Prepare-Local-AI now configures a local HTTPS endpoint with OpenSSL and pins its certificate into the private headset pairing file. Git for Windows supplies the default OpenSSL path. TCP 8791 must be reachable on the local network; only token-authenticated inference is allowed. The loopback 8790 path remains for compatibility. Pair once over USB, then use Wi-Fi with the host powered on. Regenerate/re-pair if changing the host identity; rerun pairing when its address changes. Never distribute private-tls or first-steps-connection.json. The release contains neither. Unplugging USB does not stop the host or remove HTTPS. Network/host failures remain real availability limits; on-device chess search remains independent.
