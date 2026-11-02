@@ -1,0 +1,15 @@
+{
+  "version": "0.1.5",
+  "versionCode": 6,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "791268fccc31040505b976124f2e56fc9fdfbb5718ec5758ab64f75d17c2c8c5",
+  "bytes": 88182429,
+  "file": "LivingTable-FirstSteps-0.1.5.apk",
+  "built": "2026-11-02",
+  "reviewed": "2026-11-02",
+  "status": "Installed and launched on Quest 3",
+  "publishedVersion": "0.1.5",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.5",
+  "acceptance": "Pending founder headset acceptance",
+  "sourceCommit": "fd688400fae19ba5ca6a0d51cfacec4b7d9aecd4"
+}
