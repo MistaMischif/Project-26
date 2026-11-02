@@ -1,0 +1,50 @@
+{
+  "kind": "Actual local Meta inference on engine-fact fixtures, not headset acceptance",
+  "results": [
+    {
+      "kind": "what",
+      "ms": 729,
+      "response": {
+        "answer": "The last move was not recorded, and the current situation is that White is about to make a pawn move, with the suggested move being e2 to e4.",
+        "move": "e2e4",
+        "factIds": [
+          "f3"
+        ],
+        "model": "llama3.2:3b",
+        "sessionId": "evaluation-only",
+        "revision": 1,
+        "positionKey": "fixture"
+      }
+    },
+    {
+      "kind": "explain",
+      "ms": 257,
+      "response": {
+        "answer": "The engine suggests moving the pawn from e2 to e4.",
+        "move": "e2e4",
+        "factIds": [
+          "f3"
+        ],
+        "model": "llama3.2:3b",
+        "sessionId": "evaluation-only",
+        "revision": 1,
+        "positionKey": "fixture"
+      }
+    },
+    {
+      "kind": "continue",
+      "ms": 264,
+      "response": {
+        "answer": "Continue by moving the white pawn from e2 to e4.",
+        "move": "e2e4",
+        "factIds": [
+          "f3"
+        ],
+        "model": "llama3.2:3b",
+        "sessionId": "evaluation-only",
+        "revision": 1,
+        "positionKey": "fixture"
+      }
+    }
+  ]
+}

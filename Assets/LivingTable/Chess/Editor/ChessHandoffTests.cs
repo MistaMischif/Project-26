@@ -12,6 +12,7 @@ namespace LivingTable.Editor
  {
   static void Check(bool value,string message){if(!value)throw new Exception("HANDOFF TEST: "+message);}
   static ChessMove Move(ChessPosition p,int from,int to)=>p.LegalMoves().Single(m=>m.From==from&&m.To==to);
+  public static void RunWithCompanion(){SessionState.SetBool("ChessLiveCompanion",true);Run();}
   public static void Run()
   {
    ChessBuilder.RulesTests();ChessContestRelease.Prepare();
@@ -37,6 +38,11 @@ namespace LivingTable.Editor
      Check(UnityEngine.Object.FindFirstObjectByType<LivingTable.CandyLand.CandyTable>()==null,"Contest boots chess directly without Candy objects");
      Check(!table.GetComponentsInChildren<TableButtonVisual>().Any(b=>b.name=="CANDY LAND button"),"Contest has no Candy navigation");
      Check(table.VisiblePieceCount==32,"Contest starts with 32 chess pieces");table.Configure(false,true,1);table.StartGame();id=table.SessionId;
+     Check(LivingTableExperience.HandJoint(OVRSkeleton.SkeletonType.XRHandLeft,0)==OVRSkeleton.BoneId.XRHand_ThumbTip&&LivingTableExperience.HandJoint(OVRSkeleton.SkeletonType.XRHandRight,1)==OVRSkeleton.BoneId.XRHand_IndexTip,"OpenXR tips use OpenXR IDs");
+     Check(LivingTableExperience.HandJoint(OVRSkeleton.SkeletonType.HandLeft,1)==OVRSkeleton.BoneId.Hand_IndexTip,"Legacy skeleton retains legacy IDs");
+     var pinch=table.SquareWorld(12)+table.transform.up*.04f;Check(table.BeginGrab(997,pinch),"Piece picked at fingertips");var moved=pinch+table.transform.up*.08f+table.transform.right*.025f;Check(table.UpdateGrab(997,moved,false)&&Vector3.Distance(table.HeldGripWorld,moved)<.0001f,"Grab point follows fingertip midpoint exactly");table.ForgetHand(997);Check(table.Match.Position.Ply==0,"Tracking loss returns piece without committing");
+     table.OpenCompanion();Check(table.CompanionOpen&&table.SessionMenuOpen&&!table.Play(Move(table.Match.Position,12,28)),"Companion holds gameplay");table.CloseCompanion();Check(!table.CompanionOpen&&!table.SessionMenuOpen&&table.SessionId==id&&table.Match.Position.Ply==0,"Companion close preserves same game");
+     var experience=UnityEngine.Object.FindFirstObjectByType<LivingTableExperience>();Check(LivingTableExperience.BoardOutOfReach(new Vector3(4,1.6f,0),Vector3.zero)&&!LivingTableExperience.BoardOutOfReach(new Vector3(0,1.6f,0),new Vector3(0,.75f,0)),"Room reach threshold");experience.RequestRoomRecovery();experience.SendMessage("Update");Check(!table.gameObject.activeInHierarchy&&table.Paused&&table.SessionId==id,"Room recovery hides old board and retains session");experience.PlaceBoard(new Vector3(0,.75f,0),Quaternion.identity).GetAwaiter().GetResult();Check(table.gameObject.activeInHierarchy&&!table.Paused&&table.SessionId==id&&table.Match.Position.Ply==0,"New room placement restores same game");
      table.ToggleSessionMenu();Check(!table.Play(Move(table.Match.Position,12,28)),"Handoff menu holds play");table.SwitchOpponent();Check(!table.TwoPlayers&&table.SessionId==id&&table.Match.Position.Ply==0,"AI takeover retains session");table.SwitchOpponent();table.ToggleSessionMenu();
      table.Vision.RestoreAppearance(new float[768]);Check(table.Play(Move(table.Match.Position,12,28)),"Virtual move accepted");Check(!table.Vision.Ready,"Virtual move invalidates old physical evidence");stage=1;
     } else if(stage==1){
@@ -57,12 +63,23 @@ namespace LivingTable.Editor
       string newId=table.SessionId;table.PlayAgain();Check(table.SessionId==newId,"Repeated replay cannot reset active game");
      }
      table.NewGame();table.ImportPosition(ChessPosition.FromFen("7k/6Q1/6K1/8/8/8/8/8 b - - 0 1"));
-     SaveView();File.WriteAllText("Builds/EndGame-tests.txt","PASS: white mate, black mate, stalemate; four-times bold result; contextual guidance; PLAY AGAIN/MENU controls; fresh session and 32 pieces; saved result retained; settings preserved; duplicate replay refused.\n");Finish(0,"CHESS_HANDOFF_TESTS_PASSED");
+     File.WriteAllText("Builds/Companion-grip-tests.txt","PASS: OpenXR and legacy joint mapping; grabbed piece follows pinch point; tracking loss does not commit; companion holds game and close retains session; room reach detection, old board hidden, same session restored at new placement.\n");SaveView();File.WriteAllText("Builds/EndGame-tests.txt","PASS: white mate, black mate, stalemate; four-times bold result; contextual guidance; PLAY AGAIN/MENU controls; fresh session and 32 pieces; saved result retained; settings preserved; duplicate replay refused.\n");if(SessionState.GetBool("ChessLiveCompanion",false)){
+      table.NewGame();table.Configure(false,true,1);table.StartGame();id=table.SessionId;
+      var client=table.GetComponent<ChessCompanion>();var connection=JsonUtility.FromJson<ChessMetaVision.Connection>(File.ReadAllText("Services/FirstSteps/first-steps-connection.json"));typeof(ChessCompanion).GetField("connection",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).SetValue(client,connection);
+      table.OpenCompanion();table.SendMessage("AskCompanion","continue");stage=3;deadline=EditorApplication.timeSinceStartup+90;
+     }else Finish(0,"CHESS_HANDOFF_TESTS_PASSED");
+    }else if(stage==3){
+     if(table.CompanionDisplay.Contains("thinking"))return;
+     Check(table.CompanionDisplay.StartsWith("META LLAMA"),"Actual Meta response reaches Unity: "+table.CompanionDisplay);Check(table.Match.Position.Ply==0&&table.SessionId==id,"Explanation cannot move or reset game");SaveView();File.Copy("Logs/Chess-Handoff.png","Logs/Chess-Companion.png",true);
+     table.SendMessage("AskCompanion","what");table.TogglePause();stage=4;
+    }else if(stage==4){
+     if(table.CompanionDisplay.Contains("thinking"))return;
+     Check(table.CompanionDisplay.Contains("game changed"),"Stale companion answer rejected");Check(table.Match.Position.Ply==0&&table.SessionId==id,"Stale answer cannot mutate game");table.CloseCompanion();File.WriteAllText("Builds/Companion-live-tests.txt","PASS: actual local Meta response through Unity client; same session and board unchanged; changed revision rejects stale response.\n");Finish(0,"CHESS_HANDOFF_TESTS_PASSED");
     }
    }catch(Exception e){Finish(1,e.ToString());}
   }
   static void SaveView(){var camera=Camera.main;camera.transform.position=new Vector3(.1f,1.55f,-.78f);camera.transform.LookAt(new Vector3(0,.8f,-.05f));table.SendMessage("Update");foreach(var panel in table.GetComponentsInChildren<TableFacingPanel>())panel.FaceViewer();var rt=new RenderTexture(1600,1200,24);camera.targetTexture=rt;camera.Render();var old=RenderTexture.active;RenderTexture.active=rt;var image=new Texture2D(1600,1200,TextureFormat.RGB24,false);image.ReadPixels(new Rect(0,0,1600,1200),0,0);image.Apply();File.WriteAllBytes("Logs/Chess-Handoff.png",image.EncodeToPNG());RenderTexture.active=old;camera.targetTexture=null;UnityEngine.Object.Destroy(rt);UnityEngine.Object.Destroy(image);}
-  static void Finish(int code,string text){SessionState.SetBool("ChessHandoffSmoke",false);EditorApplication.update-=Tick;if(code==0)Debug.Log(text);else Debug.LogError(text);EditorApplication.Exit(code);}
+  static void Finish(int code,string text){SessionState.SetBool("ChessHandoffSmoke",false);SessionState.SetBool("ChessLiveCompanion",false);EditorApplication.update-=Tick;if(code==0)Debug.Log(text);else Debug.LogError(text);EditorApplication.Exit(code);}
  }
 }
 #endif

@@ -47,7 +47,7 @@ namespace LivingTable.Chess
   void DrawHandoffUI()
   {
    if(ui!=null){ui.gameObject.SetActive(false);Destroy(ui.gameObject);}ui=Node("Chess controls");buttons.Clear();
-   var p=new GameObject("Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",GameOver?new Vector3(0,-.115f,0):Vector3.zero,.0026f);p.AddComponent<TableCabinetVisual>().Panel(GameOver?.72f:.50f,GameOver?.34f:.21f,false);status.color=new Color(.10f,.04f,.008f);
+   var p=new GameObject("Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",GameOver?new Vector3(0,-.115f,0):Vector3.zero,.0026f);p.AddComponent<TableCabinetVisual>().Panel(GameOver?.72f:companionOpen?.65f:.50f,GameOver?.34f:companionOpen?.36f:.21f,false);status.color=new Color(.10f,.04f,.008f);
    if(GameOver){var result=Label(p.transform,Match.Result.Replace(" wins by "," wins\nby ").Replace("Draw \u2014 ","Draw\n"),new Vector3(0,.06f,-.003f),.0026f*4);result.name="Game result";result.fontStyle=FontStyle.Bold;result.color=status.color;}
    if(editing){SessionUI();return;}
    if(!Playing){
@@ -58,6 +58,7 @@ namespace LivingTable.Chess
     SessionUI();return;
    }
    if(StorageBlocked){Add("RETRY SAVE",0,0,()=>{if(SaveSession("save retry")){Message="Saved. Resume to continue.";DrawUI();}},Orange,true);return;}
+   if(companionOpen){Add("WHAT HAPPENED",-2,0,()=>AskCompanion("what"),Teal);Add("EXPLAIN MOVE",0,0,()=>AskCompanion("explain"),Purple,true);Add("HELP CONTINUE",2,0,()=>AskCompanion("continue"),Teal);Add("BACK TO GAME",0,1,CloseCompanion,Orange);return;}
    if(GameOver){
     Add("PLAY AGAIN",0,0,PlayAgain,new Color(.05f,.8f,.3f),true);
     Add(sessionMenu?"BACK":"MENU",-2,0,ToggleSessionMenu,Purple);
@@ -73,6 +74,7 @@ namespace LivingTable.Chess
     Add("PROMOTE: "+PieceName(Promotion).ToUpperInvariant(),2,1,()=>{Promotion=Promotion==5?4:Promotion==4?3:Promotion==3?2:5;Version++;SaveSession("promotion preference changed");DrawUI();},Purple);
     return;
    }
+   Add("ASK THE TABLE",0,2,OpenCompanion,Teal);
    Add("MENU",-2,0,ToggleSessionMenu,Purple);Add(Paused?"RESUME":"PAUSE",2,0,TogglePause,Orange);
    if(Recovering){Add(Aligned?"SCAN BOARD":"ALIGN BOARD",0,0,()=>{if(Aligned)Vision.RetryRecovery();else AlignBoard();},Teal,true);if(Aligned){Add("MANUAL CHECK",0,1,AttestRecovery,Orange);Add("ALIGN AGAIN",-2,1,AlignBoard,Teal);}}
    else if(Physical&&ManualFallback&&PendingAi.HasValue)Add("MOVED IT",0,0,()=>Play(PendingAi.Value),new Color(.05f,.8f,.3f),true);

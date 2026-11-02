@@ -1,0 +1,9 @@
+# Verification - November 2, 2026
+
+Seven Node host test groups passed: recognition contracts, authentication, ambiguity/error handling, cancellation/concurrency, companion context validation, legal/suggested move checks and unknown fact rejection. Actual local Meta inference on three supplied-fact fixtures produced responses; the raw evaluation file is included. Early schema attempts returned only move codes; these were corrected before the shipping evaluation. The current model is Meta llama3.2:3b; Qwen remains only the camera recognizer.
+
+Unity live scene tests passed with the final source: OpenXR/legacy joint mapping; exact held-grip following; tracking loss without a commit; companion holds gameplay and closes without changing the session; out-of-reach detection and explicit room-recovery request hide the old board; new placement restores the same session. Existing handoff and game-over/replay tests passed. Actual local Meta response passed through the Unity client; changing revision rejected a stale answer. A rendered companion panel was visually inspected.
+
+The room test invokes the recovery handler in a desktop scene. It does not prove real Guardian/recenter event delivery, actual two-room behavior or headset fingertip alignment; those remain founder checks. Generated prose is model output: structural checks prevent illegal move references and state mutation, but do not prove every sentence correct. This is a limited text-question MVP, not unrestricted conversation.
+
+Service setup: existing isolated Ollama runtime reused; downloaded Meta llama3.2:3b locally and replaced the verified project Node host with host 0.3.0 for this authorized test. No paid endpoint, persistent startup service, or scheduled job was introduced. Private connection settings are excluded from source/release archives.

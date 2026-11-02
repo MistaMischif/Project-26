@@ -3,7 +3,7 @@ $ErrorActionPreference='Stop'
 $configPath=Join-Path $PSScriptRoot 'first-steps-connection.json'
 if(!(Test-Path -LiteralPath $configPath)) {
  $bytes=New-Object byte[] 32
- [Security.Cryptography.RandomNumberGenerator]::Fill($bytes)
+ $rng=[Security.Cryptography.RandomNumberGenerator]::Create();try{$rng.GetBytes($bytes)}finally{$rng.Dispose()}
  @{url='http://127.0.0.1:8790';deviceToken=[Convert]::ToBase64String($bytes)} | ConvertTo-Json | Set-Content -LiteralPath $configPath
 }
 $config=Get-Content -Raw -LiteralPath $configPath | ConvertFrom-Json
@@ -12,7 +12,7 @@ $env:OLLAMA_URL=$OllamaUrl
 $env:FIRST_STEPS_MODEL=$Model
 $running=$false
 try{$health=Invoke-RestMethod 'http://127.0.0.1:8790/health';$running=$health.service -eq 'Living Table First Steps'}catch{}
-if($running -and ($health.version -ne '0.2.0' -or $health.model -ne $Model)){throw 'A different vision host is running. Stop that host before starting this revision.'}
+if($running -and ($health.version -ne '0.3.0' -or $health.model -ne $Model)){throw 'A different vision host is running. Stop that host before starting this revision.'}
 if(!$running){Start-Process (Get-Command node).Source -ArgumentList ('"'+(Join-Path $PSScriptRoot 'server.mjs')+'"') -WindowStyle Hidden -RedirectStandardOutput (Join-Path $PSScriptRoot 'host.log') -RedirectStandardError (Join-Path $PSScriptRoot 'host-error.log') | Out-Null}
 if($Adb){
  if($Apk){& $Adb install -r $Apk;if($LASTEXITCODE -ne 0){throw 'APK install failed'}}

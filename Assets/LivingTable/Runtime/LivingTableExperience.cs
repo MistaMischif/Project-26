@@ -40,15 +40,37 @@ namespace LivingTable
         readonly TableBoardGrip boardGrip=new TableBoardGrip();
         bool gripArmed=true;
         public bool BoardHeld=>boardGrip.Active;
-        float nextHandScan;
+        float nextHandScan,roomGrace,farSince=-1;bool roomRecoveryRequested;OVRDisplay watchedDisplay;
         int gameIndex;
         readonly string[] games = { "tabletop-sandbox", "constellation" };
         readonly Rect panel = new Rect(16, 16, 410, 218);
 
+        public static bool BoardOutOfReach(Vector3 eye,Vector3 board)=>Vector3.ProjectOnPlane(eye-board,Vector3.up).magnitude>1.8f||Mathf.Abs(eye.y-board.y)>1.8f;
+        public void RequestRoomRecovery(){if(placed)roomRecoveryRequested=true;}
+        void OriginChanging(OVRManager.TrackingOrigin origin,OVRPose? previous)=>RequestRoomRecovery();
+        void CheckRoom(){
+            if(!desktopPreview&&watchedDisplay==null&&OVRManager.display!=null){watchedDisplay=OVRManager.display;watchedDisplay.RecenteredPose+=RequestRoomRecovery;}
+            if(!desktopPreview&&placed&&Time.unscaledTime>roomGrace&&Camera.main!=null){
+                if(BoardOutOfReach(Camera.main.transform.position,mount.position)){if(farSince<0)farSince=Time.unscaledTime;if(Time.unscaledTime-farSince>.8f)roomRecoveryRequested=true;}else farSince=-1;
+            }
+            if(roomRecoveryRequested&&placed&&!busy){roomRecoveryRequested=false;RecoverRoom();}
+        }
+        void RecoverRoom(){
+            boardGrip.End();gripArmed=false;farSince=-1;
+            if(ChessActive){chess.PrepareRoomRecovery();chess.BeginRelocation();}else candy?.BeginRelocation();
+            placed=false;mount.gameObject.SetActive(false);mount.SetParent(transform,true);
+            if(ChessActive)chess.transform.SetLocalPositionAndRotation(new Vector3(0,.012f,0),Quaternion.identity);
+            var old=spatialAnchor;bool saved=anchorSaved;spatialAnchor=null;anchorSaved=false;PlayerPrefs.DeleteKey(AnchorKey);PlayerPrefs.Save();
+            foreach(var hand in hands)if(hand!=null)held[hand]=true;
+            Status="Room changed or board out of reach. Game held.\nPinch at your new table center to place the board.";
+            if(old!=null)ForgetRoomAnchor(old,saved);
+        }
+        async void ForgetRoomAnchor(OVRSpatialAnchor old,bool saved){try{if(saved)await old.EraseAnchorAsync();}catch(Exception e){Debug.LogWarning("Old room anchor cleanup: "+e.Message);}finally{if(old!=null)Destroy(old.gameObject);}}
         async void Start()
         {
             try
             {
+                OVRManager.TrackingOriginChangePending+=OriginChanging;
                 var root = new GameObject("Living Table Platform");
                 root.transform.SetParent(transform, false);
                 platform = root.AddComponent<MRBoardPlatform>();
@@ -90,6 +112,7 @@ namespace LivingTable
         void Update()
         {
             if (platform == null) return;
+            CheckRoom();
             if (placementPrompt != null)
             {
                 placementPrompt.gameObject.SetActive(!placed);
@@ -122,7 +145,7 @@ namespace LivingTable
                 held.TryGetValue(hand, out bool wasHeld);
                 if(ChessActive&&placed)
                 {
-                    var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(bone.Id==OVRSkeleton.BoneId.Hand_WristRoot||bone.Id==OVRSkeleton.BoneId.Hand_IndexTip||bone.Id==OVRSkeleton.BoneId.Hand_PinkyTip)chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==OVRSkeleton.BoneId.Hand_IndexTip)chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}
+                    var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(IsObservedJoint(skeleton,bone.Id))chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==HandJoint(skeleton.GetSkeletonType(),1))chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}
                     bool valid=TryPinchPoint(hand,out var cp);
                     if(!valid||busy){chess.ForgetHand(hand.GetInstanceID());held[hand]=strength>=.4f;continue;}
                     if(chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
@@ -131,7 +154,7 @@ namespace LivingTable
                 if(candyLandMode&&placed&&candy!=null)
                 {
                     var visionSkeleton=hand.GetComponent<OVRSkeleton>();
-                    if(visionSkeleton!=null&&visionSkeleton.IsInitialized&&visionSkeleton.Bones!=null)foreach(var bone in visionSkeleton.Bones)if(bone.Id==OVRSkeleton.BoneId.Hand_WristRoot||bone.Id==OVRSkeleton.BoneId.Hand_IndexTip||bone.Id==OVRSkeleton.BoneId.Hand_PinkyTip)candy.ObservePhysicalHand(hand.GetInstanceID()*32+(int)bone.Id,bone.Transform.position);
+                    if(visionSkeleton!=null&&visionSkeleton.IsInitialized&&visionSkeleton.Bones!=null)foreach(var bone in visionSkeleton.Bones)if(IsObservedJoint(visionSkeleton,bone.Id))candy.ObservePhysicalHand(hand.GetInstanceID()*32+(int)bone.Id,bone.Transform.position);
                     bool valid=TryPinchPoint(hand,out var stretchPoint);
                     if((candy.TreatBucket!=null&&candy.TreatBucket.UpdateGrab(hand.GetInstanceID(),stretchPoint,strength<.4f||!valid||busy))||candy.UpdatePieceGrab(hand.GetInstanceID(),stretchPoint,strength<.4f||!valid||busy)||candy.UpdateCharacterStretch(hand.GetInstanceID(),stretchPoint,strength<.4f||!valid||busy)){held[hand]=strength>=.4f;continue;}
                     if(!busy&&valid&&strength>=.7f&&!wasHeld&&((candy.TreatBucket!=null&&candy.TreatBucket.BeginGrab(hand.GetInstanceID(),stretchPoint))||candy.BeginPieceGrab(hand.GetInstanceID(),stretchPoint)||candy.BeginCharacterStretch(hand.GetInstanceID(),stretchPoint))){held[hand]=true;continue;}
@@ -141,7 +164,7 @@ namespace LivingTable
                     if(TryPinchPoint(hand,out var hoverPoint))candy.HoverWorld(hoverPoint);
                     var skeleton=hand.GetComponent<OVRSkeleton>();
                     if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)
-                        foreach(var bone in skeleton.Bones)if(bone.Id==OVRSkeleton.BoneId.Hand_IndexTip){candy.HoverWorld(bone.Transform.position);candy.DirectPressWorld(hand.GetInstanceID(),bone.Transform.position);break;}
+                        foreach(var bone in skeleton.Bones)if(bone.Id==HandJoint(skeleton.GetSkeletonType(),1)){candy.HoverWorld(bone.Transform.position);candy.DirectPressWorld(hand.GetInstanceID(),bone.Transform.position);break;}
                 }
                 if (strength < .4f) held[hand] = false;
                 else if (strength >= .7f && !wasHeld)
@@ -192,22 +215,31 @@ namespace LivingTable
             }finally{if(!destroyed){chess?.EndRelocation();busy=false;}}
         }
 
-        void OnApplicationPause(bool paused){if(paused&&boardGrip.Active){boardGrip.End();gripArmed=false;_ = FinishBoardGrip();}}
+        void OnApplicationPause(bool paused){if(!paused){roomGrace=Time.unscaledTime+1f;farSince=-1;}if(paused&&boardGrip.Active){boardGrip.End();gripArmed=false;_ = FinishBoardGrip();}}
         public Task RepositionBoard()=>Reposition();
         public Task PlaceBoard(Vector3 position,Quaternion rotation)=>Place(position,rotation);
 
+        public static OVRSkeleton.BoneId HandJoint(OVRSkeleton.SkeletonType type,int joint)
+        {
+            bool xr=type==OVRSkeleton.SkeletonType.XRHandLeft||type==OVRSkeleton.SkeletonType.XRHandRight;
+            if(joint==0)return xr?OVRSkeleton.BoneId.XRHand_ThumbTip:OVRSkeleton.BoneId.Hand_ThumbTip;
+            if(joint==1)return xr?OVRSkeleton.BoneId.XRHand_IndexTip:OVRSkeleton.BoneId.Hand_IndexTip;
+            if(joint==2)return xr?OVRSkeleton.BoneId.XRHand_Wrist:OVRSkeleton.BoneId.Hand_WristRoot;
+            return xr?OVRSkeleton.BoneId.XRHand_LittleTip:OVRSkeleton.BoneId.Hand_PinkyTip;
+        }
+        static bool IsObservedJoint(OVRSkeleton skeleton,OVRSkeleton.BoneId id)=>id==HandJoint(skeleton.GetSkeletonType(),1)||id==HandJoint(skeleton.GetSkeletonType(),2)||id==HandJoint(skeleton.GetSkeletonType(),3);
         static bool TryPinchPoint(OVRHand hand, out Vector3 point)
         {
             point = default;
             var skeleton = hand.GetComponent<OVRSkeleton>();
-            if (skeleton == null || !skeleton.IsInitialized || skeleton.Bones == null) return false;
+            if (skeleton == null || !skeleton.IsInitialized || !skeleton.IsDataValid || !skeleton.IsDataHighConfidence || skeleton.Bones == null) return false;
             Transform index = null, thumb = null;
             foreach (var bone in skeleton.Bones)
             {
-                if (bone.Id == OVRSkeleton.BoneId.Hand_IndexTip) index = bone.Transform;
-                if (bone.Id == OVRSkeleton.BoneId.Hand_ThumbTip) thumb = bone.Transform;
+                if (bone.Id == HandJoint(skeleton.GetSkeletonType(),1)) index = bone.Transform;
+                if (bone.Id == HandJoint(skeleton.GetSkeletonType(),0)) thumb = bone.Transform;
             }
-            if (index == null || thumb == null) return false;
+            if (index == null || thumb == null || Vector3.Distance(index.position,thumb.position)>.12f) return false;
             point = (index.position + thumb.position) * .5f;
             return true;
         }
@@ -333,7 +365,7 @@ namespace LivingTable
 
         void ShowTable()
         {
-            placed = true;
+            placed = true;roomGrace=Time.unscaledTime+1.5f;farSince=-1;
             mount.gameObject.SetActive(true);
             if(ChessActive)chess.EndRelocation();else if(candyLandMode&&candy!=null)candy.EndRelocation();
             if (!candyLandMode) BuildTrim();
@@ -456,7 +488,7 @@ namespace LivingTable
 
         void OnDestroy()
         {
-            destroyed = true;
+            destroyed = true;OVRManager.TrackingOriginChangePending-=OriginChanging;if(watchedDisplay!=null)watchedDisplay.RecenteredPose-=RequestRoomRecovery;
             if (spatialAnchor != null) Destroy(spatialAnchor.gameObject);
             foreach (var material in ownedMaterials) if (material != null) Destroy(material);
         }

@@ -1,0 +1,1 @@
+PASS: 7 Node test groups, 0 failures. Invalid move, substituted move, unknown fact and markup cases each use otherwise valid response text. Recognition contracts, auth, provider failure and cancellation passed.
