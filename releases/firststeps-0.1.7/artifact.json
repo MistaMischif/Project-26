@@ -1,0 +1,15 @@
+{
+  "version": "0.1.7",
+  "versionCode": 8,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "2f9b10c817f9eb5d3206fc2dc715e23c5df7328abd79bd3a31d98388c35a73e3",
+  "bytes": 119168829,
+  "file": "LivingTable-FirstSteps-0.1.7.apk",
+  "built": "2026-11-02",
+  "reviewed": "2026-11-02",
+  "status": "Installed and launched on Quest 3; pinned Wi-Fi readiness verified",
+  "publishedVersion": "0.1.7",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.7",
+  "acceptance": "Pending founder real-board and USB-unplug acceptance",
+  "sourceCommit": "cfbe313e3c477081325c2376e21ba49fadcc05b8"
+}
