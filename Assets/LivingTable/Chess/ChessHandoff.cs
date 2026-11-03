@@ -64,13 +64,13 @@ namespace LivingTable.Chess
    if(GameOver){
     Add("PLAY AGAIN",0,0,PlayAgain,new Color(.05f,.8f,.3f),true);
     Add(sessionMenu?"BACK":"MENU",-2,0,ToggleSessionMenu,Purple);
-    if(sessionMenu){Add("GAME SETTINGS",2,0,NewGame,Purple);Add("MOVE BOARD",0,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);}
+    if(sessionMenu){Add("GAME SETTINGS",2,0,NewGame,Purple);Add("RECENTER",0,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);}
     return;
    }
    if(sessionMenu){
     Add("BACK TO GAME",0,0,ToggleSessionMenu,Teal,true);
     Add(TwoPlayers?"AI TAKE OVER":"HUMAN RETURNS",-2,0,SwitchOpponent,Purple);Add(Physical?"GO VIRTUAL":"USE REAL BOARD",2,0,SwitchSurface,Purple);
-    Add("SAVE AND EXIT",-2,1,NewGame,Orange);Add("MOVE BOARD",-1,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);
+    Add("SAVE AND EXIT",-2,1,NewGame,Orange);Add("RECENTER",-1,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);
     if(!Physical)Add(VirtualRoom?"SEE ROOM":"VIRTUAL ROOM",1,1,ToggleRoom,Purple);
     else if(!Recovering)Add(ManualFallback?"USE CAMERA":"MANUAL MODE",1,1,ToggleManual,Purple);
     Add("PROMOTE: "+PieceName(Promotion).ToUpperInvariant(),2,1,()=>{Promotion=Promotion==5?4:Promotion==4?3:Promotion==3?2:5;Version++;SaveSession("promotion preference changed");DrawUI();},Purple);

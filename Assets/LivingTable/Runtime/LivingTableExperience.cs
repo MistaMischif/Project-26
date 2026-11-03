@@ -148,8 +148,8 @@ namespace LivingTable
                     var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(IsObservedJoint(skeleton,bone.Id))chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==HandJoint(skeleton.GetSkeletonType(),1))chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}
                     bool valid=TryPinchPoint(hand,out var cp);
                     if(!valid||busy){chess.ForgetHand(hand.GetInstanceID());held[hand]=strength>=.4f;continue;}
-                    if(chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
-                    if(strength<.4f)held[hand]=false;else if(strength>=.7f&&!wasHeld){held[hand]=true;if(valid&&!busy&&!chess.BeginGrab(hand.GetInstanceID(),cp))chess.TouchWorld(cp);}continue;
+                    if(chess.UpdateBoardResize(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
+                    if(strength<.4f)held[hand]=false;else if(strength>=.7f&&!wasHeld){held[hand]=true;if(valid&&!busy&&!chess.BeginBoardResize(hand.GetInstanceID(),cp)&&!chess.BeginGrab(hand.GetInstanceID(),cp))chess.TouchWorld(cp);}continue;
                 }
                 if(candyLandMode&&placed&&candy!=null)
                 {
@@ -181,7 +181,7 @@ namespace LivingTable
 
         bool PollBoardGrip()
         {
-            if(!ChessActive||!placed||busy)return false;
+            if(!ChessActive||!placed||busy||chess.ResizingBoard)return false;
             OVRHand a=null,b=null;Vector3 pa=default,pb=default;float sa=0,sb=0;
             foreach(var hand in hands){
                 if(hand==null||!hand.IsTracked||hand.HandConfidence!=OVRHand.TrackingConfidence.High||hand.IsSystemGestureInProgress||!TryPinchPoint(hand,out var point))continue;

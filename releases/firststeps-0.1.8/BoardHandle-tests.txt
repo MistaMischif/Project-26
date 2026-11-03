@@ -1,0 +1,1 @@
+18 checks passed: capture, no initial scale jump, active visuals, blocked moves, release, session preservation, physical acceptance and tracking loss.
