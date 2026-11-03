@@ -70,3 +70,6 @@ During setup, scanning, recovery or a scan failure, a compact instruction HUD st
 Captured-piece trays are derived from authoritative match history. They display actual recorded captured models and per-side totals; en passant is included. Pieces already missing from a scanned starting position are represented by unknown-type markers rather than fabricated piece identities. Standard imported positions reject more than 16 pieces or 8 pawns per side. There is no separate mutable captured-piece ledger.
 
 Verification and editor renders are recorded in releases/firststeps-0.1.11. Synthetic data does not establish headset camera accuracy or acceptance. No online service or multiplayer capability is included.
+
+### 0.1.11 automatic tracking / clear-space transition follow-up
+Implemented, pending final release verification: confident identity-verified physical moves advance automatically, with fresh-frame/revision/hand guards retained. Required moves pulse both endpoints and the source piece (including castling/en-passant guidance). No-legal-move observations highlight all known mismatches red and unreadable squares amber; state is not committed. Physical-to-virtual, captured-game virtual start and room hiding present a clear-space warning with explicit continue/cancel. Objects remain real; another clear space is suggested. No obstacle detection is claimed.

@@ -4,9 +4,10 @@ using System.Linq;
 using UnityEngine;
 namespace LivingTable.Chess {
  public sealed partial class ChessTable {
-  Material instructionMaterial,scanReading,scanComplete,scanUncertain;Transform spinner,scanRoot;readonly Renderer[] scanSquares=new Renderer[64];
-  bool CriticalInstructions=>standardMenu||!HomeScreen&&Physical&&(!Playing||AlignmentInProgress||Recovering||AwaitingMoveAcceptance||Vision.Checking||Vision.NeedsAttention);
+  Material instructionMaterial,scanReading,scanComplete,scanUncertain,scanMismatch;Transform spinner,scanRoot;readonly Renderer[] scanSquares=new Renderer[64];
+  bool CriticalInstructions=>VirtualSafetyOpen||standardMenu||!HomeScreen&&Physical&&(!Playing||AlignmentInProgress||Recovering||AwaitingMoveAcceptance||Vision.Checking||Vision.NeedsAttention);
   public bool PointAtMenu(Ray ray,bool activate){
+   if(VirtualSafetyOpen){foreach(var button in buttons){var planeButton=new Plane(button.root.up,button.root.position);if(!planeButton.Raycast(ray,out float depth)||depth<.05f||depth>4)continue;var point=button.root.InverseTransformPoint(ray.GetPoint(depth));if(Mathf.Abs(point.x)>button.radius||Mathf.Abs(point.z)>button.radius)continue;button.visual.Hover();if(activate&&Time.unscaledTime>=panelClickAt){panelClickAt=Time.unscaledTime+.4f;button.action();}return true;}}
    if(panelMenu==null||grabHand!=int.MinValue||setupHand!=int.MinValue||relocating&&gameObject.activeInHierarchy)return false;
    var plane=new Plane(panelMenu.up,panelMenu.position);if(!plane.Raycast(ray,out float distance)||distance<.05f||distance>4)return false;var hit=ray.GetPoint(distance);var local=panelMenu.InverseTransformPoint(hit);
    if(Mathf.Abs(local.x)>.035f||Mathf.Abs(local.z)>.035f)return false;panelMenuVisual.Hover();if(activate)TryPanelButton(panelMenu.position);return true;
@@ -18,12 +19,12 @@ namespace LivingTable.Chess {
   }
   void DrawScanSquares(){
    if(scanRoot!=null){scanRoot.gameObject.SetActive(false);Destroy(scanRoot.gameObject);}scanRoot=Node("Physical scan progress");
-   if(scanReading==null){scanReading=Mat(new Color(.1f,.65f,1),true);scanComplete=Mat(new Color(.1f,1,.45f),true);scanUncertain=Mat(new Color(1,.4f,.03f),true);foreach(var m in new[]{scanReading,scanComplete,scanUncertain}){m.SetFloat("_Square",1);m.SetFloat("_Strength",.22f);}}
+   if(scanReading==null){scanReading=Mat(new Color(.1f,.65f,1),true);scanComplete=Mat(new Color(.1f,1,.45f),true);scanUncertain=Mat(new Color(1,.4f,.03f),true);scanMismatch=Mat(new Color(1,.04f,.08f),true);foreach(var m in new[]{scanReading,scanComplete,scanUncertain,scanMismatch}){m.SetFloat("_Square",1);m.SetFloat("_Strength",.22f);}}
    for(int square=0;square<64;square++){var tile=Shape(scanRoot,"Scan "+ChessMove.Square(square),PrimitiveType.Quad,SquareLocal(square)+Vector3.up*.002f,new Vector3(Size/8*.88f,Size/8*.88f,1),scanReading);tile.localRotation=Quaternion.Euler(90,0,0);scanSquares[square]=tile.GetComponent<Renderer>();tile.gameObject.SetActive(false);}UpdateScanFeedback();
   }
   void UpdateScanFeedback(){
    if(spinner!=null){spinner.gameObject.SetActive(calibrationBusy||Vision.Checking);spinner.localRotation=Quaternion.Euler(0,0,-Time.unscaledTime*200);}
-   if(scanRoot==null||Vision==null)return;bool show=Physical&&Aligned&&!HomeScreen&&!relocating;for(int square=0;square<64;square++){if(scanSquares[square]==null)continue;byte state=Vision.CellProgress[square];scanSquares[square].gameObject.SetActive(show&&state>0);scanSquares[square].sharedMaterial=state==1?scanReading:state==2?scanComplete:scanUncertain;}
+   if(scanRoot==null||Vision==null)return;bool show=Physical&&Aligned&&!HomeScreen&&!relocating;for(int square=0;square<64;square++){if(scanSquares[square]==null)continue;byte state=Vision.CellProgress[square];scanSquares[square].gameObject.SetActive(show&&state>0);scanSquares[square].sharedMaterial=state==1?scanReading:state==2?scanComplete:state==4?scanMismatch:scanUncertain;}
   }
   public static int[] CapturedSinceStart(ChessMatch.State state){
    var taken=new List<int>();if(state?.initial==null||state.moves==null)return taken.ToArray();var position=state.initial.Copy();foreach(var saved in state.moves){var move=saved.Move;int square=move.EnPassant?move.To-position.Side*8:move.To;int piece=position.Board[square];if(piece!=0)taken.Add(piece);position=position.After(move);}return taken.ToArray();

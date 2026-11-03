@@ -44,7 +44,8 @@ namespace LivingTable.Chess
    Message=PendingAi.HasValue?"Finish the saved AI move before the new controller takes over.":TwoPlayers?"Human opponent returns. Position and history retained.":"AI takes over the opponent's seat.";
    SaveSession("opponent changed; pending move retained");DrawUI();
   }
-  public void SwitchSurface()
+  public void SwitchSurface(){if(!Playing||Busy||StorageBlocked)return;if(Physical){RequestVirtualSafety(CompleteSurfaceSwitch);return;}CompleteSurfaceSwitch();}
+  void CompleteSurfaceSwitch()
   {
    if(!Playing||Busy||StorageBlocked)return;CancelGrab();Version++;Physical=!Physical;selected=-1;
    if(Physical){VirtualRoom=false;Aligned=false;Recovering=true;Vision.ClearEvidence();Message="Align your board. Recreate the saved position before continuing.";}
@@ -63,7 +64,7 @@ namespace LivingTable.Chess
    Unverified=true;ManualFallback=true;Recovering=false;Version++;Vision.ResetBoard();Message="Manual board check recorded. This is not camera verification.";
    SaveSession("manual board reconciliation; unverified");DrawScene();
   }
-  void ToggleRoom(){if(Physical||StorageBlocked)return;VirtualRoom=!VirtualRoom;ApplyRoom();SaveSession("view changed");DrawUI();}
+  void ToggleRoom(){if(Physical||StorageBlocked)return;if(!VirtualRoom){RequestVirtualSafety(()=>{VirtualRoom=true;ApplyRoom();SaveSession("view changed");DrawUI();});return;}VirtualRoom=false;ApplyRoom();SaveSession("view changed");DrawUI();}
   void ApplyRoom()=>FindFirstObjectByType<LivingTableExperience>()?.SetVirtualRoom(VirtualRoom&&!Physical);
   void BeginImport(){if(Playing)return;editing=true;importPosition=ChessPosition.Initial();importPosition.Rights=0;brush=1;Message="Match the real position. Set turn and castling rights. Earlier history is unknown.";DrawScene();}
   public bool ImportPosition(ChessPosition position)

@@ -56,7 +56,8 @@ namespace LivingTable.Chess {
   }
   static string RightsName(int bits)=>new[]{"NONE","KING","QUEEN","BOTH"}[bits];
   void ConfirmTurn(){if(!turnChosen){Message="Choose whose turn it is first.";return;}alignStage=10;Message="Setup ready. Confirm known castling rights, then press the purple START GAME button. Earlier history is unknown.";DrawUI();}
-  void StartObservedGame(){
+  void StartObservedGame(){if(quickCapture){RequestVirtualSafety(StartObservedGameConfirmed);return;}StartObservedGameConfirmed();}
+  void StartObservedGameConfirmed(){
    if(setupPosition==null||!turnChosen||unknownSquares.Any(x=>x))return;bool verified=!setupManual&&Vision.SurveyStable;var appearance=Vision.SurveyAppearance;
    if(!quickCapture&&!verified&&!setupManual){Message="The board moved or the camera lost its view. Press RESCAN to verify it again.";return;}
    var position=setupPosition.Copy();bool capturedVirtual=quickCapture;if(capturedVirtual){Physical=false;TwoPlayers=false;}alignStage=0;if(!ImportPosition(position)){if(capturedVirtual)Physical=true;alignStage=10;DrawUI();return;}
@@ -66,11 +67,13 @@ namespace LivingTable.Chess {
   void CorrectSelectedPiece(){if(setupSelected<0){Message="Tap the square you want to correct first.";return;}int value=setupPosition.Board[setupSelected];setupPosition.Board[setupSelected]=value>=6?-6:value+1;unknownSquares[setupSelected]=false;setupManual=true;Message=ChessMove.Square(setupSelected)+": "+ChessObservationGate.Piece(setupPosition.Board[setupSelected]);DrawMen();DrawUI();}
   void CancelSetupScan(){Vision.CancelScan();if(!Playing&&alignStage==6)ReceiveLayout(null,"Scan stopped. Rescan or enter the position manually.");else{Message="Scan stopped. Your saved game is unchanged.";DrawUI();}}
   public void OpenStandardMenu(){
+   if(VirtualSafetyOpen){CancelVirtualSafety();return;}
    if(standardMenu){standardMenu=false;DrawUI();return;}Version++;CancelGrab();CancelHumanReview();Vision.CancelScan();calibration?.Cancel();calibrationBusy=false;if(alignStage==6)ReceiveLayout(null,"Scan stopped by menu.");standardMenu=true;DrawUI();
   }
   void MenuHome(){standardMenu=false;relocating=false;CancelSetupScan();ShowHome();}
   void QuitGame(){if(!SaveSession("quit from menu"))return;Vision.CancelScan();calibration?.Cancel();Application.Quit();}
   bool SetupUI(){
+   if(DrawVirtualSafety())return true;
    if(standardMenu){status.text="MENU\nReturn, resize the panel, or leave the table.";Add("BACK",0,0,()=>{standardMenu=false;DrawUI();},Teal,true);Add("MAIN MENU",-2,0,MenuHome,Teal);Add("QUIT",-1,0,QuitGame,Teal);Add("STOP SCAN",-2,1,CancelSetupScan,Teal);if(Physical)Add("ALIGN AGAIN",-1,1,BeginFourCorners,Teal);DrawPanelSlider();if(!gameObject.activeInHierarchy){int index=0;foreach(var b in buttons){b.root.SetParent(panel.transform,false);b.root.localPosition=new Vector3((index%3-1)*.10f,-.01f-(index/3)*.07f,-.03f);b.root.localRotation=Quaternion.Euler(-90,0,0);index++;}}return true;}
    if(alignStage==11){Add("SCAN BOARD",0,0,BeginAutomaticAlignment,Purple,true);Add("CHOOSE CORNERS",-2,0,BeginFourCorners,Teal);Add("HOME",-1,0,ShowHome,Teal);return true;}
    if(alignStage==1){Add("SELECT CORNER "+(cornerCount+1),0,0,()=>{Message="Pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner.";},Purple,true);Add("RESTART",-2,0,BeginFourCorners,Teal);if(cornerCount>0)Add("UNDO CORNER",-2,0,()=>{cornerCount--;Message="Select corner "+(cornerCount+1)+" again.";DrawScene();},Teal);return true;}
