@@ -17,9 +17,9 @@ Candy Land saves player positions, current turn, pending card, remaining deck, d
 
 ## Joining an existing chess game
 
-Choose the surface and player color first. **IMPORT GAME** opens a board editor: choose piece type and color, tap squares, set whose turn it is, and explicitly set castling rights and any en-passant square. **USE POSITION** validates and starts a new imported session. The initial editor position is standard chess, with castling rights disabled until selected. For physical play, align the playing area's near-left and near-right corners, excluding decorative borders.
+Choose the surface and player color first. **IMPORT GAME** opens a board editor: choose piece type and color, tap squares, set whose turn it is, and explicitly set castling rights and any en-passant square. **USE POSITION** validates and starts a new imported session. The initial editor position is standard chess, with castling rights disabled until selected. In First Steps 0.1.10, select all four outer playing corners in order: near-left, near-right, far-right, far-left, excluding the decorative frame. Size the whole set against your king before scanning.
 
-An imported position is permanently labeled manual/imported. The app cannot reconstruct earlier repetition history or prove castling eligibility from a photograph. The UI import begins the move counter at zero; tracked history is enforced from the import onward. Arbitrary automatic piece-identity scanning and importing a previously untracked Candy Land game are not implemented.
+An imported position is permanently labeled manual/imported. The app cannot reconstruct earlier repetition history or prove castling eligibility from a photograph. The UI import begins the move counter at zero; tracked history is enforced from the import onward. First Steps 0.1.10 implements a local-model scan of all 64 squares for a new chess import; real-set accuracy is not yet accepted. Importing a previously untracked Candy Land game is not implemented.
 
 ## Physical reconciliation and integrity limits
 
@@ -40,3 +40,18 @@ Checkpoints use sequential files, atomic publication, and a SHA-256 chain. Corru
 ## Shared viewing gap
 
 First Steps has no verified dedicated spectator receiver in this release. For future shared viewing, use a read-only projection of the authoritative public board/turn state; viewing must not grant player or host controls, and connection credentials/private account UI must stay off that view. A supported Quest-to-display pair, reconnect behavior, audio/latency and an accessible fallback still need physical-device verification before casting support is advertised. Recognition work does not establish that capability.
+
+
+## First Steps 0.1.10 physical flow
+
+Setup now selects four playing-area corners, then sizes all pieces using the player's king. The registered board transform owns both the virtual grid and the piece-square mapping. The backdrop follows the viewing direction independently; it does not move the board. Room/origin recovery still pauses play and requires physical realignment. A physically displaced real board is not continuously tracked: realign it before continuing. Hardware world-lock accuracy remains an acceptance test, not an established guarantee.
+
+A new physical game scans every square, reviews detected/unknown pieces, asks whose turn it is unless only one side is legal, and explicitly sets unknown castling/en-passant history. The final single purple circular **START GAME** action imports the reviewed position. Earlier move/repetition history remains unknown. A changed or stale camera view cannot silently start a camera-verified game. Manual edits or STANDARD SET are explicitly assisted; they do not certify camera accuracy.
+
+**CHECK BOARD** actively requests verification. A known pending AI move is checked against its resulting position, including origin removal, captures, castling rook movement, en passant and promotion; it no longer depends on a minimum histogram change to begin checking. Unrelated visual changes cause a full-board check. After restoring a session, a pending AI move requires full-board verification of the proposed resulting layout. Its saved proposal cannot be rerolled or committed twice.
+
+Detected human moves display a virtual preview while authoritative history remains unchanged. **ACCEPT MOVE** requires an unchanged fresh camera frame before committing. The AI's virtual target previews next; its physical move must be verified before returning control. Only legal moves are accepted. Camera identities are observations, not permission to overwrite saved history. Local vision currently requires the paired self-hosted computer; offline chess and labeled manual fallback remain available.
+
+Scans have progress, cancel, visible errors and a 120-second overall bound (12 seconds for a final acceptance frame). This is a failure bound, not a performance target. Failed scans expose review/manual controls. The persistent backdrop menu supports return to main menu, quit and panel sizing. Gameplay controls sit at the board's base, with one central circular purple next-action button, teal human controls and orange-red AI controls. The backdrop is positioned beyond the board and can be scaled separately.
+
+Verification: see releases/firststeps-0.1.10/VERIFICATION.md. Synthetic tests are not physical-camera or founder acceptance.

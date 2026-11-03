@@ -155,8 +155,8 @@ namespace LivingTable
                     var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(IsObservedJoint(skeleton,bone.Id))chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==HandJoint(skeleton.GetSkeletonType(),1))chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}
                     bool valid=TryPinchPoint(hand,out var cp);
                     if(!valid||busy){chess.ForgetHand(hand.GetInstanceID());held[hand]=strength>=.4f;continue;}
-                    if(chess.UpdateBoardResize(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
-                    if(strength<.4f)held[hand]=false;else if(strength>=.7f&&!wasHeld){held[hand]=true;if(valid&&!busy&&!chess.BeginBoardResize(hand.GetInstanceID(),cp)&&!chess.BeginGrab(hand.GetInstanceID(),cp))chess.TouchWorld(cp);}continue;
+                    if(chess.UpdateSetupGrab(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateBoardResize(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
+                    if(strength<.4f)held[hand]=false;else if(strength>=.7f&&!wasHeld){held[hand]=true;if(valid&&!busy&&!chess.BeginSetupGrab(hand.GetInstanceID(),cp)&&!chess.BeginBoardResize(hand.GetInstanceID(),cp)&&!chess.BeginGrab(hand.GetInstanceID(),cp))chess.TouchWorld(cp);}continue;
                 }
                 if(candyLandMode&&placed&&candy!=null)
                 {
@@ -179,7 +179,7 @@ namespace LivingTable
                     held[hand] = true;
                     if (!busy && TryPinchPoint(hand, out var point))
                     {
-                        if (!placed) _ = Place(point);
+                        if (!placed) { if(!ChessActive||!chess.TryPersistentPanel(point)) _ = Place(point); }
                         else TouchTable(point);
                     }
                 }
