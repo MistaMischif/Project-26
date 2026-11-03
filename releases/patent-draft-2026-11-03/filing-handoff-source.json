@@ -1,0 +1,130 @@
+[
+  [
+    "title",
+    "Living Table: urgent filing handoff"
+  ],
+  [
+    "body",
+    "Prepared November 3, 2026 for Jason Daniel Zielinski. STATUS: DRAFTED, NOT FILED. This package does not establish a patent filing date and must not be described as a granted patent. No signature, payment, application number or USPTO receipt exists in this record."
+  ],
+  [
+    "h",
+    "Today: the shortest complete path"
+  ],
+  [
+    "body",
+    "1. Read the specification and six drawings. Confirm that they accurately describe your invention and identify any human co-inventors or ownership obligations. Seek an urgent review by a USPTO-registered patent attorney or agent, especially because close AR-game prior art exists. No practitioner has been contacted or retained by this assistant."
+  ],
+  [
+    "body",
+    "2. Create your USPTO account, complete ID.me verification personally and enroll in Patent Center as an Independent Inventor. You can enroll without an existing customer number. Identity documents, account recovery, MFA and passwords must remain with you. The official new-user guide is linked below; account setup timing is not guaranteed. [S3]"
+  ],
+  [
+    "body",
+    "3. Start a new U.S. provisional application in Patent Center. Enter the confirmed inventor information and correspondence address. Use the invention title on the specification. Include all inventors, not the software assistant. Confirm any government property interest rather than guessing. Use the official cover-sheet/ADS workflow. [S1, S4]"
+  ],
+  [
+    "body",
+    "4. Upload the reviewed specification and drawings. Inspect Patent Center document previews, document types and page counts. Do not upload this internal guide as the specification. Resolve all factual blanks in the cover-sheet workflow. The package has no executed cover sheet and is not a completed filing bundle."
+  ],
+  [
+    "body",
+    "5. Confirm fee status. Current base provisional fees are $325 regular, $130 small entity and $65 micro entity; additional size fees can apply over 100 sheets. A reduced fee requires actual eligibility. No discount, payment or certification has been selected for you. [S2, S5]"
+  ],
+  [
+    "body",
+    "6. Personally apply any required signature and approve payment, then submit. Save the electronic acknowledgment, application number, receipt timestamp, uploaded-document list and payment receipt. Check the later official filing receipt for discrepancies. Merely saving a draft or uploading files is not submission. [S6]"
+  ],
+  [
+    "body",
+    "7. Before tomorrow's contest disclosure, verify successful submission and that the specification actually supports the mechanisms being disclosed. If filing or identity verification is blocked, contact the USPTO EBC or an authorized practitioner immediately; do not assume the package is filed or protected. No contest submission has been made as part of this task."
+  ],
+  [
+    "h",
+    "What a provisional does and does not do"
+  ],
+  [
+    "body",
+    "A sufficiently supported provisional can establish an earlier filing basis; it is not examined into an issued patent by itself. Written description and necessary drawings matter, and later-added subject matter does not receive the earlier date merely by reference. Plan the corresponding nonprovisional and, if appropriate, international strategy within twelve months of the actual filing date. Record the deadline from the official receipt, not this draft date. Pre-filing disclosure can impair foreign rights. [S1]"
+  ],
+  [
+    "body",
+    "Names, slogans, third-party artwork and trade secrets are different issues. This draft does not register Living Table or its slogan as a trademark, does not acquire rights in commercial board-game characters and does not promise worldwide exclusivity or freedom to operate."
+  ],
+  [
+    "break",
+    ""
+  ],
+  [
+    "h",
+    "Filing information worksheet - incomplete"
+  ],
+  [
+    "body",
+    "Supplied legal name: Jason Daniel Zielinski.\nInventor list / sole inventorship: CONFIRM.\nResidence city, state and country: REQUIRED.\nCorrespondence mailing address and contact: REQUIRED.\nExisting application / priority history: UNCONFIRMED.\nApplicant, assignee and any assignment obligations: CONFIRM.\nGovernment funding or property interest: CONFIRM.\nEntity status and supporting eligibility: UNCONFIRMED.\nUSPTO account and identity verification: NOT ESTABLISHED IN THIS RECORD.\nSignature and date: USER MUST APPLY; NOT SIGNED.\nPayment: NOT AUTHORIZED FOR A SPECIFIC AMOUNT; NOT PAID."
+  ],
+  [
+    "body",
+    "The inventor stated that the first showing will be the contest submission. Current Project-26 GitHub visibility was checked and is PRIVATE. That confirms current access only, not historic visibility or absence of every prior disclosure. Existing release links alone are not proof of public access. Confirm any earlier demos, posts, sales offers, public repositories, unrestricted videos or nonconfidential pitches before making a disclosure-date declaration."
+  ],
+  [
+    "h",
+    "Preliminary prior-art screen - not clearance"
+  ],
+  [
+    "body",
+    "US10478717B2, \"Augmented reality and physical games,\" describes game-state-based augmentations of physical games and includes claims to transparent-display apparatus and move-based augmentation. Its listed family priority is April 5, 2012. This is a close reference for the broad overlay concept; it does not by itself decide infringement or validity of a different system. Review the family, claims and prosecution record with a practitioner. [P1]"
+  ],
+  [
+    "body",
+    "ARChessAnalyzer (2020) describes physical chess-board segmentation, piece recognition, move analysis and AR presentation. Consequently, camera detection plus chess guidance should not be treated as new merely because Living Table implements it on a headset. [P2]"
+  ],
+  [
+    "body",
+    "The proposed focus is the particular continuity and verification arrangement: retained pending actions across controller/surface changes, preserved hidden game rights, generation-bound observations and fail-closed reconciliation. No exhaustive patent or non-patent search has been performed; novelty, nonobviousness, eligibility and freedom to operate remain unassessed. These references are for review, not an IDS filed with a provisional."
+  ],
+  [
+    "h",
+    "Review of the earlier draft"
+  ],
+  [
+    "body",
+    "The October 1 draft described hand-only inference, excluded per-piece camera tracking and called an original duel the MVP. Those statements are not the current architecture. It also made broad assertions about lack of known competing systems and foreign disclosure rules; do not rely on those assertions. The new technical draft includes camera-assisted embodiments and preserves a hand-driven alternative without asserting that they are the same verification strength. The old draft remains historical and has not been overwritten."
+  ],
+  [
+    "break",
+    ""
+  ],
+  [
+    "h",
+    "Implementation provenance and open engineering limits"
+  ],
+  [
+    "body",
+    "Source baseline: Project-26 commit cfbe313e3c477081325c2376e21ba49fadcc05b8; release evidence commit 80372c6. First Steps 0.1.7 APK SHA-256: 2f9b10c817f9eb5d3206fc2dc715e23c5df7328abd79bd3a31d98388c35a73e3. These identify technical records, not patent priority dates."
+  ],
+  [
+    "body",
+    "ChessSession.cs supports independent controller/surface switching, pending-action retention, saved rights/history, explicit import and manual verification labeling. ChessObservationGate.cs enforces exact required cell sets and observation revision matching. GameSessionStore.cs implements local checkpoint sequencing and hashes, expressly not a trusted anti-cheat server. ChessCheckerFit.cs and ChessCameraCalibration.cs implement known-plane fitting and conservative two-view sizing. These files are in the private project source."
+  ],
+  [
+    "body",
+    "Synthetic fit and scene-state tests passed in the 0.1.7 development record. Actual automatic board-fit and silhouette measurement accuracy are not founder-accepted. Local-network readiness was verified on Quest without USB forwarding; the host still must be powered and reachable. Patent drafting must not convert these limits into claims of successful field testing. Alternative embodiments in the specification are proposals for inventor review, not evidence of construction or human conception."
+  ],
+  [
+    "h",
+    "Receipt record to complete after actual submission"
+  ],
+  [
+    "body",
+    "Application number: _________________________________\nActual filing date shown by USPTO: ____________________\nReceipt timestamp and timezone: ______________________\nSpecification/drawings filenames and page counts: ______\nPaid fee and payment receipt: _________________________\nNamed inventors and applicant: ________________________\nTwelve-month follow-up date, verified by counsel: _______\nReviewer and approval: _______________________________"
+  ],
+  [
+    "h",
+    "Official resources and screened references"
+  ],
+  [
+    "small",
+    "[S1] USPTO provisional application guidance:\nhttps://www.uspto.gov/patents/basics/apply/provisional-application\n[S2] USPTO fee schedule:\nhttps://www.uspto.gov/learning-and-resources/fees-and-payment/uspto-fee-schedule\n[S3] Patent Center new-user enrollment:\nhttps://www.uspto.gov/patents/apply/applying-online/getting-started-new-users\n[S4] Official provisional cover sheet (blank):\nhttps://www.uspto.gov/sites/default/files/documents/sb0016.pdf\n[S5] Micro-entity qualification:\nhttps://www.uspto.gov/patents/laws/micro-entity-status\n[S6] USPTO ADS signature guidance:\nhttps://www.uspto.gov/patents/apply/forms/important-information-completing-application-data-sheet-ads\nPatent Center: https://patentcenter.uspto.gov/\nElectronic Business Center: 866-217-9197; official support page:\nhttps://www.uspto.gov/patents/apply/patent-center\n[P1] https://patents.google.com/patent/US10478717B2/en\n[P2] https://arxiv.org/abs/2009.01649\nResources checked November 3, 2026. Recheck fees and portal requirements at submission."
+  ]
+]

@@ -1,0 +1,21 @@
+{
+  "status": "DRAFT_NOT_FILED",
+  "prepared": "2026-11-03",
+  "files": {
+    "01-Specification-DRAFT.pdf": {
+      "pages": 7,
+      "sha256": "47c0474bb846302e45d7254f96464c052d3e20fad54877f8f7bd3b0760e91962",
+      "bytes": 20045
+    },
+    "02-Drawings-DRAFT.pdf": {
+      "pages": 6,
+      "sha256": "0f31a2eb655eff5f7144c3af350599627b99ce42be37418f27d03eaa0ca8b436",
+      "bytes": 9810
+    },
+    "03-Filing-Handoff-NOT-FOR-SUBMISSION.pdf": {
+      "pages": 4,
+      "sha256": "31edc6bb1ec67c9627f0a56493161f467e5e25d1a3cf3c1b693feee4323a274b",
+      "bytes": 10413
+    }
+  }
+}

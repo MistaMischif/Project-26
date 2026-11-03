@@ -1,0 +1,214 @@
+[
+  [
+    "title",
+    "State-Preserving Mixed-Reality Tabletop Game Continuity with Verified Physical Reconciliation"
+  ],
+  [
+    "small",
+    "Provisional specification draft | Prepared November 3, 2026\nNamed inventor supplied by user: Jason Daniel Zielinski. Sole inventorship and ownership must be confirmed before filing. This technical draft is not an executed cover sheet."
+  ],
+  [
+    "h",
+    "1. Technical field and problem"
+  ],
+  [
+    "body",
+    "The disclosure concerns computer-controlled mixed-reality interfaces for physical tabletop games. More particularly, it concerns preserving one game session while the source of player decisions changes between a person and an artificial-intelligence controller and while the representation of the playing surface changes between physical and virtual forms. It further concerns registering a virtual surface to a physical board, reconciling observed physical objects to an authoritative game state, and withholding state advancement when observations are incomplete or inconsistent."
+  ],
+  [
+    "body",
+    "A physical board position alone may not identify the full game state. In chess, identical piece arrangements can have different sides to move, castling rights, en-passant rights, repetition histories and move counters. A transition to a virtual display or replacement opponent therefore cannot safely reconstruct these values from an image alone. Additionally, a computer-selected move is a proposal until a person has performed the corresponding physical changes. A delayed image result, hand occlusion, incorrect physical movement or replacement of a controller during an unfinished move can otherwise cause duplicate moves or divergence."
+  ],
+  [
+    "h",
+    "2. System overview"
+  ],
+  [
+    "body",
+    "A system 100 includes a mixed-reality display device 110 with cameras and hand-pose sensing, a registration module 120, an observation module 130, a deterministic rules and transition gate 140, a session store 150, a controller selector 160, and a renderer and guidance interface 170. A local-network inference host 180 may supply structured visual observations and conversational assistance. The inference host does not obtain authority to overwrite game state. A physical board 190 and its physical pieces need not include embedded electronics. The same session may also be represented by virtual pieces on a virtual board."
+  ],
+  [
+    "body",
+    "A session record contains a stable session identifier; game identifier and rules version; an authoritative logical state; turn and history information; a monotonically advancing storage revision; active human or AI controller for each seat; physical or virtual presentation mode; any pending action; calibration parameters; and verification status. A separate observation generation is incremented whenever an operation invalidates asynchronous work, such as a controller change, pause, relocation, new game or surface switch. A response must match the current generation before it can be used."
+  ],
+  [
+    "body",
+    "The logical state and its interpretation are separated from presentation coordinates. Moving the board, changing viewing orientation, resizing virtual piece meshes or changing the display mode does not itself change legal piece locations, turn, history or rights. The session identifier remains the same across continuation transitions. Starting a new game or explicitly importing an unrelated position creates a distinct session."
+  ],
+  [
+    "h",
+    "3. Brief description of drawings"
+  ],
+  [
+    "body",
+    "FIG. 1 shows system 100 and the separation of observations, controller proposals, the state gate and persistent records. FIG. 2 shows alignment stages 210-260, including candidate fitting, acceptance and piece-profile estimation. FIG. 3 shows pending-action stages 310-360 and revision-bound physical confirmation. FIG. 4 shows controller and surface transitions 410-460 that retain an authoritative session. FIG. 5 shows a local checkpoint chain 510-540 and the rejection of stale or incomplete evidence. FIG. 6 shows board-space geometry 610, physical-piece profile 620 and a viewer-facing status panel 630."
+  ],
+  [
+    "h",
+    "4. Coordinate registration and automatic board fitting"
+  ],
+  [
+    "body",
+    "For a rectangular board, a board frame comprises an origin O, orthonormal in-plane vectors U and V, a surface normal N, width W and depth D. An eight-by-eight square chess board uses W=D=L. The center of file i, rank j is O + U*L*((i+0.5)/8-0.5) + V*L*((j+0.5)/8-0.5), for zero-based i and j. The viewing seat can change the displayed orientation without changing file and rank identities. A hand release at world position p is transformed into board coordinates; coordinates outside the board are rejected rather than clamped into an apparently legal move."
+  ],
+  [
+    "body",
+    "In one implemented embodiment the user first places the virtual table plane at the real board surface. The fitter uses that plane height, headset camera pose and camera intrinsics. It searches horizontal translation, yaw and board side length, rather than claiming to recover absolute scale or table height from one uncalibrated image. A candidate board point is transformed into camera coordinates (X,Y,Z) and projected to normalized image coordinates u=fx*X/Z+cx and v=fy*Y/Z+cy. Candidates behind the camera or outside usable image bounds are rejected."
+  ],
+  [
+    "body",
+    "An example implementation reads a 320 by 240 luminance image and scores the projected centers of 64 squares. Four nearby samples are obtained per square and the largest and smallest are discarded. Means for the two checker parities give contrast C. A correct-parity fraction F measures agreement with the brighter and darker parity. A score can use C*clamp((F-0.65)/0.35,0,1), subtract a penalty for alternating structure extending beyond the candidate border, and add an internal-edge contrast term. Example lower limits are C=25 on an eight-bit luminance scale and a final score of 40. These are tuning values, not essential limits."
+  ],
+  [
+    "body",
+    "The search begins near the placed board center and near the intersection of the camera center ray with the placed plane. An example coarse search samples horizontal offsets in 45 mm steps, scale offsets in 65 mm steps and yaw offsets in 10 degree steps. Coordinate descent then refines translation, scale and yaw. A second captured frame must yield a consistent fit; example tolerances are 18 mm center difference, 20 mm side-length difference and 3 degrees yaw difference. Hands are required to clear the relevant board area before capture. Low-contrast, occluded or inconsistent fits cause retry or manual calibration, not automatic acceptance."
+  ],
+  [
+    "body",
+    "A fitted pose is shown as a candidate overlay, including grid lines, corners and expected guide pieces. The user accepts the board explicitly and can rotate its interpretation by ninety degrees to resolve checkerboard symmetry. Checker parity alone is not treated as proof of which edge is rank one. A manual alternative accepts two known board reference positions and constructs pitch and orientation from their separation. No normal game move is enabled while the calibration workflow is unfinished."
+  ],
+  [
+    "h",
+    "5. Piece proportion estimation after acceptance"
+  ],
+  [
+    "body",
+    "Only after the board fit is accepted does a piece-measurement stage begin. The system uses expected occupied squares from the current session or a starting-position template. This associates measurements with expected piece categories; it does not prove piece identity. Two images from translated head positions provide different views; an example requires at least 40 mm of camera translation. Merely rotating the head from the same camera center is not treated as adequate translation."
+  ],
+  [
+    "body",
+    "For a conservative silhouette implementation, the system samples unoccupied portions near square corners to estimate the luminance of each checker parity. At an expected piece location it projects vertical test points, intersects their camera rays with the known board plane and predicts background parity. A test point is foreground when its observed luminance differs sufficiently from that expected background and its ray intersection avoids square boundaries. Samples may cover heights from 18 mm to 180 mm in 3 mm increments. The highest supported point estimates height, and lateral samples about the lower portion estimate width. Insufficient samples, near-limit estimates and ambiguous contrast cause rejection."
+  ],
+  [
+    "body",
+    "The two views must agree. Example rejection limits are height disagreement exceeding the larger of 12 mm or twenty percent of the smaller estimate, and width disagreement above 12 mm. Medians of accepted measurements form a height and width profile for each piece type and color. For chess there may be twelve profiles. Mesh-specific native height and width convert physical estimates to vertical and horizontal rendering scales. Measurements that do not pass the checks retain the prior or default profile."
+  ],
+  [
+    "body",
+    "The proposed profiles are rendered as guide-piece previews and require a separate APPLY SIZES action. Starting a rescan clears the preceding proposal before obtaining new measurements, so failure cannot make an obsolete proposal appear current. KEEP SIZES preserves the prior profile. Accepted profiles are stored with the session. Sizing approval does not approve the piece arrangement or authorize a move; physical reconciliation remains a distinct state gate."
+  ],
+  [
+    "h",
+    "6. Proposed moves, physical observation and commit gating"
+  ],
+  [
+    "body",
+    "The rules engine enumerates legal transitions from authoritative state S. A hand interaction or AI controller proposes action a against S and the current observation generation g. The system computes expected resulting state S2 and an exact affected-location set D, containing every location whose logical contents differ between S and S2. It retains a as pending while presenting physical instructions. The authoritative position is not advanced merely because the AI supplied a move or an animation was displayed."
+  ],
+  [
+    "body",
+    "An observation result contains its generation and a set of location-content pairs, such as square e4 containing a white pawn or square e2 being empty. The gate checks that the generation equals g, the action remains legal in S, each required location occurs exactly once, no required location is omitted, and each observed content equals the expected content in S2. An uncertain classification, duplicate location, wrong generation, illegal proposal or missing location prevents acceptance. A language model supplies evidence to this gate and cannot silently substitute a different legal move."
+  ],
+  [
+    "body",
+    "For a normal chess move D includes source and destination. A capture requires verification of the resulting destination content. Castling requires both king and rook source and destination changes. En passant additionally requires the captured pawn location to become empty. Promotion requires the chosen replacement type at the destination, not merely occupancy. The move instruction generator describes each physical action. A person moves the AI pieces on an ordinary real set; the computer cannot mechanically force that person to comply, but the verified-play pathway withholds continuation until the expected configuration is established."
+  ],
+  [
+    "body",
+    "On acceptance the transition is applied once, the pending action is cleared, the observation generation changes and a checkpoint is saved. Repeated responses for the old generation cannot apply the action again. If saving fails, normal play is locked and a retry is offered. A manual fallback can accept an explicit human report, but its verification status is recorded as manual or unverified; it is not described as camera-confirmed. This distinction persists through later handoffs."
+  ],
+  [
+    "h",
+    "7. Human-to-AI controller continuity"
+  ],
+  [
+    "body",
+    "Controller selection is separate from the underlying game state. When a human opponent departs, the session assigns that same seat to an AI search controller without constructing a new match. The next legal action is generated from the retained state, including turn and hidden chess rights. The local rules engine remains authoritative if a conversational or visual inference service is unavailable."
+  ],
+  [
+    "body",
+    "If a physical AI action is already pending when a human resumes the seat, the pending action is retained and must be resolved before the new controller takes over. This prevents obtaining alternative AI moves by repeatedly toggling controllers. If play changes to virtual representation while the same pending action exists, the virtual game executes that action once when play is allowed; it does not ask a new controller for a replacement action. A pause or open menu keeps the action pending until continuation is permitted."
+  ],
+  [
+    "h",
+    "8. Physical-to-virtual continuation and return"
+  ],
+  [
+    "body",
+    "A physical-to-virtual transition retains the session identifier, authoritative state, histories, pending action and verification status. Rendering changes from guidance over physical locations to directly manipulable virtual pieces. A virtual-to-physical transition freezes play, invalidates prior observations and requests board registration. Guide pieces then depict the saved authoritative arrangement. The user reconstructs that arrangement with physical pieces."
+  ],
+  [
+    "body",
+    "Full-board reconciliation compares observed contents at every required location to the saved state rather than deriving a replacement state from the camera image. In chess, all 64 squares, including expected empty squares, are checked for matching piece color and type. Only a complete, current-generation match with hands clear enables the verified continuation pathway. A mismatch is indicated for correction. The saved side to move, castling rights, en-passant target, counters and repetition history are not inferred from the arrangement and are not reset."
+  ],
+  [
+    "body",
+    "An untracked midgame is a different operation: explicit import. The user must specify information a photograph cannot establish, including side to move and applicable rights. The system labels earlier history unknown, creates a new session and validates the supplied position. It does not claim that importing a diagram authenticates prior play."
+  ],
+  [
+    "h",
+    "9. Persistent records and interrupted operations"
+  ],
+  [
+    "body",
+    "One implementation stores append-only local checkpoints. Each record includes schema, session and game identifiers, sequential revision, time, transition reason, payload, prior-record hash and a hash of those fields. A checkpoint is written to a temporary file, flushed and renamed to its revision filename. Loading verifies sequence, prior-hash linkage, content hashes and consistent game identity. A damaged chain produces an error rather than a silent reset. Restored pending actions are checked for legality against the restored state."
+  ],
+  [
+    "body",
+    "Such local hashes detect corruption and inconsistent edits but do not make a user-controlled device a trusted anti-cheat authority: a person controlling storage could replace an entire chain. A separately proposed deployment can place signed checkpoints with an authenticated authority or witness service to detect rollback, but that variant is not represented as implemented or tested in the present local build. Preservation of complete records and honest verification labels is independent of such stronger trust arrangements."
+  ],
+  [
+    "h",
+    "10. Relocation, interaction and guidance"
+  ],
+  [
+    "body",
+    "A board placement state separates the visual board pose from logical state. During repositioning, normal piece moves are suspended and the old playing board can be hidden while a placement guide is displayed. A two-hand gesture can derive translation from the hands midpoint and yaw from their relative direction. Room-origin or boundary changes invalidate prior physical registration and observation evidence; recovery brings a placement affordance into the current accessible viewing area, then requires physical alignment and reconciliation before verified play resumes. These operations do not create a new game."
+  ],
+  [
+    "body",
+    "Virtual piece grasping uses tracked thumb and index-finger positions to keep the piece at the pinch rather than at the palm. A grasp can maintain an initial contact offset; upon release the board-frame destination is evaluated against legal actions. Decorative manipulation need not commit a logical move. A viewer-facing panel presents a large persistent active-turn heading and contextual instructions below it, replacing move instructions with game-over or recovery instructions when appropriate."
+  ],
+  [
+    "h",
+    "11. Distributed inference and advisory isolation"
+  ],
+  [
+    "body",
+    "A local-network host may run a visual model and a conversational model. Initial pairing transfers a device authorization token, host URL and certificate fingerprint. Subsequent requests use authenticated HTTPS with an exact certificate pin and do not depend on a USB reverse-port tunnel. Readiness probes and bounded retry handle temporary failures. This connection requires a reachable host and network; it is not a claim of offline availability of every model. The deterministic chess opponent can execute entirely on the display device."
+  ],
+  [
+    "body",
+    "Conversational assistance receives a read-only state snapshot and may explain a legal continuation or recovery instruction. The UI rejects stale advice for a superseded state and does not allow prose output to bypass the deterministic transition gate. Visual classification likewise supplies structured observations, not mutation authority. These boundaries allow models to be replaced or self-hosted without changing the session continuity semantics."
+  ],
+  [
+    "h",
+    "12. Additional embodiments and development status"
+  ],
+  [
+    "body",
+    "A hand-driven embodiment uses pinch source and release destination as proposed input against known board geometry without continuous piece recognition. Its weaker physical verification is explicitly distinguished from identity-confirmed vision. Other game profiles may define a path, hexagonal board or card zones rather than square coordinates. A drawn-card event can carry card identity, active player, target location and animation parameters; presentation of an upright card, travel to a discard stack and themed effects can remain additive to the physical game. The event and destination must still be resolved by the game rules. No particular commercial game artwork or third-party character is required by this disclosure."
+  ],
+  [
+    "body",
+    "Other proposed alternatives include depth-assisted plane estimation, marker-assisted registration, model-based silhouette fitting, multi-device observation and privacy-filtered spectator views. These are possible implementations for inventor review, not assertions of completed prototypes or measured benefits. The detailed known-plane checker search, local records and two-view silhouette method above describe the current technical approach. Real-board accuracy of the new automatic alignment and sizing pipeline remains to be tested. No experimental success is asserted for an untested embodiment."
+  ],
+  [
+    "h",
+    "13. Example continuation sequence"
+  ],
+  [
+    "body",
+    "Two people begin a tracked physical chess game. After several turns the black-side player leaves. The system retains the session, side to move, legal rights and history while assigning Black to a local AI. The AI proposes a legal move; the wearer is instructed to move the corresponding real piece. A current observation of all affected squares confirms the expected result and the system advances once. If the wearer instead switches to virtual play before physically completing that move, the retained pending action executes once on the virtual board. Later, returning to a real board displays the latest saved position, pauses normal play and requires full-board reconciliation. A wrong piece or missing empty-square observation keeps the game paused without overwriting the saved state."
+  ],
+  [
+    "h",
+    "14. Candidate claim concepts for professional review"
+  ],
+  [
+    "body",
+    "A candidate system combination comprises a display and sensing device; a persistent game-state store; independent controller and surface-mode selectors; a proposal manager retaining an unfinished action across a controller or surface switch; and an observation gate that accepts physical continuation only when current, complete observations match a rules-derived expected configuration. Subsequent rendering proceeds from the retained state rather than creating a new game. These are drafting concepts, not a conclusion that any claim is novel, patentable or noninfringing."
+  ],
+  [
+    "body",
+    "Possible narrower combinations include preserving hidden game rights through full-board reconciliation; changed-location verification covering special multi-piece moves; clearing a measurement proposal when rescanning; separate user acceptance of board geometry and piece proportions; revision invalidation on relocation or mode change; and persistent manual-versus-camera verification status. Formal claims are not required for a U.S. provisional, and scope should be reviewed against the full disclosure and prior art before later claim drafting."
+  ],
+  [
+    "h",
+    "Abstract"
+  ],
+  [
+    "body",
+    "A mixed-reality tabletop system retains an authoritative game session while changing between physical and virtual representations and between human and artificial-intelligence controllers. Pending actions survive controller changes. Physical continuation is gated by revision-matched observations of a rules-derived expected configuration, with full-board reconciliation on return to physical play. Registration fits a checkerboard pattern on a placed plane, presents a candidate for acceptance and subsequently estimates piece proportions from multiple views. Calibration, rendering and advisory model outputs are separated from logical game-state authority. Persistent records preserve history and verification status; incomplete or stale evidence withholds state advancement."
+  ]
+]
