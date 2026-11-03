@@ -1,7 +1,7 @@
 using UnityEngine;
 namespace LivingTable.Chess {
  public sealed partial class ChessTable {
-  int resizeHand=int.MinValue,resizeCorner=-1;float resizeSeen,resizeStartSize;Vector3 resizeStartPoint,resizeAxis;Material handleGlow,adjustGrid;Transform[] handleGrips=new Transform[4];Renderer[] handleRenderers=new Renderer[4];
+  int resizeHand=int.MinValue,resizeCorner=-1;float resizeSeen,resizeStartSize;Vector3 resizeStartPoint,resizeAxis,resizeFixed,resizeNormal,resizeOffset;Quaternion resizeRotation;Material handleGlow,adjustGrid;Transform[] handleGrips=new Transform[4];Renderer[] handleRenderers=new Renderer[4];
   public bool ResizingBoard=>resizeHand!=int.MinValue;
   public bool AdjustingBoard=>relocating;
   public Vector3 ResizeHandleWorld(int corner)=>transform.TransformPoint(new Vector3((corner%2==0?-1:1)*(Size*.5f+.06f),.025f,(corner<2?-1:1)*(Size*.5f+.06f)));
@@ -14,14 +14,22 @@ namespace LivingTable.Chess {
    }
    UpdateHandleFeedback();
   }
-  public bool BeginBoardResize(int hand,Vector3 point)=>false; // Two corner pinches own board adjustment.
+  public bool BeginBoardResize(int hand,Vector3 point){
+   if(HomeScreen||Busy||StorageBlocked||SessionMenuOpen||relocating||SelectingCorners||calibrationBusy)return false;
+   int corner=-1;float nearest=.055f;for(int i=0;i<4;i++){float distance=Vector3.Distance(point,ResizeHandleWorld(i));if(distance<nearest){nearest=distance;corner=i;}}
+   if(corner<0)return false;resizeCorner=corner;resizeHand=hand;resizeSeen=Time.unscaledTime;resizeStartSize=Size;resizeStartPoint=point;resizeRotation=transform.rotation;resizeNormal=transform.up;
+   var diagonal=new Vector3(corner%2==0?-1:1,0,corner<2?-1:1);resizeFixed=transform.TransformPoint(-diagonal*Size*.5f);resizeAxis=transform.rotation*diagonal;resizeOffset=point-ResizeHandleWorld(corner);
+   BeginRelocation();Message="Opposite playing corner locked. Pull this knob to fit the board; release to review.";return true;
+  }
   public void ScaleHeldBoard(float size){Size=Mathf.Clamp(size,.2f,1.2f);float ratio=Size/resizeStartSize;foreach(var root in new[]{board,men,ui,marks})if(root!=null)root.localScale=Vector3.one*ratio;}
-  public void BeginCornerAdjustment(){resizeStartSize=Size;BeginRelocation();}
+  public void BeginCornerAdjustment(){if(ResizingBoard){resizeHand=int.MinValue;resizeCorner=-1;DrawScene();}resizeStartSize=Size;BeginRelocation();}
   public bool UpdateBoardResize(int hand,Vector3 point,bool release){
    if(hand!=resizeHand)return false;resizeSeen=Time.unscaledTime;
-   Size=Mathf.Clamp(resizeStartSize+Vector3.Dot(point-resizeStartPoint,resizeAxis)*Mathf.Sqrt(2),.2f,1.2f);
-   if(release){EndBoardResize();return true;}
-   float scale=Size/resizeStartSize;foreach(var root in new[]{board,men,ui,marks})if(root!=null)root.localScale=Vector3.one*scale;return true;
+   var line=Vector3.ProjectOnPlane(point-resizeOffset-resizeFixed,resizeNormal);if(line.magnitude<.08f){if(release)EndBoardResize();return true;}
+   var turn=Quaternion.AngleAxis(Vector3.SignedAngle(resizeAxis,line,resizeNormal),resizeNormal);var rotation=turn*resizeRotation;
+   float size=Mathf.Clamp(line.magnitude/Mathf.Sqrt(2)-.06f,.2f,1.2f);var diagonal=new Vector3(resizeCorner%2==0?-1:1,0,resizeCorner<2?-1:1);
+   transform.SetPositionAndRotation(resizeFixed+rotation*diagonal*(size*.5f),rotation);ScaleHeldBoard(size);
+   if(release)EndBoardResize();return true;
   }
   void EndBoardResize(){if(!ResizingBoard)return;resizeHand=int.MinValue;resizeCorner=-1;EndRelocation();}
   void UpdateHandleFeedback(){

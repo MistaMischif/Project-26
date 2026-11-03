@@ -5,7 +5,7 @@ using UnityEngine;
 namespace LivingTable.Chess {
  public sealed partial class ChessTable {
   Material instructionMaterial,scanReading,scanComplete,scanUncertain,scanMismatch;Transform spinner,scanRoot;readonly Renderer[] scanSquares=new Renderer[64];
-  bool CriticalInstructions=>VirtualSafetyOpen||standardMenu||!HomeScreen&&Physical&&(!Playing||AlignmentInProgress||Recovering||AwaitingMoveAcceptance||Vision.Checking||Vision.NeedsAttention);
+  bool CriticalInstructions=>VirtualSafetyOpen||standardMenu||!HomeScreen&&Physical&&(!Playing||relocating||AlignmentInProgress||Recovering||AwaitingMoveAcceptance||Vision.Checking||Vision.NeedsAttention);
   public bool PointAtMenu(Ray ray,bool activate){
    if(VirtualSafetyOpen){foreach(var button in buttons){var planeButton=new Plane(button.root.up,button.root.position);if(!planeButton.Raycast(ray,out float depth)||depth<.05f||depth>4)continue;var point=button.root.InverseTransformPoint(ray.GetPoint(depth));if(Mathf.Abs(point.x)>button.radius||Mathf.Abs(point.z)>button.radius)continue;button.visual.Hover();if(activate&&Time.unscaledTime>=panelClickAt){panelClickAt=Time.unscaledTime+.4f;button.action();}return true;}}
    if(panelMenu==null||grabHand!=int.MinValue||setupHand!=int.MinValue||relocating&&gameObject.activeInHierarchy)return false;

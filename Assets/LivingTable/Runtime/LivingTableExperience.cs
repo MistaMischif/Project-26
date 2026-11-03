@@ -190,7 +190,7 @@ namespace LivingTable
 
         bool PollBoardGrip()
         {
-            if(!ChessActive||!placed||busy||chess.ResizingBoard)return false;
+            if(!ChessActive||!placed||busy)return false;
             OVRHand a=null,b=null;Vector3 pa=default,pb=default;float sa=0,sb=0;
             foreach(var hand in hands){
                 if(hand==null||!hand.IsTracked||hand.HandConfidence!=OVRHand.TrackingConfidence.High||hand.IsSystemGestureInProgress||!TryPinchPoint(hand,out var point))continue;
