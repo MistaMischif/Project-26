@@ -1,0 +1,15 @@
+{
+  "version": "0.1.12",
+  "versionCode": 13,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "99ff7d29fe8989e2083adcd28b22a4c2a9f45480139d57fecbf8b7a5e3db9d7d",
+  "bytes": 88323447,
+  "file": "LivingTable-FirstSteps-0.1.12.apk",
+  "built": "2026-11-03",
+  "reviewed": "2026-11-03",
+  "status": "Installed and launched on Quest 3; wireless host connected",
+  "publishedVersion": "0.1.12",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.12",
+  "acceptance": "Pending measured physical alignment accuracy, drift and founder headset acceptance",
+  "sourceCommit": "6887050142b6530148fc1b7850565ec65267573e"
+}
