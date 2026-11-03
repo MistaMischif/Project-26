@@ -7,7 +7,7 @@ namespace LivingTable.Chess {
   public void BeginAlignment()=>BeginFourCorners();
   public void BeginAutomaticAlignment(){if(!Physical||Busy)return;Version++;CancelGrab();Vision.ClearEvidence();alignStage=5;Aligned=false;calibrationBusy=true;Message="Finding the checker pattern. Look down at the whole board and clear hands. Finding the tabletop depth and checker pattern automatically.";DrawScene();calibration.FitBoard();}
   public void CalibrationFailed(string reason){calibrationBusy=false;Message=reason;DrawUI();}
-  public void PreviewAutoAlignment(ChessCheckerFit.Fit fit){calibrationBusy=false;Size=fit.size;transform.SetPositionAndRotation(fit.center,Quaternion.Euler(0,fit.yaw,0));alignStage=3;Message="Check all four corners. Rotate if needed, then ACCEPT BOARD. No game move has changed.";DrawScene();}
+  public void PreviewAutoAlignment(ChessCheckerFit.Fit fit){calibrationBusy=false;Size=fit.size;transform.SetPositionAndRotation(fit.center,Quaternion.Euler(0,fit.yaw,0));if(quickCapture&&quickPhase==0){quickPhase=1;Aligned=true;BeginPositionScan();return;}alignStage=3;Message="Check all four corners. Rotate if needed, then ACCEPT BOARD. No game move has changed.";DrawScene();}
   public void AcceptAutoAlignment(){if(alignStage!=3)return;Aligned=true;Version++;if(Playing)Recovering=true;SaveSession("automatic board fit accepted");BeginKingSizing();}
   void StartPieceScan(){proposedSizes=null;alignStage=4;calibrationBusy=true;Message="Measuring piece proportions. Keep pieces still and move your head slightly to one side. Uncertain sizes will stay unchanged.";DrawScene();calibration.SizePieces();}
   public void PreviewPieceSizes(float[] sizes){calibrationBusy=false;proposedSizes=sizes;int count=0;for(int i=0;i<24;i+=2)if(sizes[i]>0)count++;Message=count>0?count+" piece/color profiles measured. APPLY SIZES or keep standard proportions.":"No consistent piece measurements. Retry from a clearer angle or keep standard sizes.";DrawMen();DrawUI();}
@@ -19,6 +19,7 @@ namespace LivingTable.Chess {
   public bool AlignmentInProgress=>alignStage>0;
   public void BeginManualAlignment()=>BeginFourCorners();
   void DrawAlignmentGuide(){
+   if(alignStage==11||quickCapture&&alignStage==5)return;
    if(!relocating&&(!Physical||Playing&&!Recovering&&alignStage==0))return;
    var guide=new GameObject("Alignment grid").transform;guide.SetParent(board,false);
    if(SelectingCorners){for(int i=0;i<cornerCount;i++){var point=transform.InverseTransformPoint(setupCorners[i]);Shape(guide,"Selected playing corner "+(i+1),PrimitiveType.Sphere,point,Vector3.one*.018f,gold);}return;}

@@ -46,6 +46,7 @@ namespace LivingTable
         readonly Rect panel = new Rect(16, 16, 410, 218);
 
         public static bool BoardOutOfReach(Vector3 eye,Vector3 board)=>Vector3.ProjectOnPlane(eye-board,Vector3.up).magnitude>1.8f||Mathf.Abs(eye.y-board.y)>1.8f;
+        public string RegisteredAnchorId=>spatialAnchor!=null&&spatialAnchor.Created?spatialAnchor.Uuid.ToString():null;
         public void RequestRoomRecovery(){if(placed)roomRecoveryRequested=true;}
         void OriginChanging(OVRManager.TrackingOrigin origin,OVRPose? previous)=>RequestRoomRecovery();
         void CheckRoom(){
@@ -150,6 +151,7 @@ namespace LivingTable
                 { held[hand] = true; if(ChessActive)chess.ForgetHand(hand.GetInstanceID());else if(candyLandMode&&candy!=null)candy.ForgetDirectHand(hand.GetInstanceID()); continue; } // Require release after tracking returns.
                 float strength = hand.GetFingerPinchStrength(OVRHand.HandFinger.Index);
                 held.TryGetValue(hand, out bool wasHeld);
+                if(ChessActive&&hand.IsPointerPoseValid){bool activate=strength>=.7f&&!wasHeld;if(chess.PointAtMenu(new Ray(hand.PointerPose.position,hand.PointerPose.forward),activate)&&activate){held[hand]=true;continue;}}
                 if(ChessActive&&placed)
                 {
                     var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(IsObservedJoint(skeleton,bone.Id))chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==HandJoint(skeleton.GetSkeletonType(),1))chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}

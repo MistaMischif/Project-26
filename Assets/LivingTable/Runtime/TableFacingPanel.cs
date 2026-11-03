@@ -3,7 +3,9 @@ namespace LivingTable
 {
  public sealed class TableFacingPanel : MonoBehaviour
  {
-  Transform board;float boardSize,panelHeight;
+  Transform board;float boardSize,panelHeight;public bool InstructionView{get;private set;}
+  bool compactInstructions;
+  public void SetInstructionView(bool value,bool compact=false){InstructionView=value;compactInstructions=compact;FaceViewer();}
   public void SetBoardBackground(Transform reference,float size,float height){board=reference;boardSize=size;panelHeight=height;}
   public bool Floating { get; private set; }
   public void SetFloating(bool value){Floating=value;}
@@ -11,7 +13,8 @@ namespace LivingTable
   public void FaceViewer()
   {
    var camera=Camera.main;if(camera==null)return;
-   if(board!=null){var away=Vector3.ProjectOnPlane(board.position-camera.transform.position,Vector3.up).normalized;if(away.sqrMagnitude<.01f)away=Vector3.ProjectOnPlane(camera.transform.forward,Vector3.up).normalized;float extent=panelHeight*transform.lossyScale.y*.5f;transform.position=board.gameObject.activeInHierarchy?board.position+away*(boardSize*.72f+.14f+extent)+Vector3.up*(.17f+extent):camera.transform.position+away*.65f;}
+   if(InstructionView){transform.position=camera.transform.position+camera.transform.forward*.60f+camera.transform.up*(compactInstructions?.22f:.12f);}
+   else if(board!=null){var away=Vector3.ProjectOnPlane(board.position-camera.transform.position,Vector3.up).normalized;if(away.sqrMagnitude<.01f)away=Vector3.ProjectOnPlane(camera.transform.forward,Vector3.up).normalized;float extent=panelHeight*transform.lossyScale.y*.5f;transform.position=board.gameObject.activeInHierarchy?board.position+away*(boardSize*.72f+.14f+extent)+Vector3.up*(.17f+extent):camera.transform.position+away*.65f;}
    else if(Floating){var target=camera.transform.position+camera.transform.forward*.9f+camera.transform.up*.18f;transform.position=Vector3.Lerp(transform.position,target,1-Mathf.Exp(-Time.unscaledDeltaTime*4));}
    var direction=transform.position-camera.transform.position;if(direction.sqrMagnitude>.0001f)transform.rotation=Quaternion.LookRotation(direction,Vector3.up);
   }

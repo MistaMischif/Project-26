@@ -31,10 +31,10 @@ namespace LivingTable.Chess {
   Transform panelMenu;TableButtonVisual panelMenuVisual;bool panelArmed;float panelClickAt;
   void ConfigureBackPanel(Transform p){
    p.SetParent(FindFirstObjectByType<LivingTableExperience>()?.transform,true);p.localScale=Vector3.one*panelScale;
-   panel.SetBoardBackground(transform,Size,Playing?.34f:.25f);panel.FaceViewer();
+   panel.SetBoardBackground(transform,Size,Playing?.34f:.25f);panel.SetInstructionView(CriticalInstructions,!standardMenu);panel.FaceViewer();
   }
   void DrawPanelMenu(Transform p){
-   panelMenu=new GameObject("Always available menu").transform;panelMenu.SetParent(p,false);panelMenu.localPosition=new Vector3(.19f,.075f,-.025f);panelMenu.localRotation=Quaternion.Euler(-90,0,0);
+   panelMenu=new GameObject("Always available menu").transform;panelMenu.SetParent(p,false);panelMenu.localPosition=new Vector3(.19f,CriticalInstructions&&!standardMenu?.045f:.075f,-.025f);panelMenu.localRotation=Quaternion.Euler(-90,0,0);
    var label=Label(panelMenu,"≡",Vector3.zero,.003f);label.transform.localRotation=Quaternion.Euler(90,0,0);label.color=Color.black;
    panelMenuVisual=panelMenu.gameObject.AddComponent<TableButtonVisual>();panelMenuVisual.Build(label.transform,Purple,false,true,.035f);panelMenuVisual.UseGoldTrim();
   }

@@ -1,0 +1,42 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+namespace LivingTable.Chess {
+ public sealed partial class ChessTable {
+  Material instructionMaterial,scanReading,scanComplete,scanUncertain;Transform spinner,scanRoot;readonly Renderer[] scanSquares=new Renderer[64];
+  bool CriticalInstructions=>standardMenu||!HomeScreen&&Physical&&(!Playing||AlignmentInProgress||Recovering||AwaitingMoveAcceptance||Vision.Checking||Vision.NeedsAttention);
+  public bool PointAtMenu(Ray ray,bool activate){
+   if(panelMenu==null||grabHand!=int.MinValue||setupHand!=int.MinValue||relocating&&gameObject.activeInHierarchy)return false;
+   var plane=new Plane(panelMenu.up,panelMenu.position);if(!plane.Raycast(ray,out float distance)||distance<.05f||distance>4)return false;var hit=ray.GetPoint(distance);var local=panelMenu.InverseTransformPoint(hit);
+   if(Mathf.Abs(local.x)>.035f||Mathf.Abs(local.z)>.035f)return false;panelMenuVisual.Hover();if(activate)TryPanelButton(panelMenu.position);return true;
+  }
+  void DrawScanSpinner(Transform parent){
+   spinner=new GameObject("Scan loading spinner").transform;spinner.SetParent(parent,false);spinner.localPosition=new Vector3(0,CriticalInstructions&&!standardMenu?-.052f:-.095f,-.025f);
+   for(int i=0;i<10;i++){float angle=i*Mathf.PI*2/10;Shape(spinner,"Loading dot "+i,PrimitiveType.Sphere,new Vector3(Mathf.Cos(angle)*.012f,Mathf.Sin(angle)*.012f,0),Vector3.one*(.0025f+i*.00025f),gold);}
+   spinner.gameObject.SetActive(calibrationBusy||Vision.Checking);
+  }
+  void DrawScanSquares(){
+   if(scanRoot!=null){scanRoot.gameObject.SetActive(false);Destroy(scanRoot.gameObject);}scanRoot=Node("Physical scan progress");
+   if(scanReading==null){scanReading=Mat(new Color(.1f,.65f,1),true);scanComplete=Mat(new Color(.1f,1,.45f),true);scanUncertain=Mat(new Color(1,.4f,.03f),true);foreach(var m in new[]{scanReading,scanComplete,scanUncertain}){m.SetFloat("_Square",1);m.SetFloat("_Strength",.22f);}}
+   for(int square=0;square<64;square++){var tile=Shape(scanRoot,"Scan "+ChessMove.Square(square),PrimitiveType.Quad,SquareLocal(square)+Vector3.up*.002f,new Vector3(Size/8*.88f,Size/8*.88f,1),scanReading);tile.localRotation=Quaternion.Euler(90,0,0);scanSquares[square]=tile.GetComponent<Renderer>();tile.gameObject.SetActive(false);}UpdateScanFeedback();
+  }
+  void UpdateScanFeedback(){
+   if(spinner!=null){spinner.gameObject.SetActive(calibrationBusy||Vision.Checking);spinner.localRotation=Quaternion.Euler(0,0,-Time.unscaledTime*200);}
+   if(scanRoot==null||Vision==null)return;bool show=Physical&&Aligned&&!HomeScreen&&!relocating;for(int square=0;square<64;square++){if(scanSquares[square]==null)continue;byte state=Vision.CellProgress[square];scanSquares[square].gameObject.SetActive(show&&state>0);scanSquares[square].sharedMaterial=state==1?scanReading:state==2?scanComplete:scanUncertain;}
+  }
+  public static int[] CapturedSinceStart(ChessMatch.State state){
+   var taken=new List<int>();if(state?.initial==null||state.moves==null)return taken.ToArray();var position=state.initial.Copy();foreach(var saved in state.moves){var move=saved.Move;int square=move.EnPassant?move.To-position.Side*8:move.To;int piece=position.Board[square];if(piece!=0)taken.Add(piece);position=position.After(move);}return taken.ToArray();
+  }
+  public static int MissingBeforeStart(ChessMatch.State state,int color)=>state?.initial==null?0:Math.Max(0,16-state.initial.Board.Count(piece=>Math.Sign(piece)==color));
+  void DrawCapturedPieces(){
+   if(!Playing||HomeScreen)return;var state=Match.Capture();var recorded=CapturedSinceStart(state);float unit=Size/.56f;
+   foreach(int color in new[]{1,-1}){var pieces=recorded.Where(p=>Math.Sign(p)==color).ToArray();int unknown=MissingBeforeStart(state,color),total=unknown+pieces.Length;
+    var tray=new GameObject(SideName(color)+" captured pieces").transform;tray.SetParent(men,false);tray.localPosition=new Vector3((color>0?-1:1)*(Size*.5f+.115f*unit),0,0);
+    Shape(tray,"Captured tray",PrimitiveType.Cube,new Vector3(0,.003f,0),new Vector3(.105f*unit,.009f,Size*.70f),gold);
+    for(int i=0;i<total;i++){var at=new Vector3((i%2==0?-.025f:.025f)*unit,.012f,(-.145f+(i/2)*.041f)*unit);if(i<pieces.Length){var model=ChessPieceModel.Build(tray,pieces[i],color>0?ivory:ebony,gold,meshes);model.localPosition=at;model.localScale=Vector3.one*.48f*unit;}else{Shape(tray,"Earlier capture type unknown",PrimitiveType.Cylinder,at,new Vector3(.025f*unit,.004f,.025f*unit),color>0?ivory:ebony);var mark=Label(tray,"?",at+Vector3.up*.009f,.0013f*unit);mark.color=color>0?Color.black:Color.white;mark.transform.localRotation=Quaternion.Euler(90,0,0);}}
+    string caption=SideName(-color).ToUpperInvariant()+" CAPTURED: "+total+(unknown>0?"\n"+unknown+" before scan · types unknown":"");var label=Label(tray,caption,new Vector3(0,.065f,-Size*.37f),.0017f*unit);label.fontStyle=FontStyle.Bold;label.gameObject.AddComponent<TableFacingPanel>();
+   }
+  }
+ }
+}

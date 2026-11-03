@@ -55,3 +55,18 @@ Detected human moves display a virtual preview while authoritative history remai
 Scans have progress, cancel, visible errors and a 120-second overall bound (12 seconds for a final acceptance frame). This is a failure bound, not a performance target. Failed scans expose review/manual controls. The persistent backdrop menu supports return to main menu, quit and panel sizing. Gameplay controls sit at the board's base, with one central circular purple next-action button, teal human controls and orange-red AI controls. The backdrop is positioned beyond the board and can be scaled separately.
 
 Verification: see releases/firststeps-0.1.10/VERIFICATION.md. Synthetic tests are not physical-camera or founder acceptance.
+
+
+## First Steps 0.1.11: physical capture to virtual AI continuation
+
+Founder clarification, November 3: online multiplayer is out of scope. QUICK PLAY starts a physical capture, not a new virtual starting position. It asks the user to look down over the real board, attempts checker registration, reads/reviews its layout, then refines four corners and king scale. Failed automatic fitting has a manual-corner route; the same position-review rules apply. The user supplies unknowable turn/history information and explicitly presses START GAME to begin virtual AI play.
+
+A capture draft receives its session ID immediately and is checkpointed before play. The accepted match keeps that ID. The save includes captured/unknown cells during review, per-board corner geometry, dimensions, color, piece scale, local/world pose and spatial-anchor identifier when available. Raw camera frames are not retained. Continue restores an unfinished capture to review and requires current physical registration, rather than trusting old room coordinates. Virtual continuation does not move the user back to a previously saved physical location.
+
+Every committed human/AI move updates the same local journal. Returning to a real board preserves the latest virtual position and history, shows the target guides, and requires full matching-board verification before resuming. An arbitrary legal successor is not accepted as the saved checkpoint. Menu visibility alone no longer persists an unintended pause; explicit PAUSE still does.
+
+During setup, scanning, recovery or a scan failure, a compact instruction HUD stays in direct view above the board. Its menu supports pointer-pose ray + pinch as well as touch. An active loading spinner and per-cell blue/green/amber feedback expose progress/uncertainty. These visual controls do not change the registered board frame.
+
+Captured-piece trays are derived from authoritative match history. They display actual recorded captured models and per-side totals; en passant is included. Pieces already missing from a scanned starting position are represented by unknown-type markers rather than fabricated piece identities. Standard imported positions reject more than 16 pieces or 8 pawns per side. There is no separate mutable captured-piece ledger.
+
+Verification and editor renders are recorded in releases/firststeps-0.1.11. Synthetic data does not establish headset camera accuracy or acceptance. No online service or multiplayer capability is included.

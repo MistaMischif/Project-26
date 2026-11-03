@@ -49,10 +49,12 @@ namespace LivingTable.Chess
   {
    if(panel!=null){panel.gameObject.SetActive(false);Destroy(panel.gameObject);panel=null;}panelMenu=null;panelSlider=null;sliderKnob=null;
    if(ui!=null){ui.gameObject.SetActive(false);Destroy(ui.gameObject);}ui=Node("Chess controls");buttons.Clear();leftButtons=rightButtons=0;
-   var p=new GameObject("Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",GameOver?new Vector3(0,-.115f,-.015f):Playing?new Vector3(0,-.05f,-.015f):new Vector3(0,0,-.015f),.0026f);p.AddComponent<TableCabinetVisual>().Panel(GameOver?.72f:companionOpen?.65f:Playing?.72f:.50f,GameOver?.34f:companionOpen?.36f:Playing?.34f:.21f,false);status.color=new Color(.10f,.04f,.008f);
+   bool guidance=CriticalInstructions;var p=new GameObject(guidance?"Floating setup instructions":"Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",guidance?new Vector3(0,.005f,-.015f):GameOver?new Vector3(0,-.115f,-.015f):Playing?new Vector3(0,-.05f,-.015f):Vector3.zero,guidance&&!standardMenu?.0022f:.0026f);
+   if(guidance){if(instructionMaterial==null)instructionMaterial=Mat(new Color(.025f,.035f,.06f));Shape(p.transform,"Floating instruction card",PrimitiveType.Cube,new Vector3(0,0,.005f),new Vector3(.52f,standardMenu?.25f:.15f,.009f),instructionMaterial);status.color=Color.white;}
+   else{p.AddComponent<TableCabinetVisual>().Panel(GameOver?.72f:companionOpen?.65f:Playing?.72f:.50f,GameOver?.34f:companionOpen?.36f:Playing?.34f:.21f,false);status.color=new Color(.10f,.04f,.008f);}
    if(GameOver){var result=Label(p.transform,Match.Result.Replace(" wins by "," wins\nby ").Replace("Draw \u2014 ","Draw\n"),new Vector3(0,.06f,-.015f),.0026f*4);result.name="Game result";result.fontStyle=FontStyle.Bold;result.color=status.color;}
-   turnHeading=null;if(Playing&&!GameOver&&!companionOpen){turnHeading=Label(p.transform,TurnTitle,new Vector3(0,.10f,-.015f),.008f);turnHeading.fontStyle=FontStyle.Bold;turnHeading.color=status.color;turnHeading.name="Persistent turn heading";}
-   ConfigureBackPanel(p.transform);DrawPanelMenu(p.transform);
+   turnHeading=null;if(Playing&&!GameOver&&!companionOpen&&!guidance){turnHeading=Label(p.transform,TurnTitle,new Vector3(0,.10f,-.015f),.008f);turnHeading.fontStyle=FontStyle.Bold;turnHeading.color=status.color;turnHeading.name="Persistent turn heading";}
+   ConfigureBackPanel(p.transform);DrawPanelMenu(p.transform);DrawScanSpinner(p.transform);
    if(SetupUI())return;
    if(HomeScreen){
     status.text="LIVING TABLE\nby COLTRAN STUDIOS\n\nPatent application in preparation";status.fontStyle=FontStyle.Bold;status.characterSize=.0035f;
