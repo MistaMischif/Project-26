@@ -1,0 +1,1 @@
+38 checks passed: home menu, central square controls, corner gestures, set sizing, physical guides, session safety.

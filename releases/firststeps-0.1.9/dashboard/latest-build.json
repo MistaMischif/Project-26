@@ -1,0 +1,15 @@
+{
+  "version": "0.1.9",
+  "versionCode": 10,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "d8da5ba8c0f9e07764f4b369797152e7a166f12c98d8cba3679306140b2dbc07",
+  "bytes": 119200106,
+  "file": "LivingTable-FirstSteps-0.1.9.apk",
+  "built": "2026-11-03",
+  "reviewed": "2026-11-03",
+  "status": "Installed and launched on Quest 3",
+  "publishedVersion": "0.1.9",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.9",
+  "acceptance": "Pending founder real-board, automatic alignment and control comfort acceptance",
+  "sourceCommit": "9349048142d6b2cbe6612d79017d8f19b5ee66c2"
+}

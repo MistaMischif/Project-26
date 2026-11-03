@@ -1,0 +1,1 @@
+PASS: synthetic perspective checker fit, metric size/pose on known plane, blank rejection, unstable fit rejection, certificate pin match/mismatch, unencrypted LAN rejection. Real-board and piece measurements need hardware testing.
