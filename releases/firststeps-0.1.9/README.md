@@ -2,7 +2,7 @@
 
 Quest 3 test build: simplified chess setup, physical/virtual counterparts and corner adjustment.
 
-- First screen: LIVING TABLE, by COLTRAN STUDIOS; New Game, Continue, Quick Play. Quick Play starts virtual chess against the on-device engine.
+- First screen: LIVING TABLE, by COLTRAN STUDIOS; New Game, Continue, Quick Play. Quick Play starts virtual chess against the on-device engine. The home menu follows your view until selection, including when tracking settles after launch.
 - Four neutral gold corner knobs. Pinch two separate knobs together, then move, spread or rotate your hands. The knobs light up and the grid pulses. Release to place. Physical geometry requires acceptance before continuing.
 - Square teal human/real controls on the left, orange-red AI controls on the right, two rows, one larger central action. Every cap and hit area stays within the central 5/8 board footprint. Controls sit 18 cm above the board, separated from piece contacts.
 - MENU > OPTIONS > PIECES +/- adjusts the entire set. Setup has OPTIONS too. Size is saved per session; measured physical profiles use corrected paired indices.

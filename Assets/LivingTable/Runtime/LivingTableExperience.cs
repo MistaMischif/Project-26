@@ -113,7 +113,13 @@ namespace LivingTable
         void Update()
         {
             if (platform == null) return;
-            CheckRoom();
+            if(ChessActive&&chess.HomeScreen&&Camera.main!=null){
+                // Home is a reachable entry point even if tracking settles after launch or the headset moves.
+                var eye=Camera.main.transform;var forward=Vector3.ProjectOnPlane(eye.forward,Vector3.up);
+                if(forward.sqrMagnitude<.01f)forward=Vector3.forward;forward.Normalize();
+                mount.SetParent(transform,true);mount.SetPositionAndRotation(eye.position+forward*.65f-Vector3.up*.35f,Quaternion.LookRotation(forward));
+                placed=true;mount.gameObject.SetActive(true);roomRecoveryRequested=false;farSince=-1;
+            }else CheckRoom();
             if (placementPrompt != null)
             {
                 placementPrompt.gameObject.SetActive(!placed);

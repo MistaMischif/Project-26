@@ -12,7 +12,7 @@ export const piecePrompt='Inspect only the image. Classify the clearly visible c
 const visibilitySchema={type:'object',additionalProperties:false,properties:{visibility:{type:'string',enum:['empty','clear','obscured']}},required:['visibility']};
 const schema={type:'object',additionalProperties:false,properties:{piece:{type:'string',enum:pieces}},required:['piece']};
 export function validateInput(v){
- if(!v||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.cells)||v.cells.length<2||v.cells.length>4)throw Error('Expected revision and 2–4 square crops');
+ if(!v||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.cells)||v.cells.length<2||v.cells.length>4)throw Error('Expected revision and 2â€“4 square crops');
  const seen=new Set();
  for(const c of v.cells){if(!c||!/^[a-h][1-8]$/.test(c.square)||seen.has(c.square)||typeof c.image!=='string'||c.image.length>500000||!/^\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(c.image))throw Error('Invalid square or JPEG crop');seen.add(c.square);}
  return v;
