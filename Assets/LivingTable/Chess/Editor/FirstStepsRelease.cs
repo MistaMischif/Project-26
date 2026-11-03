@@ -13,6 +13,7 @@ namespace LivingTable.Editor
  {
   static void Check(bool ok,string name){if(!ok)throw new Exception("FIRST STEPS: "+name);}
   public static void Tests(){
+   SurfaceCalibrationTests.Run();
    ReconciliationTests.Run();BoardPlacementTests.OffsetFrame();ChessBuilder.RulesTests();int count=0;
    foreach(var fixture in new[]{
     new[]{"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1","12","28","0"},
@@ -34,8 +35,8 @@ namespace LivingTable.Editor
    var oldHttp=PlayerSettings.insecureHttpOption;string oldName=PlayerSettings.productName;
    string oldId=PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android),oldVersion=PlayerSettings.bundleVersion;int oldCode=PlayerSettings.Android.bundleVersionCode;
    string exclusionError=AssetDatabase.MoveAsset(resources,excluded);if(!string.IsNullOrEmpty(exclusionError))throw new Exception(exclusionError);
-   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.11";PlayerSettings.Android.bundleVersionCode=12;
-    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.11.apk",target=BuildTarget.Android,options=BuildOptions.Development|BuildOptions.DetailedBuildReport});
+   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.12";PlayerSettings.Android.bundleVersionCode=13;
+    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.12.apk",target=BuildTarget.Android,options=BuildOptions.Development|BuildOptions.DetailedBuildReport});
     var packed=result.packedAssets.SelectMany(p=>p.contents).Select(a=>a.sourceAssetPath).Distinct().OrderBy(p=>p).ToArray();File.WriteAllLines("Builds/FirstSteps-packed-assets.txt",packed);
     if(packed.Any(p=>p.StartsWith(excluded+"/",StringComparison.OrdinalIgnoreCase)||p.StartsWith(resources+"/",StringComparison.OrdinalIgnoreCase)))throw new Exception("First Steps contains excluded Candy Land assets");
     File.WriteAllText("Builds/FirstSteps-build.txt",result.summary.result+" Errors: "+result.summary.totalErrors);if(result.summary.result!=BuildResult.Succeeded)throw new Exception("First Steps build failed");

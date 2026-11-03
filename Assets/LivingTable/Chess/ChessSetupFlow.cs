@@ -21,6 +21,7 @@ namespace LivingTable.Chess {
    return true;
   }
   public void BeginFourCorners(){
+   metricFitReady=false;assistedFitAvailable=false;
    if(quickCapture&&quickPhase==0)quickPhase=2;
    calibration?.Cancel();calibrationBusy=false;Vision.CancelScan();Vision.ClearProgress();CancelHumanReview();Version++;CancelGrab();HomeScreen=false;standardMenu=extraSettings=pieceSettings=sessionMenu=false;cornerCount=0;alignStage=1;Aligned=false;
    Message="1 / 4: pinch the NEAR LEFT outer corner of the 8 x 8 playing squares. Exclude the frame. Sit behind your chosen color.";DrawScene();
@@ -31,7 +32,7 @@ namespace LivingTable.Chess {
    if(cornerCount<4){Message=(cornerCount+1)+" / 4: pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner.";DrawScene();return true;}
    if(!FitCorners(setupCorners,out var center,out var rotation,out var size)){cornerCount=0;Message="Corners did not form a flat square. Start again at NEAR LEFT. MENU is always available.";DrawScene();return false;}
    Size=size;transform.SetPositionAndRotation(center,rotation);Aligned=true;alignStage=7;pieceSizes=new float[24];kingSquare=HumanSide>0?4:60;
-   RecordRegistration();Message="Pinch the square under YOUR king to place its guide. Pinch the virtual king and pull up/down to match height. The whole set scales together.";DrawScene();return true;
+   RecordRegistration();Message="Checking your selected board against the physical grid.";DrawScene();if(!desktop)RefineAdjustedBoard();return true;
   }
   void BeginKingSizing(){calibration?.Cancel();calibrationBusy=false;alignStage=7;Aligned=true;kingSquare=HumanSide>0?4:60;Message="Place the guide on your king's square, then pinch/pull its top to match size. Press SIZE READY.";DrawScene();}
   public void BeginPositionScan(){
