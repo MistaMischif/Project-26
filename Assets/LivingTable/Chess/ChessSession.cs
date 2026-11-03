@@ -8,7 +8,7 @@ namespace LivingTable.Chess
   [Serializable] public sealed class SessionState
   {
    public ChessMatch.State match;public bool physical,twoPlayers,manual,unverified,room,imported;
-   public bool paused;public bool hasPending;public int humanSide,promotion;public ChessMatch.SavedMove pending;public float[] appearance;public float boardSize;public float[] pieceSizes;
+   public bool paused;public bool hasPending;public int humanSide,promotion;public ChessMatch.SavedMove pending;public float[] appearance;public float setScale;public float boardSize;public float[] pieceSizes;
   }
   public string SessionId {get;private set;}
   public bool Unverified {get;private set;}
@@ -17,7 +17,7 @@ namespace LivingTable.Chess
   bool imported,editing;ChessPosition importPosition;int brush=1;int savedIndex;
   GameSessionStore.Entry[] saved=Array.Empty<GameSessionStore.Entry>();
   public bool Editing=>editing;
-  public SessionState CaptureSession()=>new SessionState{match=Match.Capture(),paused=Paused||sessionMenu,physical=Physical,twoPlayers=TwoPlayers,manual=ManualFallback,unverified=Unverified,room=VirtualRoom,imported=imported,humanSide=HumanSide,promotion=Promotion,hasPending=PendingAi.HasValue,pending=PendingAi.HasValue?new ChessMatch.SavedMove(PendingAi.Value):null,appearance=Vision.CaptureAppearance(),boardSize=Size,pieceSizes=pieceSizes};
+  public SessionState CaptureSession()=>new SessionState{match=Match.Capture(),paused=Paused||SessionMenuOpen,physical=Physical,twoPlayers=TwoPlayers,manual=ManualFallback,unverified=Unverified,room=VirtualRoom,imported=imported,humanSide=HumanSide,promotion=Promotion,hasPending=PendingAi.HasValue,pending=PendingAi.HasValue?new ChessMatch.SavedMove(PendingAi.Value):null,appearance=Vision.CaptureAppearance(),setScale=setScale,boardSize=Size,pieceSizes=pieceSizes};
   public bool SaveSession(string reason)
   {
    if(Match==null||SessionId==null)return true;
@@ -31,7 +31,7 @@ namespace LivingTable.Chess
     var record=GameSessionStore.Load(id);if(record.game!="chess")throw new ArgumentException("Wrong game");var state=JsonUtility.FromJson<SessionState>(record.payload);
     var restored=ChessMatch.Restore(state.match);if(state.humanSide!=1&&state.humanSide!=-1||state.promotion<2||state.promotion>5)throw new ArgumentException("Invalid saved settings");
     if(state.hasPending&&(state.pending==null||!restored.Position.LegalMoves().Contains(state.pending.Move)))throw new ArgumentException("Invalid pending AI move");
-    StopAllCoroutines();CancelGrab();Version++;Match=restored;SessionId=id;Physical=state.physical;TwoPlayers=state.twoPlayers;HumanSide=state.humanSide;Promotion=state.promotion;ManualFallback=state.manual;Unverified=state.unverified;VirtualRoom=state.room;imported=state.imported;PendingAi=state.hasPending?(ChessMove?)state.pending.Move:null;
+    HomeScreen=false;setScale=state.setScale>0?Mathf.Clamp(state.setScale,.5f,1.8f):1;StopAllCoroutines();CancelGrab();Version++;Match=restored;SessionId=id;Physical=state.physical;TwoPlayers=state.twoPlayers;HumanSide=state.humanSide;Promotion=state.promotion;ManualFallback=state.manual;Unverified=state.unverified;VirtualRoom=state.room;imported=state.imported;PendingAi=state.hasPending?(ChessMove?)state.pending.Move:null;
     if(state.boardSize>=.2f&&state.boardSize<=1.2f)Size=state.boardSize;pieceSizes=state.pieceSizes!=null&&state.pieceSizes.Length==24?state.pieceSizes:new float[24];alignStage=0;calibrationBusy=false;Busy=buttonBusy=false;sessionMenu=false;Paused=state.paused;StorageBlocked=false;editing=false;selected=-1;Aligned=!Physical;Recovering=Physical;Vision.RestoreAppearance(state.appearance);
     Message=Physical?"Align the real board, then reconcile the saved position.":"Session restored. Same position and turn history.";ApplyRoom();DrawScene();nextAi=Time.unscaledTime+1;
    }catch(Exception e){Message="Cannot resume: "+e.Message;}
@@ -48,11 +48,11 @@ namespace LivingTable.Chess
    if(Physical){VirtualRoom=false;Aligned=false;Recovering=true;Vision.ClearEvidence();Message="Align your board. Recreate the saved position before continuing.";}
    else{Recovering=false;Vision.ClearEvidence();Message="Continuing the same game on the virtual board.";}
    SaveSession("surface changed; position retained");ApplyRoom();DrawScene();
-   if(!Physical&&PendingAi.HasValue&&!Paused&&!sessionMenu)Play(PendingAi.Value);
+   if(!Physical&&PendingAi.HasValue&&!Paused&&!SessionMenuOpen)Play(PendingAi.Value);
   }
   public bool AcceptRecovery(int version,bool identityVerified=false)
   {
-   if(version!=Version||!Recovering||!Aligned||!HandsClear||StorageBlocked||Paused||sessionMenu||!Physical||Vision.RequiresIdentity&&!identityVerified)return false;
+   if(version!=Version||!Recovering||!Aligned||!HandsClear||StorageBlocked||Paused||SessionMenuOpen||!Physical||Vision.RequiresIdentity&&!identityVerified)return false;
    Recovering=false;if(identityVerified)ManualFallback=false;Version++;Message=identityVerified?"Saved position verified. Continue the same game.":"Board appearance matches the saved checkpoint.";bool savedOk=SaveSession(identityVerified?"full board identity reconciliation":"camera appearance reconciliation");DrawScene();return savedOk;
   }
   public void AttestRecovery()

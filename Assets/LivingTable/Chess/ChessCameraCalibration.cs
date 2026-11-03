@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Meta.XR;
+using Meta.XR.MRUtilityKit;
 using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.Rendering;
 namespace LivingTable.Chess {
  public sealed class ChessCameraCalibration:MonoBehaviour {
-  PassthroughCameraAccess cameraAccess;ChessTable table;
+  PassthroughCameraAccess cameraAccess;ChessTable table;EnvironmentRaycastManager depth;bool ownsDepth;
   public void Initialize(ChessTable owner){table=owner;}
-  public void Cancel(){StopAllCoroutines();if(cameraAccess!=null)cameraAccess.enabled=false;}
-  public void FitBoard(){Cancel();StartCoroutine(Fit());}
+  public void Cancel(){StopAllCoroutines();if(ownsDepth&&depth!=null)depth.enabled=false;if(cameraAccess!=null)cameraAccess.enabled=false;}
+  public void FitBoard(){Cancel();if(EnvironmentRaycastManager.IsSupported){if(depth==null)depth=FindFirstObjectByType<EnvironmentRaycastManager>();if(depth==null){depth=gameObject.AddComponent<EnvironmentRaycastManager>();ownsDepth=true;}if(ownsDepth)depth.enabled=true;}StartCoroutine(Fit());}
   public void SizePieces(){Cancel();StartCoroutine(Measure());}
   IEnumerator Capture(Action<ChessCheckerFit.Frame> done){
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -33,8 +34,14 @@ namespace LivingTable.Chess {
    var rt=RenderTexture.GetTemporary(320,240,0,RenderTextureFormat.ARGB32);Graphics.Blit(cameraAccess.GetTexture(),rt);bool complete=false;AsyncGPUReadback.Request(rt,0,TextureFormat.RGBA32,read=>{if(!read.hasError)frame.pixels=read.GetData<Color32>().ToArray();RenderTexture.ReleaseTemporary(rt);complete=true;});while(!complete)yield return null;done(frame.pixels==null?null:frame);
 #pragma warning restore CS0162
   }
-  IEnumerator Fit(){ChessCheckerFit.Frame first=null,second=null;yield return Capture(f=>first=f);if(first==null){Fail("Camera unavailable. Allow camera access, retry, or grab the board handles.");yield break;}var seed=table.transform.position;float size=table.Size,yaw=table.transform.eulerAngles.y;var task=Task.Run(()=>ChessCheckerFit.Find(first,seed,size,yaw));while(!task.IsCompleted)yield return null;if(task.IsFaulted||!task.Result.valid){Fail("No confident checker pattern found. Look down at the full board, clear hands, and retry; board handles are available.");yield break;}var fit=task.Result;yield return new WaitForSecondsRealtime(.25f);yield return Capture(f=>second=f);if(second==null){Fail("Camera interrupted. Retry alignment.");yield break;}var check=Task.Run(()=>ChessCheckerFit.Find(second,fit.center,fit.size,fit.yaw));while(!check.IsCompleted)yield return null;if(check.IsFaulted||!ChessCheckerFit.Consistent(fit,check.Result)){Fail("The board fit was unstable. Keep the whole board still and retry.");yield break;}cameraAccess.enabled=false;table.PreviewAutoAlignment(check.Result);}
-  void Fail(string reason){if(cameraAccess!=null)cameraAccess.enabled=false;table.CalibrationFailed(reason);}
+  IEnumerator Fit(){ChessCheckerFit.Frame first=null,second=null;yield return Capture(f=>first=f);if(first==null){Fail("Camera unavailable. Allow camera access, retry, or grab the board handles.");yield break;}var seed=table.transform.position;float until=Time.unscaledTime+4;while(depth!=null&&Time.unscaledTime<until){if(TryTableSurface(first,out var surface)){seed=surface;break;}yield return null;}float size=table.Size,yaw=table.transform.eulerAngles.y;var task=Task.Run(()=>ChessCheckerFit.Find(first,seed,size,yaw));while(!task.IsCompleted)yield return null;if(task.IsFaulted||!task.Result.valid){Fail("No confident checker pattern found. Look down at the full board, clear hands, and retry; board handles are available.");yield break;}var fit=task.Result;yield return new WaitForSecondsRealtime(.25f);yield return Capture(f=>second=f);if(second==null){Fail("Camera interrupted. Retry alignment.");yield break;}var check=Task.Run(()=>ChessCheckerFit.Find(second,fit.center,fit.size,fit.yaw));while(!check.IsCompleted)yield return null;if(check.IsFaulted||!ChessCheckerFit.Consistent(fit,check.Result)){Fail("The board fit was unstable. Keep the whole board still and retry.");yield break;}cameraAccess.enabled=false;if(ownsDepth&&depth!=null)depth.enabled=false;table.PreviewAutoAlignment(check.Result);}
+  bool TryTableSurface(ChessCheckerFit.Frame frame,out Vector3 surface){
+   surface=default;if(depth==null)return false;var hits=new List<Vector3>();
+   for(int x=-2;x<=2;x++)for(int y=-2;y<=2;y++){if(depth.Raycast(frame.Ray(new Vector2(.5f+x*.065f,.5f+y*.065f)),out var hit,2)&&Mathf.Abs(hit.normal.y)>.92f&&frame.camera.y-hit.point.y>.15f&&frame.camera.y-hit.point.y<1.2f)hits.Add(hit.point);}
+   int best=0;foreach(var point in hits){var group=hits.Where(h=>Mathf.Abs(h.y-point.y)<.012f).ToArray();if(group.Length>best){best=group.Length;surface=group.Aggregate(Vector3.zero,(a,b)=>a+b)/group.Length;}}
+   return best>=5;
+  }
+  void Fail(string reason){if(ownsDepth&&depth!=null)depth.enabled=false;if(cameraAccess!=null)cameraAccess.enabled=false;table.CalibrationFailed(reason);}
   IEnumerator Measure(){ChessCheckerFit.Frame first=null,second=null;yield return Capture(f=>first=f);if(first==null){Fail("Piece scan unavailable. Keep standard sizes or retry.");yield break;}float deadline=Time.unscaledTime+20;while(Time.unscaledTime<deadline){yield return new WaitForSecondsRealtime(.6f);yield return Capture(f=>second=f);if(second!=null&&Vector3.Distance(first.camera,second.camera)>.04f)break;second=null;}if(second==null){Fail("A second viewing angle is needed. Move your head slightly and retry, or keep standard sizes.");yield break;}
    var position=table.Match?.Position??ChessPosition.Initial();var profile=new float[24];var h=new List<float>[12];var w=new List<float>[12];for(int i=0;i<12;i++){h[i]=new List<float>();w[i]=new List<float>();}
    for(int square=0;square<64;square++)if(position.Board[square]!=0){var a=MeasurePiece(first,table,square);var b=MeasurePiece(second,table,square);if(a.x<=0||b.x<=0||Mathf.Abs(a.x-b.x)>Mathf.Max(.012f,Mathf.Min(a.x,b.x)*.2f)||Mathf.Abs(a.y-b.y)>.012f)continue;int index=ProfileIndex(position.Board[square]);h[index].Add((a.x+b.x)*.5f);w[index].Add((a.y+b.y)*.5f);}

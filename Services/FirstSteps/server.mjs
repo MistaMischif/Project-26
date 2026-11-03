@@ -12,7 +12,7 @@ export const piecePrompt='Inspect only the image. Classify the clearly visible c
 const visibilitySchema={type:'object',additionalProperties:false,properties:{visibility:{type:'string',enum:['empty','clear','obscured']}},required:['visibility']};
 const schema={type:'object',additionalProperties:false,properties:{piece:{type:'string',enum:pieces}},required:['piece']};
 export function validateInput(v){
- if(!v||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.cells)||v.cells.length<2||v.cells.length>4)throw Error('Expected revision and 2â€“4 square crops');
+ if(!v||!Number.isSafeInteger(v.revision)||v.revision<0||!Array.isArray(v.cells)||v.cells.length<2||v.cells.length>4)throw Error('Expected revision and 2–4 square crops');
  const seen=new Set();
  for(const c of v.cells){if(!c||!/^[a-h][1-8]$/.test(c.square)||seen.has(c.square)||typeof c.image!=='string'||c.image.length>500000||!/^\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(c.image))throw Error('Invalid square or JPEG crop');seen.add(c.square);}
  return v;
@@ -23,7 +23,7 @@ export function createHost({env=process.env,fetchImpl=fetch}={}){
  const model=env.FIRST_STEPS_MODEL||'qwen3.5:latest',base=env.OLLAMA_URL||'http://127.0.0.1:11436';let busy=false;
  const send=(res,status,data)=>{if(res.destroyed)return;res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
  return http.createServer(async(req,res)=>{
-  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.4.0',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy});
+  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.4.1',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy});
   if(!(req.method==='GET'&&req.url==='/ready')&&(req.method!=='POST'||!['/observe','/companion'].includes(req.url)))return send(res,404,{error:'Unknown route'});
   const actual=Buffer.from(req.headers.authorization||''),expected=Buffer.from('Bearer '+(env.LIVING_TABLE_DEVICE_TOKEN||''));
   if(!env.LIVING_TABLE_DEVICE_TOKEN||actual.length!==expected.length||!timingSafeEqual(actual,expected))return send(res,401,{error:'Device connection required'});
@@ -55,7 +55,7 @@ export function createHost({env=process.env,fetchImpl=fetch}={}){
     cells.push({square:cell.square,piece});
    }
    return send(res,200,{revision:input.revision,model,cells,modelCalls,elapsedMs:Date.now()-started});
-  }catch{return send(res,503,{error:'Local vision unavailable. Board state is unchanged; retry or choose manual controls.'});}
+  }catch{return send(res,503,{error:req.url==='/companion'?'Meta could not produce a grounded answer. Retry; your game is unchanged.':'Local vision unavailable. Board state is unchanged; retry or choose manual controls.'});}
   finally{res.off('close',onClose);busy=false;}
  });
 }

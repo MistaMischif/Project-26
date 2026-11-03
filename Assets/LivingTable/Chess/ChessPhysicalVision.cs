@@ -99,6 +99,7 @@ namespace LivingTable.Chess
     if(!RecoveryCurrent(version,session,captured)){Status="Scan interrupted. Keep hands clear and press SCAN BOARD.";yield break;}
     if(!ChessObservationGate.AcceptCells(position,Enumerable.Range(start,4).ToArray(),version,observation,out int mismatch)){
      Status=observation==null?"Vision unavailable. Retry SCAN BOARD or use MANUAL CHECK.":mismatch<0?"Incomplete scan. Retry SCAN BOARD.":ChessMove.Square(mismatch)+": expected "+ChessObservationGate.Piece(position.Board[mismatch]).Replace('_',' ')+". Check that square, then SCAN BOARD.";
+     if(observation==null){recoveryAttempted=false;next=Time.unscaledTime+8;}
      yield break;
     }
     cells.AddRange(observation.cells);

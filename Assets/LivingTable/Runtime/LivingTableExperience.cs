@@ -38,7 +38,7 @@ namespace LivingTable
         Renderer rim;
         bool busy, placed, destroyed, anchorSaved;
         readonly TableBoardGrip boardGrip=new TableBoardGrip();
-        bool gripArmed=true;
+        bool gripArmed=true;float gripStartSize;
         public bool BoardHeld=>boardGrip.Active;
         float nextHandScan,roomGrace,farSince=-1;bool roomRecoveryRequested;OVRDisplay watchedDisplay;
         int gameIndex;
@@ -103,6 +103,7 @@ namespace LivingTable
                     ShowTable();
                     Status = "Desktop preview ready.";
                 }
+                else if(ChessActive&&chess.HomeScreen){var eye=Camera.main.transform;var forward=Vector3.ProjectOnPlane(eye.forward,Vector3.up).normalized;mount.SetPositionAndRotation(eye.position+forward*.65f-Vector3.up*.35f,Quaternion.LookRotation(forward));ShowTable();}
                 else if (Guid.TryParse(PlayerPrefs.GetString(AnchorKey, ""), out var uuid))
                     await Restore(uuid);
             }
@@ -199,9 +200,9 @@ namespace LivingTable
         {
             if(!pinching){if(released)gripArmed=true;if(!boardGrip.Active)return false;boardGrip.End();gripArmed=false;_ = FinishBoardGrip();return true;}
             if(!placed||busy||!ChessActive)return false;
-            if(boardGrip.Active){boardGrip.Follow(mount,a,b);return true;}
-            if(!gripArmed||chess.Busy||chess.StorageBlocked||platform.board.IsAnimating||!boardGrip.Begin(mount,chess.Size*.5f,chess.Size*.5f,a,b,chess.transform))return false;
-            chess.BeginRelocation();mount.SetParent(transform,true);Status="Hold both sides to move or turn. Release to place.";return true;
+            if(boardGrip.Active){boardGrip.Follow(mount,a,b);chess.ScaleHeldBoard(gripStartSize*boardGrip.Scale);return true;}
+            if(!gripArmed||chess.Busy||chess.StorageBlocked||platform.board.IsAnimating||chess.HomeScreen||!boardGrip.BeginCorners(mount,chess.Size,a,b,chess.transform))return false;
+            gripStartSize=chess.Size;chess.BeginCornerAdjustment();mount.SetParent(transform,true);Status="Hold two corner knobs to move, resize or turn. Release to place.";return true;
         }
 
         async Task FinishBoardGrip()

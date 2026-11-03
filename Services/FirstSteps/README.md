@@ -77,3 +77,9 @@ USB reconnection and Unity shutdown may remove adb reverse forwarding. Rerun Pre
 ## Host 0.4.0 / app 0.1.7: wireless HTTPS
 
 Prepare-Local-AI now configures a local HTTPS endpoint with OpenSSL and pins its certificate into the private headset pairing file. Git for Windows supplies the default OpenSSL path. TCP 8791 must be reachable on the local network; only token-authenticated inference is allowed. The loopback 8790 path remains for compatibility. Pair once over USB, then use Wi-Fi with the host powered on. Regenerate/re-pair if changing the host identity; rerun pairing when its address changes. Never distribute private-tls or first-steps-connection.json. The release contains neither. Unplugging USB does not stop the host or remove HTTPS. Network/host failures remain real availability limits; on-device chess search remains independent.
+
+## Host 0.4.1 recovery
+
+The launcher remembers an explicitly selected `-ModelDirectory` in ignored `runtime-config.json`, so restarts reuse the same weights instead of searching an empty default cache. The model drive must remain connected. Paired HTTPS headsets do not need ADB reverse or a USB connection when restarting the host. New headsets still need initial pairing. No scheduled job, startup entry or service is created. Keep the PC awake and the launcher host running on the same reachable Wi-Fi.
+
+Meta companion output now requires at least one fact ID chosen from the supplied authoritative facts in its JSON generation schema. Existing answer validation still rejects unknown facts and substituted moves. This fixes observed missing-citation rejection without inventing a fallback answer.

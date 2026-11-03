@@ -1,6 +1,6 @@
 Shader "LivingTable/GlossButton"
 {
- Properties { _Tint("Tint",Color)=(.04,.16,.2,1) _Hover("Hover",Float)=0 _Pressed("Pressed",Float)=0 _Circle("Circle",Float)=0 _Sparkle("Sparkle",Float)=0 _GoldTrim("Gold trim",Float)=0 _GoldFace("Gold face",Float)=0 }
+ Properties { _Tint("Tint",Color)=(.04,.16,.2,1) _Hover("Hover",Float)=0 _Pressed("Pressed",Float)=0 _SquareButton("Square",Float)=0 _Circle("Circle",Float)=0 _Sparkle("Sparkle",Float)=0 _GoldTrim("Gold trim",Float)=0 _GoldFace("Gold face",Float)=0 }
  SubShader { Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="TransparentCutout" "Queue"="AlphaTest" }
  Pass { Cull Off
  HLSLPROGRAM
@@ -11,13 +11,13 @@ Shader "LivingTable/GlossButton"
  struct A {float4 positionOS:POSITION;float2 uv:TEXCOORD0;UNITY_VERTEX_INPUT_INSTANCE_ID};
  struct V {float4 positionCS:SV_POSITION;float2 uv:TEXCOORD0;UNITY_VERTEX_OUTPUT_STEREO};
  CBUFFER_START(UnityPerMaterial)
- float4 _Tint;float _Hover;float _Pressed;float _Circle;float _Sparkle;float _GoldTrim;float _GoldFace;
+ float4 _Tint;float _Hover;float _Pressed;float _Circle;float _SquareButton;float _Sparkle;float _GoldTrim;float _GoldFace;
  CBUFFER_END
  V vert(A i){V o;UNITY_SETUP_INSTANCE_ID(i);UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);o.positionCS=TransformObjectToHClip(i.positionOS.xyz);o.uv=i.uv;return o;}
  float4 frag(V i):SV_Target {
  UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
- float2 p=(i.uv-.5)*float2(3.8,1);
- float2 q=abs(p)-float2(1.70,.30);
+ float2 p=(i.uv-.5)*float2(lerp(3.8,1,_SquareButton),1);
+ float2 q=abs(p)-float2(lerp(1.70,.30,_SquareButton),.30);
  float d=length(max(q,0))+min(max(q.x,q.y),0)-.20;
  if(_Circle>.5)d=length(i.uv-.5)-.5;
  clip(-d);
