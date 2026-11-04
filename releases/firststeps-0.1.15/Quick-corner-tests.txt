@@ -1,0 +1,1 @@
+33 scene interaction checks passed; physical placement accuracy remains a headset acceptance test. Camera snapping is not implemented.

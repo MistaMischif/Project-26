@@ -1,0 +1,15 @@
+{
+  "version": "0.1.15",
+  "versionCode": 16,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "4b474dc7534ccb21a47eb1a7c17efa05a73ae664f2400cbe25ba7c681e664275",
+  "bytes": 119399716,
+  "file": "LivingTable-FirstSteps-0.1.15.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed and launched on Quest 3; four-corner manual fallback explicitly labeled",
+  "publishedVersion": "0.1.15",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.15",
+  "acceptance": "Pending headset corner-placement/grid alignment acceptance; camera-assisted snapping unavailable, manual fallback explicit",
+  "sourceCommit": "1b69d9744b79bc595ce5b1a9510313be11da9233"
+}
