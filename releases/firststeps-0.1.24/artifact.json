@@ -1,0 +1,16 @@
+{
+  "version": "0.1.24",
+  "versionCode": 25,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "470532e2f98e4b8cd783e2f0d0488db67b1611ba68337b674fd85dab45099d4c",
+  "bytes": 88396777,
+  "file": "LivingTable-FirstSteps-0.1.24.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed test build; direct setup-to-play implemented; sleep/wake memory leak unresolved",
+  "publishedVersion": "0.1.24",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.24",
+  "acceptance": "Setup flow awaits founder acceptance; sleep/wake memory acceptance FAILED",
+  "sourceCommit": "0b0a44b0dee2db605b7e68ca0bccde5bc6529b0f",
+  "deviceVerification": "Quest install verified. Three automated sleep/wake cycles retained the same process, but graphics PSS rose from 862,216 KB to 1,969,834 KB. Sleep/wake crash risk remains unresolved."
+}

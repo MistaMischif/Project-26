@@ -1,0 +1,1 @@
+33 full-board identity gate checks passed; synthetic observations, not camera accuracy.

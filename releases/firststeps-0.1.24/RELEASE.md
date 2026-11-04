@@ -1,6 +1,8 @@
-# Living Table 0.1.24 — Direct setup-to-play and Quest memory budget
+# Living Table 0.1.24 â€” Direct setup-to-play and Quest memory budget
 
-Status: regression/build/device verification pending.
+Status: installed on Quest. 77 integrated and 80 physical-flow checks passed; Android build completed with zero errors. Setup flow awaits founder acceptance.
+
+Known critical issue: sleep/wake memory leakage remains unresolved. Three automated cycles retained PID 28985, but graphics PSS grew from 862,216 KB to 1,259,886 KB, 1,615,198 KB, then 1,969,834 KB. This is a diagnostic test build, not a verified crash fix.
 
 Setup ends at four-corner alignment, king sizing, then Play. New and continued games enter gameplay without an explicit Check Board pass; continued position, side to move and pending AI move remain unchanged. Physical gameplay uses YOUR MOVE / MOVE AI PIECE instead of CHECK BOARD. Automatic observation and legal-move validation remain; camera uncertainty is never treated as a verified move. Undo/handoff reconciliation remains separate from starting a user-confirmed layout.
 
