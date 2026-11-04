@@ -1,0 +1,1 @@
+20 synthetic crop/stability checks passed; physical recognition accuracy remains unmeasured.
