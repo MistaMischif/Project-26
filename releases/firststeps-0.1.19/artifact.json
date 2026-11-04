@@ -1,0 +1,15 @@
+{
+  "version": "0.1.19",
+  "versionCode": 20,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "4a8708ef83e4a7eae48ea92937a2478d9fe0b5f5790860b86a8475b1258217df",
+  "bytes": 88375633,
+  "file": "LivingTable-FirstSteps-0.1.19.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed and launched on Quest 3; physical alignment acceptance pending",
+  "publishedVersion": "0.1.19",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.19",
+  "acceptance": "Alignment directly to king sizing and Play implemented; no setup board scan; headset acceptance pending",
+  "sourceCommit": "48e04b6a7678885c876f8f063a6c6e90cfb27be6"
+}

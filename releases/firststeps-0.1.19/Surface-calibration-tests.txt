@@ -1,0 +1,1 @@
+59 synthetic surface calibration checks passed; image corner accuracy, metric scale across three board sizes, stereo/depth geometry, tilt and rejection cases. Physical camera accuracy and drift remain unmeasured.
