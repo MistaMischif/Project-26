@@ -34,7 +34,7 @@ namespace LivingTable.Chess {
   public float[] CaptureAppearance()=>baseline==null?null:baseline.SelectMany(x=>x).ToArray();
   public void RestoreAppearance(float[] values){ClearEvidence();baseline=values!=null&&values.Length==768?Enumerable.Range(0,64).Select(i=>values.Skip(i*12).Take(12).ToArray()).ToArray():null;}
   public static bool Matches(float[][] expected,float[][] actual)=>expected!=null&&actual!=null&&expected.Length==64&&actual.Length==64&&Enumerable.Range(0,64).All(s=>Difference(expected[s],actual[s])<.075f);
-  bool Active=>table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&!table.CalibrationBusy&&!table.StorageBlocked&&!table.Paused&&!table.SessionMenuOpen&&!suspended&&(layoutScan||table.SetupReviewing||(!table.AlignmentInProgress&&table.Playing&&(table.Match.Result==""||table.Recovering)&&(!table.ManualFallback||table.Recovering)));
+  bool Active=>table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&!table.CalibrationBusy&&!table.StorageBlocked&&!table.Paused&&!table.SessionMenuOpen&&!suspended&&(layoutScan||table.SetupReviewing||(!table.AlignmentInProgress&&table.Playing&&(table.Match.Result==""||table.Recovering)));
   void Failed(string message){bool wasLayout=layoutScan;var partial=surveyPieces;var watched=lastScanView;double hand=lastScanHand;ClearEvidence();lastScanView=watched;lastScanHand=hand;nextAutoProbe=Time.unscaledTime+8;next=Time.unscaledTime+2;NeedsAttention=true;suspended=wasLayout;Status=message;if(wasLayout)table.ReceiveLayout(partial,message);else table.RefreshScanControls();}
   void RejectLayout(string message,ChessPosition target,ChessObservationGate.Observation observation){
    Failed(message);var seen=Enumerable.Repeat(100,64).ToArray();for(int square=0;square<64;square++){var cell=observation?.cells?.FirstOrDefault(c=>c!=null&&c.square==ChessMove.Square(square));if(cell==null)continue;seen[square]=ParsePiece(cell.piece);CellProgress[square]=(byte)(seen[square]==99?3:seen[square]==target.Board[square]?2:4);}table.ShowPhysicalMismatch(seen,target);
@@ -66,22 +66,22 @@ namespace LivingTable.Chess {
      // hands-clear frames agree with the captured board for a further stable interval.
      if(!stable.Observe("verified-board-still",captured,.65f)){Status="Pieces read. Checking the board is still unchanged…";return;}
      if(pendingLayout){pendingLayout=false;layoutScan=false;approvedView=null;surveyView=descriptor;candidate=descriptor;table.ReceiveLayout(surveyPieces,surveyPieces.Any(x=>x==99)?"Amber squares need correction or a clearer view.":"64 squares read and stability checked.");Status="Review every piece, then choose whose turn it is.";stable.Reset();table.RefreshScanControls();return;}
-     if(!approved.HasValue){baseline=descriptor;approvedView=null;requested=false;if(table.AcceptRecovery(version,true)){ClearProgress();table.ClearPhysicalMismatch();Status="Saved position verified. Ready to play.";}return;}
+     if(!approved.HasValue){baseline=descriptor;approvedView=null;requested=false;if(table.AcceptObservedBaseline(version)){ClearProgress();table.ClearPhysicalMismatch();Status="Saved position verified. Ready to play.";}return;}
      var move=approved.Value;bool fullApproval=approvedFull;approved=null;approvedView=null;confirmHuman=requested=false;
      var previous=baseline;baseline=descriptor;if(table.CommitObservedMove(move,version,fullApproval,true)){ClearProgress();table.ClearPhysicalMismatch();Status="Move verified. "+(table.Match.Position.Side==table.HumanSide?"Your turn.":"Opponent's turn.");stable.Reset();}else{baseline=previous;Failed("Position changed. Camera will recheck.");}return;
     }
     if(candidate==null||!Matches(candidate,descriptor)){candidate=descriptor;stable.Reset();Status="Keep the board still for a moment";return;}
     if(!stable.Observe("board-still",captured,.65f))return;
-    if(!requested&&!table.Recovering&&baseline==null){baseline=descriptor;Status="Camera ready. Make your move.";table.SaveSession("camera baseline captured");return;}
+    // An unknown baseline must be identity-verified, never learned blindly after a first move.
     ChessMove? proposed=table.Playing?(table.PendingAi??Infer(table.Match.Position,baseline,descriptor,table.Promotion)):null;
     // Appearance/hand activity triggers a read; only legal identity observations authorize a move.
     bool handChanged=table.LastHandAt>lastScanHand,visualChanged=AppearanceChanged(lastScanView??baseline,descriptor);
     if(!requested&&!layoutScan){
      if((table.PendingAi.HasValue||table.Recovering)&&!handChanged&&!visualChanged&&Time.unscaledTime<nextAutoProbe){Status=table.PendingAi.HasValue?"Move the pulsing piece to the pulsing destination. Camera watching.":"Match the pulsing guides. Camera watching.";return;}
-     if(!table.PendingAi.HasValue&&!table.Recovering&&!proposed.HasValue&&!handChanged&&!visualChanged){if(!NeedsAttention)Status="Your move — camera watching automatically";return;}
+     if(baseline!=null&&!table.PendingAi.HasValue&&!table.Recovering&&!proposed.HasValue&&!handChanged&&!visualChanged){if(!NeedsAttention)Status="Your move — camera watching automatically";return;}
     }
     if(!meta.Configured){Failed("Local vision is unavailable. Reconnect it, retry, or select MANUAL MODE.");return;}
-    bool full=layoutScan||table.Recovering||baseline==null||!proposed.HasValue;
+    bool full=layoutScan||table.Recovering||table.ManualFallback||baseline==null||!proposed.HasValue;
     if(!full&&proposed.HasValue){var changed=ChangedSquares(table.Match.Position,proposed.Value);if(Enumerable.Range(0,64).Any(s=>!changed.Contains(s)&&Difference(baseline[s],descriptor[s])>.075f))full=true;}
     int[] squares=full?Enumerable.Range(0,64).ToArray():ChangedSquares(table.Match.Position,proposed.Value);var crops=new ChessMetaVision.Crop[squares.Length];
     for(int i=0;i<squares.Length;i++){crops[i]=CropSquare(squares[i],pixels,w,h,pose);if(crops[i]==null){Status="Look down at all pieces, including their tops";stable.Reset();return;}}
@@ -112,7 +112,7 @@ namespace LivingTable.Chess {
    }else{
     var legal=position.LegalMoves().Where(m=>!table.Recovering).Where(m=>ChessObservationGate.AcceptBoard(position.After(m),version,result,out _)).ToArray();
     if(legal.Length==1)proposed=legal[0];
-    else if(ChessObservationGate.AcceptBoard(position,version,result,out _)){baseline=view;if(table.Recovering){approvedView=view;approvedVersion=version;approvedCapture=captured;approved=null;}else {Status="No move detected. Move your piece; camera is watching.";table.RefreshScanControls();}yield break;}
+    else if(ChessObservationGate.AcceptBoard(position,version,result,out _)){approvedView=view;approvedVersion=version;approvedCapture=captured;approved=null;stable.Reset();deadline=Time.unscaledTime+12;Status="Board matches. Checking fresh frames before tracking resumes...";yield break;}
     else{if(table.Recovering){ChessObservationGate.AcceptBoard(position,version,result,out int mismatch);RejectLayout(mismatch>=0?"Restore "+ChessMove.Square(mismatch)+" to "+ChessObservationGate.Piece(position.Board[mismatch]).Replace('_',' ')+". Camera will recheck.":"Restore the pulsing guides to the saved layout.",position,result);}else RejectLayout("No legal move matches this scan. Red squares differ from the save; amber squares are unreadable. Restore the pulsing guides.",position,result);yield break;}
    }
    approved=proposed;approvedFull=full;approvedVersion=version;approvedCapture=captured;approvedView=view;stable.Reset();deadline=Time.unscaledTime+12;Status="Pieces match. Checking fresh camera frames…";

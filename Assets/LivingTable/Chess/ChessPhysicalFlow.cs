@@ -21,12 +21,17 @@ namespace LivingTable.Chess {
    if(version!=Version||!Playing||!Physical||Recovering||PendingAi.HasValue||Paused||Busy||SessionMenuOpen||StorageBlocked||!HandsClear||!Match.Position.LegalMoves().Contains(move)||(!TwoPlayers&&Match.Position.Side!=HumanSide))return false;
    humanPreview=move;humanPreviewVersion=version;DrawMen();DrawUI();return true;
   }
+  public bool AcceptObservedBaseline(int version){
+   if(Recovering)return AcceptRecovery(version,true);
+   if(version!=Version||!Playing||!Physical||!Aligned||Paused||Busy||SessionMenuOpen||StorageBlocked||!HandsClear)return false;
+   if(ManualFallback){ManualFallback=false;Version++;DrawUI();}return SaveSession("physical position identity verified; automatic tracking resumed");
+  }
   public bool CommitObservedMove(ChessMove move,int version,bool fullBoardVerified,bool automatic=false){
    if(version!=Version||!Playing||!Physical||!Aligned||Paused||Busy||SessionMenuOpen||StorageBlocked||!HandsClear||!Match.Position.LegalMoves().Contains(move))return false;
    if(PendingAi.HasValue){if(!PendingAi.Value.Equals(move)||Recovering&&!fullBoardVerified)return false;}
    else if(Recovering||!automatic&&(!AwaitingMoveAcceptance||!humanPreview.Value.Equals(move)))return false;
    // A restored pending AI move is committed only after its entire resulting board was verified.
-   bool recovery=Recovering,manual=ManualFallback;Recovering=false;if(recovery&&fullBoardVerified)ManualFallback=false;bool result=ApplyCameraMove(move,version);if(!result){Recovering=recovery;ManualFallback=manual;}return result;
+   bool recovery=Recovering,manual=ManualFallback;Recovering=false;if(fullBoardVerified)ManualFallback=false;bool result=ApplyCameraMove(move,version);if(!result){Recovering=recovery;ManualFallback=manual;}return result;
   }
   Transform panelMenu;TableButtonVisual panelMenuVisual;bool panelArmed;float panelClickAt;
   void ConfigureBackPanel(Transform p){

@@ -18,6 +18,7 @@ namespace LivingTable.Editor {
   [InitializeOnLoadMethod]static void Resume(){if(!SessionState.GetBool("PhysicalFlowTests",false))return;GameSessionStore.TestRoot=SessionState.GetString("PhysicalFlowRoot","");deadline=EditorApplication.timeSinceStartup+120;EditorApplication.update+=Tick;}
   static void Tick(){try{
    if(EditorApplication.timeSinceStartup>deadline)throw new Exception("Timed out");if(!EditorApplication.isPlaying||EditorApplication.isCompiling)return;var t=UnityEngine.Object.FindFirstObjectByType<ChessTable>();if(t==null||t.Vision==null)return;
+   Check(LivingTableExperience.PiecePinchActive(.04f,false),"Piece grip begins with 40 mm fingertip gap");Check(!LivingTableExperience.PiecePinchActive(.05f,false),"Relaxed wider hand does not initiate grip");Check(LivingTableExperience.PiecePinchActive(.055f,true),"Held piece tolerates gap jitter");Check(!LivingTableExperience.PiecePinchActive(.07f,true),"Opening fingers releases piece");Check(!LivingTableExperience.PiecePinchActive(float.NaN,true),"Invalid joints cannot hold piece");
    Check(ChessTable.InferSide(ChessPosition.Initial().Board)==0,"Starting layout cannot reveal move history or turn");
    var corners=new[]{new Vector3(0,0,0),new Vector3(.56f,0,0),new Vector3(.56f,0,.56f),new Vector3(0,0,.56f)};
    Check(ChessTable.FitCorners(corners,out var center,out var rot,out var size)&&Mathf.Abs(size-.56f)<.001f,"Square corner fit");
@@ -35,6 +36,7 @@ namespace LivingTable.Editor {
    Invoke(t,"StartObservedGame");Check(!t.Playing,"Stale scan cannot silently start verified game");
    // Manual fallback remains explicit and starts only on the same START GAME action.
    typeof(ChessTable).GetField("setupManual",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(t,true);Invoke(t,"StartObservedGame");Check(t.Playing&&t.ManualFallback&&t.Unverified,"Manual review starts labeled assisted game");
+   Check((bool)typeof(ChessPhysicalVision).GetProperty("Active",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(t.Vision),"Physical manual fallback retains automatic camera watching");Check(!t.AcceptObservedBaseline(t.Version-1),"Stale baseline cannot enable tracking");Check(t.AcceptObservedBaseline(t.Version)&&!t.ManualFallback,"Verified unchanged baseline enables automatic tracking");t.ToggleManual();
    t.ToggleManual();Check(t.Recovering,"Return to camera requires verification");Check(t.AcceptRecovery(t.Version,true),"Synthetic full-board approval unlocks camera mode");
    var human=t.Match.Position.LegalMoves().Single(m=>m.From==12&&m.To==28);var key=t.Match.Position.Key();var id=t.SessionId;int revision=t.Version;
    Check(t.PreviewHumanMove(human,revision),"Detected human move enters preview");Check(t.Match.Position.Key()==key&&t.Match.Position.Ply==0,"Preview does not commit saved position");

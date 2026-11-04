@@ -155,9 +155,11 @@ namespace LivingTable
                 if(ChessActive&&placed)
                 {
                     var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(IsObservedJoint(skeleton,bone.Id))chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==HandJoint(skeleton.GetSkeletonType(),1))chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}
-                    bool valid=TryPinchPoint(hand,out var cp);
+                    bool valid=TryPinchPoint(hand,out var cp,out float fingerGap);
                     if(!valid||busy){chess.ForgetHand(hand.GetInstanceID());held[hand]=strength>=.4f;continue;}
-                    if(chess.UpdateSetupGrab(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateBoardResize(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateGrab(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
+                    if(chess.UpdateSetupGrab(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateBoardResize(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
+                    if(chess.UpdateGrab(hand.GetInstanceID(),cp,!PiecePinchActive(fingerGap,true))){held[hand]=PiecePinchActive(fingerGap,true);continue;}
+                    if(!wasHeld&&PiecePinchActive(fingerGap,false)&&chess.BeginGrab(hand.GetInstanceID(),cp)){held[hand]=true;continue;}
                     if(strength<.4f)held[hand]=false;else if(strength>=.7f&&!wasHeld){held[hand]=true;if(valid&&!busy&&!chess.BeginSetupGrab(hand.GetInstanceID(),cp)&&!chess.BeginBoardResize(hand.GetInstanceID(),cp)&&!chess.BeginGrab(hand.GetInstanceID(),cp))chess.TouchWorld(cp);}continue;
                 }
                 if(candyLandMode&&placed&&candy!=null)
@@ -237,9 +239,11 @@ namespace LivingTable
             return xr?OVRSkeleton.BoneId.XRHand_LittleTip:OVRSkeleton.BoneId.Hand_PinkyTip;
         }
         static bool IsObservedJoint(OVRSkeleton skeleton,OVRSkeleton.BoneId id)=>id==HandJoint(skeleton.GetSkeletonType(),1)||id==HandJoint(skeleton.GetSkeletonType(),2)||id==HandJoint(skeleton.GetSkeletonType(),3);
-        static bool TryPinchPoint(OVRHand hand, out Vector3 point)
+        public static bool PiecePinchActive(float gap,bool holding)=>float.IsFinite(gap)&&gap>=0&&gap<=(holding?.065f:.045f);
+        static bool TryPinchPoint(OVRHand hand,out Vector3 point)=>TryPinchPoint(hand,out point,out _);
+        static bool TryPinchPoint(OVRHand hand, out Vector3 point,out float gap)
         {
-            point = default;
+            point = default;gap=float.PositiveInfinity;
             var skeleton = hand.GetComponent<OVRSkeleton>();
             if (skeleton == null || !skeleton.IsInitialized || !skeleton.IsDataValid || !skeleton.IsDataHighConfidence || skeleton.Bones == null) return false;
             Transform index = null, thumb = null;
@@ -249,6 +253,7 @@ namespace LivingTable
                 if (bone.Id == HandJoint(skeleton.GetSkeletonType(),0)) thumb = bone.Transform;
             }
             if (index == null || thumb == null || Vector3.Distance(index.position,thumb.position)>.12f) return false;
+            gap=Vector3.Distance(index.position,thumb.position);
             point = (index.position + thumb.position) * .5f;
             return true;
         }
