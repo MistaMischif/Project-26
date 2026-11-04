@@ -27,6 +27,7 @@ namespace LivingTable.Editor {
    t.SendMessage("OnApplicationPause",true);Check(t.Paused&&t.Match.Position.Key()==sleepKey,"Sleep pauses without changing position");
    t.SendMessage("OnApplicationPause",true);t.SendMessage("OnApplicationPause",false);Check(t.Match.Position.Key()==sleepKey&&t.transform.position==sleepPose,"Repeated sleep and wake retain board and game");
    t.Vision.SendMessage("OnApplicationPause",true);t.Vision.SendMessage("OnApplicationPause",false);Check(!t.Vision.Checking,"Suspend cancels in-flight recognition");
+   var pipeline=UnityEngine.ScriptableObject.CreateInstance<UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset>();pipeline.renderScale=1.6f;pipeline.msaaSampleCount=4;TableLifecycle.ApplyRenderBudget(pipeline);Check(pipeline.renderScale==1f&&pipeline.msaaSampleCount==2,"Quest render budget caps supersampling and MSAA");pipeline.renderScale=.8f;pipeline.msaaSampleCount=1;TableLifecycle.ApplyRenderBudget(pipeline);Check(pipeline.renderScale==.8f&&pipeline.msaaSampleCount==1,"Render budget preserves lower memory settings");UnityEngine.Object.DestroyImmediate(pipeline);
    var life=new GameObject("Lifecycle test").AddComponent<TableLifecycle>();
    life.SendMessage("OnApplicationPause",false);Check(!TableLifecycle.Blocked,"Initial unpaused notification does not suspend gameplay");
    life.SendMessage("OnApplicationFocus",false);Check(TableLifecycle.Blocked&&AudioListener.pause,"Focus loss gates work and pauses audio");

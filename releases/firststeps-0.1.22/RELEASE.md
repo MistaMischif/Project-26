@@ -1,3 +1,6 @@
+## Device test failed
+November 4: first power-key sleep/wake cycle survived; second terminated PID 22008. Fresh kernel logs show global out-of-memory kills and a failed 237512 KB GPU allocation. No passing sleep/resume claim. Version 0.1.23 in progress caps native render scale and MSAA; this is a mitigation hypothesis pending retest.
+
 # Living Table 0.1.22 — sleep/resume test build
 
 Status: clean build passed (zero errors); 69 integrated and 80 physical-flow checks passed. APK signature and installation on Quest 3 verified, version 0.1.22/code 23. Foreground launch, repeated device sleep/wake cycles and founder visor acceptance remain pending.

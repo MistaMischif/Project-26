@@ -7,10 +7,10 @@
   "file": "LivingTable-FirstSteps-0.1.22.apk",
   "built": "2026-11-04",
   "reviewed": "2026-11-04",
-  "status": "Installed on Quest 3; foreground launch and sleep/resume acceptance pending",
+  "status": "Installed and launched; FAILED second automated sleep/wake cycle",
   "publishedVersion": "0.1.22",
   "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.22",
   "acceptance": "Sleep/resume recovery; physical visor and in-game acceptance pending",
   "sourceCommit": "6bc2d9d05b18471debc39adcfb11765ad81dfef3",
-  "deviceVerification": "APK signature, installed package 0.1.22/code 23 and clean build verified. Headset is not entering a foreground app session; device sleep/wake test is pending."
+  "deviceVerification": "PID 22008 survived cycle 1, exited on cycle 2. Kernel global OOM and GPU allocation failure preceded Android undelivered-broadcast termination. Not accepted; superseded fix in progress."
 }
