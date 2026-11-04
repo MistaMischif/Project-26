@@ -26,7 +26,7 @@ namespace LivingTable.Chess {
   public bool SurveyStable=>surveyView!=null&&candidate!=null&&Time.realtimeSinceStartupAsDouble-lastFrame<1&&Matches(surveyView,candidate)&&table.HandsClear;
   public float[] SurveyAppearance=>SurveyStable?surveyView.SelectMany(x=>x).ToArray():null;
   public void Initialize(ChessTable owner){table=owner;meta=gameObject.AddComponent<ChessMetaVision>();meta.Required=FindFirstObjectByType<LivingTableExperience>()?.firstStepsMode==true;}
-  public void ClearEvidence(){lastScanView=null;lastScanHand=table!=null?table.LastHandAt:0;nextAutoProbe=Time.unscaledTime+8;table?.ClearPhysicalMismatch();NeedsAttention=false;StopAllCoroutines();meta?.Cancel();generation++;stable.Reset();candidate=null;approved=null;approvedView=null;surveyView=null;requested=scanning=layoutScan=confirmHuman=pendingLayout=false;suspended=false;table?.CancelHumanReview();}
+  public void ClearEvidence(){lastScanView=null;lastScanHand=table!=null?table.LastHandAt:0;nextAutoProbe=Time.unscaledTime+8;table?.ClearPhysicalMismatch();NeedsAttention=false;StopAllCoroutines();meta?.Cancel();generation++;pending=false;stable.Reset();candidate=null;approved=null;approvedView=null;surveyView=null;requested=scanning=layoutScan=confirmHuman=pendingLayout=false;suspended=false;table?.CancelHumanReview();}
   public void CancelScan(){ClearEvidence();ClearProgress();suspended=true;Status="Scan stopped. Press CHECK BOARD to retry; your saved position is unchanged.";table.RefreshScanControls();}
   public void ResetBoard(){ClearProgress();baseline=null;ClearEvidence();Status="Keep the board visible and hands clear";}
   public void RetryRecovery()=>CheckNow();
@@ -36,13 +36,16 @@ namespace LivingTable.Chess {
   public float[] CaptureAppearance()=>baseline==null?null:baseline.SelectMany(x=>x).ToArray();
   public void RestoreAppearance(float[] values){ClearEvidence();baseline=values!=null&&values.Length==768?Enumerable.Range(0,64).Select(i=>values.Skip(i*12).Take(12).ToArray()).ToArray():null;}
   public static bool Matches(float[][] expected,float[][] actual)=>expected!=null&&actual!=null&&expected.Length==64&&actual.Length==64&&Enumerable.Range(0,64).All(s=>Difference(expected[s],actual[s])<.075f);
-  bool Active=>table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&!table.CalibrationBusy&&!table.StorageBlocked&&!table.Paused&&!table.SessionMenuOpen&&!suspended&&(layoutScan||table.SetupReviewing||(!table.AlignmentInProgress&&table.Playing&&(table.Match.Result==""||table.Recovering)));
+  bool Active=>!TableLifecycle.Blocked&&table!=null&&table.isActiveAndEnabled&&table.Physical&&table.Aligned&&!table.CalibrationBusy&&!table.StorageBlocked&&!table.Paused&&!table.SessionMenuOpen&&!suspended&&(layoutScan||table.SetupReviewing||(!table.AlignmentInProgress&&table.Playing&&(table.Match.Result==""||table.Recovering)));
   void Failed(string message){bool wasLayout=layoutScan;var partial=surveyPieces;var watched=lastScanView;double hand=lastScanHand;ClearEvidence();lastScanView=watched;lastScanHand=hand;nextAutoProbe=Time.unscaledTime+8;next=Time.unscaledTime+2;NeedsAttention=true;suspended=wasLayout;Status=message;if(wasLayout)table.ReceiveLayout(partial,message);else table.RefreshScanControls();}
   void RejectLayout(string message,ChessPosition target,ChessObservationGate.Observation observation){
    Failed(message);var seen=Enumerable.Repeat(100,64).ToArray();for(int square=0;square<64;square++){var cell=observation?.cells?.FirstOrDefault(c=>c!=null&&c.square==ChessMove.Square(square));if(cell==null)continue;seen[square]=ParsePiece(cell.piece);CellProgress[square]=(byte)(seen[square]==99?3:seen[square]==target.Board[square]?2:4);}table.ShowPhysicalMismatch(seen,target);
   }
   public static bool AppearanceChanged(float[][] before,float[][] after,float threshold=.025f)=>before!=null&&after!=null&&Enumerable.Range(0,64).Any(s=>Difference(before[s],after[s])>threshold);
+  bool lifecycleHeld;
   void Update(){
+   if(TableLifecycle.Blocked){if(!lifecycleHeld){lifecycleHeld=true;ClearEvidence();if(cameraAccess!=null)cameraAccess.enabled=false;}return;}
+   if(lifecycleHeld){lifecycleHeld=false;lastFrame=0;next=Time.unscaledTime+1;pending=false;}
    if((requested||scanning||confirmHuman||(approvedView!=null&&!table.AwaitingMoveAcceptance))&&Time.unscaledTime>deadline){Failed("Scan timed out. Retry with the whole board visible, or use manual controls.");return;}
    if(!Active){if(cameraAccess!=null)cameraAccess.enabled=false;stable.Reset();return;}
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -58,7 +61,7 @@ namespace LivingTable.Chess {
    var source=cameraAccess.GetTexture();if(source==null)return;var pose=cameraAccess.GetCameraPose();var samples=new Vector2[64][];
    for(int square=0;square<64;square++){samples[square]=new Vector2[144];var center=table.SquareLocal(square);for(int y=0;y<12;y++)for(int x=0;x<12;x++){var local=center+new Vector3((x/11f-.5f)*table.Size/8*.7f,0,(y/11f-.5f)*table.Size/8*.7f);var world=table.transform.TransformPoint(local);var uv=cameraAccess.WorldToViewportPoint(world,pose);if(uv.x<.02f||uv.y<.02f||uv.x>.98f||uv.y>.98f||Vector3.Dot(world-pose.position,pose.rotation*Vector3.forward)<0){Status="Look at the entire board from above";stable.Reset();return;}samples[square][y*12+x]=uv;}}
    pending=true;next=Time.unscaledTime+.3f;int version=table.Version,session=generation,w=source.width,h=source.height;double captured=Time.realtimeSinceStartupAsDouble;
-   AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,request=>{pending=false;if(this==null||!Active||session!=generation||version!=table.Version||request.hasError||table.LastHandAt>captured||!table.HandsClear||Time.realtimeSinceStartupAsDouble-captured>.8)return;var pixels=request.GetData<Color32>();var descriptor=new float[64][];var shapes=new float[64][];
+   AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,request=>{if(this==null||session!=generation)return;pending=false;if(!Active||version!=table.Version||request.hasError||table.LastHandAt>captured||!table.HandsClear||Time.realtimeSinceStartupAsDouble-captured>.8)return;var pixels=request.GetData<Color32>();var descriptor=new float[64][];var shapes=new float[64][];
     for(int square=0;square<64;square++){var values=new float[12];var patch=new Color32[144];int patchIndex=0;foreach(var uv in samples[square]){var c=pixels[Mathf.Clamp((int)(uv.y*h),0,h-1)*w+Mathf.Clamp((int)(uv.x*w),0,w-1)];patch[patchIndex++]=c;values[Mathf.Min(3,c.r/64)]++;values[4+Mathf.Min(3,c.g/64)]++;values[8+Mathf.Min(3,c.b/64)]++;}for(int i=0;i<12;i++)values[i]/=144;descriptor[square]=values;shapes[square]=ChessPieceRegistry.Describe(patch);}
     lastFrame=captured;currentShapes=shapes;currentView=table.transform.InverseTransformDirection(pose.position-table.transform.position).normalized;
     if(table.SetupReviewing){candidate=descriptor;return;}
@@ -147,7 +150,7 @@ namespace LivingTable.Chess {
    foreach(var move in position.LegalMoves()){if(move.Promotion!=0&&move.Promotion!=promotion||expected.HasValue&&!move.Equals(expected.Value))continue;var changed=ChangedSquares(position,move);if(changed.Any(s=>delta[s]<.10f))continue;if(Enumerable.Range(0,64).Any(s=>!changed.Contains(s)&&delta[s]>.075f))continue;if(found.HasValue)return null;found=move;}return found;
   }
   void OnDisable(){ClearEvidence();if(cameraAccess!=null)cameraAccess.enabled=false;}
-  void OnApplicationPause(bool paused){if(paused)ClearEvidence();}
+  void OnApplicationPause(bool paused){if(paused){lifecycleHeld=true;ClearEvidence();if(cameraAccess!=null)cameraAccess.enabled=false;}}
   void OnDestroy(){if(cameraAccess!=null)Destroy(cameraAccess.gameObject);}
  }
 }

@@ -20,6 +20,7 @@ namespace LivingTable.Chess {
   public void FitBoard(){snapReference=default;Cancel();State=State==AlignmentState.Aligned?AlignmentState.Recalibrating:AlignmentState.Searching;if(EnvironmentRaycastManager.IsSupported){if(depth==null)depth=FindFirstObjectByType<EnvironmentRaycastManager>();if(depth==null){depth=gameObject.AddComponent<EnvironmentRaycastManager>();ownsDepth=true;}if(ownsDepth)depth.enabled=true;}StartCoroutine(Fit());}
   public void SizePieces(){Cancel();StartCoroutine(Measure());}
   IEnumerator Capture(Action<ChessCheckerFit.Frame> done){
+   if(TableLifecycle.Blocked){done(null);yield break;}
 #if UNITY_ANDROID && !UNITY_EDITOR
    const string permission="horizonos.permission.HEADSET_CAMERA";
    if(!Permission.HasUserAuthorizedPermission(permission)){Permission.RequestUserPermission(permission);float until=Time.unscaledTime+12;while(!Permission.HasUserAuthorizedPermission(permission)&&Time.unscaledTime<until)yield return null;if(!Permission.HasUserAuthorizedPermission(permission)){done(null);yield break;}}
@@ -39,7 +40,7 @@ namespace LivingTable.Chess {
    var source=cameraAccess.GetTexture();int nativeWidth=source.width,nativeHeight=source.height;lastImage=cameraAccess.Timestamp;int captureGeneration=generation;
    frame.width=640;frame.height=Mathf.RoundToInt(640f*nativeHeight/nativeWidth);bool complete=false;
    // Direct readback: MRUK warns that Graphics.Blit can return the previous image.
-   AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,read=>{if(!read.hasError&&captureGeneration==generation){var pixels=read.GetData<Color32>();frame.pixels=new Color32[frame.width*frame.height];for(int y=0;y<frame.height;y++)for(int x=0;x<frame.width;x++)frame.pixels[y*frame.width+x]=pixels[Mathf.Min(nativeHeight-1,Mathf.RoundToInt(y*(nativeHeight-1f)/(frame.height-1)))*nativeWidth+Mathf.Min(nativeWidth-1,Mathf.RoundToInt(x*(nativeWidth-1f)/(frame.width-1)))];}complete=true;});while(!complete)yield return null;done(frame.pixels==null?null:frame);
+   AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,read=>{if(this!=null&&!TableLifecycle.Blocked&&!read.hasError&&captureGeneration==generation){var pixels=read.GetData<Color32>();frame.pixels=new Color32[frame.width*frame.height];for(int y=0;y<frame.height;y++)for(int x=0;x<frame.width;x++)frame.pixels[y*frame.width+x]=pixels[Mathf.Min(nativeHeight-1,Mathf.RoundToInt(y*(nativeHeight-1f)/(frame.height-1)))*nativeWidth+Mathf.Min(nativeWidth-1,Mathf.RoundToInt(x*(nativeWidth-1f)/(frame.width-1)))];}complete=true;});while(!complete)yield return null;done(frame.pixels==null?null:frame);
 #pragma warning restore CS0162
   }
   IEnumerator Fit(){
@@ -90,7 +91,9 @@ namespace LivingTable.Chess {
    bool Foreground(Vector3 p){var uv=frame.Project(p);var ray=frame.Ray(uv);if(!plane.Raycast(ray,out float distance))return false;var local=board.transform.InverseTransformPoint(ray.GetPoint(distance));float x=local.x/board.Size*8*board.HumanSide+4,z=local.z/board.Size*8*board.HumanSide+4;if(x<0||z<0||x>=8||z>=8||x%1<.12f||x%1>.88f||z%1<.12f||z%1>.88f)return false;float v=frame.Gray(p);return v>=0&&Mathf.Abs(v-means[((int)x+(int)z)%2])>Mathf.Max(28,Mathf.Abs(means[0]-means[1])*.28f);}
    float top=0;int hits=0;for(float y=.018f;y<=.18f;y+=.003f)if(Foreground(center+Vector3.up*y)){top=y;hits++;}if(top<.03f||hits<5||top>=.174f)return Vector2.zero;var right=Vector3.Cross(Vector3.up,frame.camera-center).normalized;float width=0;for(float x=.006f;x<board.Size/8*.44f;x+=.002f)if(Foreground(center+Vector3.up*top*.25f+right*x)||Foreground(center+Vector3.up*top*.25f-right*x))width=x*2;return width>=.014f?new Vector2(top,width):Vector2.zero;
   }
-  void OnApplicationPause(bool paused){if(paused&&table!=null&&table.CalibrationBusy){Cancel();Fail("Alignment paused. Last pose held. Retry when the whole board is visible.");}}
+  bool interrupted;
+  void Update(){if(TableLifecycle.Blocked){if(!interrupted){interrupted=true;Cancel();}return;}if(interrupted){interrupted=false;if(table!=null&&table.CalibrationBusy)Fail("Alignment paused. Last pose held. Retry when the whole board is visible.");}}
+  void OnApplicationPause(bool paused){if(paused){interrupted=true;Cancel();}}
   void OnDisable()=>Cancel();void OnDestroy(){if(cameraAccess!=null)Destroy(cameraAccess.gameObject);}
  }
 }

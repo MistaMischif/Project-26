@@ -114,6 +114,8 @@ namespace LivingTable
         void Update()
         {
             if (platform == null) return;
+            if(TableLifecycle.Blocked){if(boardGrip.Active){boardGrip.End();gripArmed=false;anchorDeferred=true;}return;}
+            if(anchorDeferred&&!busy){anchorDeferred=false;_ = FinishBoardGrip();return;}
             if(ChessActive&&chess.HomeScreen&&Camera.main!=null){
                 // Home is a reachable entry point even if tracking settles after launch or the headset moves.
                 var eye=Camera.main.transform;var forward=Vector3.ProjectOnPlane(eye.forward,Vector3.up);
@@ -216,18 +218,20 @@ namespace LivingTable
             gripStartSize=chess.Size;chess.BeginCornerAdjustment();mount.SetParent(transform,true);Status="Hold two corner knobs to move, resize or turn. Release to place.";return true;
         }
 
+        bool anchorDeferred;
         async Task FinishBoardGrip()
         {
+            if(TableLifecycle.Blocked){anchorDeferred=true;return;}
             busy=true;var position=mount.position;var rotation=mount.rotation;
             try{
                 var previous=spatialAnchor;bool saved=anchorSaved;spatialAnchor=null;anchorSaved=false;
                 PlayerPrefs.DeleteKey(AnchorKey);PlayerPrefs.Save();
                 if(previous!=null){try{if(saved)await previous.EraseAnchorAsync();}catch(Exception error){Debug.LogWarning("[Living Table] Old anchor cleanup: "+error.Message);}finally{if(previous!=null)Destroy(previous.gameObject);}}
-                if(!destroyed)await Place(position,rotation);
+                if(!destroyed){if(TableLifecycle.Blocked)anchorDeferred=true;else await Place(position,rotation);}
             }finally{if(!destroyed){chess?.EndRelocation();busy=false;}}
         }
 
-        void OnApplicationPause(bool paused){if(!paused){roomGrace=Time.unscaledTime+1f;farSince=-1;}if(paused&&boardGrip.Active){boardGrip.End();gripArmed=false;_ = FinishBoardGrip();}}
+        void OnApplicationPause(bool paused){if(!paused){roomGrace=Time.unscaledTime+1f;farSince=-1;}if(paused&&boardGrip.Active){boardGrip.End();gripArmed=false;anchorDeferred=true;}}
         public async Task AnchorChessCalibration(){
             if(busy||!ChessActive||!chess.BoardPoseLocked)return;
             // Re-root at the calibrated surface, preserving its full XYZ pose instead of the old table anchor offset.

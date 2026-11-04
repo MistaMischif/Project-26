@@ -12,7 +12,7 @@ namespace LivingTable
    var clip=Resources.Load<AudioClip>(playing?"Audio/candy-soft-shuffle":"Audio/candy-garden-waltz");
    if(music==null||clip==null||music.clip==clip)return;Suspend();music.clip=clip;resumeSample=0;music.volume=0;Resume();
   }
-  void Resume(){if(music==null||music.clip==null||!enabledMusic||gamePaused||!isActiveAndEnabled)return;if(!music.isPlaying){music.Play();music.timeSamples=Mathf.Clamp(resumeSample,0,music.clip.samples-1);}}
+  void Resume(){if(music==null||music.clip==null||!enabledMusic||gamePaused||TableLifecycle.Blocked||!isActiveAndEnabled)return;if(!music.isPlaying){music.Play();music.timeSamples=Mathf.Clamp(resumeSample,0,music.clip.samples-1);}}
   void Suspend(){if(music!=null&&music.isPlaying){resumeSample=music.timeSamples;music.Stop();}}
   void OnEnable(){Resume();}
   void OnDisable(){Suspend();}
