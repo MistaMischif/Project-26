@@ -1,1 +1,2 @@
-Succeeded Errors: 0
+Succeeded Errors: 30
+Cached build reported repeated MeshFilter-to-MonoScript reference errors; replacement clean build required.

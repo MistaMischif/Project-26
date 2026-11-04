@@ -7,7 +7,7 @@
   "file": "LivingTable-FirstSteps-0.1.20.apk",
   "built": "2026-11-04",
   "reviewed": "2026-11-04",
-  "status": "Installed and launched on Quest 3; physical alignment acceptance pending",
+  "status": "Installed launch succeeded, but cached build reported 30 asset-reference errors; withdrawn pending clean replacement",
   "publishedVersion": "0.1.20",
   "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.20",
   "acceptance": "XYZ pinch-plane calibration, transparent green/red edge guides and enlarged view-alignment plus column; headset acceptance pending",
