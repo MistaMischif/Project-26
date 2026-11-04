@@ -8,6 +8,9 @@
 - Physical setup board fill, piece guides and markers are translucent. The existing gameplay opacity setting resumes after setup.
 - Five stacked plus guides are 3x wider. Blue means the view is off axis. Green requires the eye within 5 degrees of the board normal and camera aim within 8 degrees. After a 0.35-second aligned hold with four corners and hands clear, one refinement attempt starts. Camera unavailability preserves manual confirmation; the board is not moved to follow the head.
 - Align -> king sizing -> PLAY remains intact.
+- Pink UNDO LAST MOVE appears directly beneath ASK META after a human move. It also retracts an already-completed AI reply so the human can correct their move. Physical undo requires matching the real board to the restored position; the saved session is marked assisted.
+
+- Capture areas use only thin gold grid lines and captured-piece names; no wooden surfaces or duplicate 3D captured models obscure physical pieces.
 
 ## Headset acceptance
 1. Pinch the actual playing surface at all four outer playing corners. Inspect long edge lines; move one marker off plane and confirm red feedback. Correct it and verify green geometry.
@@ -16,6 +19,6 @@
 4. Verify transparent guides reveal real edges/pieces. Test an unavailable-camera case: manual adjustment/confirmation must remain usable.
 5. Save and continue, then re-register at another tabletop height. Check stored game positions and turn remain intact.
 
-54 integrated checks passed, including tilted XYZ pose, camera-height changes, plane-constrained refinement, invalid raised corner, transparency and enlarged guides. Existing release regression results are included. Actual Quest spatial anchoring, passthrough registration accuracy, visual comfort and camera latency require MASTER OMEGA acceptance; automated geometry tests are not headset proof. The existing self-hosted vision service remains required for physical piece identity.
+61 integrated checks passed, including tilted XYZ pose, camera-height changes, plane-constrained refinement, invalid raised corner, transparency and enlarged guides. Existing release regression results are included. Actual Quest spatial anchoring, passthrough registration accuracy, visual comfort and camera latency require MASTER OMEGA acceptance; automated geometry tests are not headset proof. The existing self-hosted vision service remains required for physical piece identity.
 
 Rollback: firststeps-v0.1.19. Same package ID; install -r preserves saves.

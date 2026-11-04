@@ -7,6 +7,7 @@ namespace LivingTable.Chess
  {
   bool sessionMenu;
   public bool SessionMenuOpen=>virtualSafety!=null||sessionMenu||extraSettings||pieceSettings||standardMenu;
+  static readonly Color UndoPink=new Color(1,.28f,.62f);
   static readonly Color Purple=new Color(.55f,.1f,.8f), Teal=new Color(.1f,.6f,.7f), Orange=new Color(.95f,.23f,.07f);
   public static string SideName(int side)=>side>0?"White":"Black";
   public static string PieceName(int piece)=>new[]{"empty","pawn","knight","bishop","rook","queen","king"}[Math.Abs(piece)];
@@ -16,7 +17,7 @@ namespace LivingTable.Chess
    string text=SideName(piece)+" "+PieceName(piece)+": "+ChessMove.Square(move.From)+" to "+ChessMove.Square(move.To)+".";
    if(Math.Abs(piece)==6&&Math.Abs(move.To-move.From)==2){int rookFrom=move.To>move.From?move.From+3:move.From-4;int rookTo=move.To>move.From?move.From+1:move.From-1;text+=" Rook: "+ChessMove.Square(rookFrom)+" to "+ChessMove.Square(rookTo)+".";}
    else if(move.EnPassant)text+=" Remove pawn on "+ChessMove.Square(move.To-position.Side*8)+".";
-   else if(position.Board[move.To]!=0)text+=" Place the captured "+SideName(position.Board[move.To])+" "+PieceName(position.Board[move.To])+" in the "+(position.Board[move.To]>0?"left":"right")+" wooden capture tray inlay.";
+   else if(position.Board[move.To]!=0)text+=" Place the captured "+SideName(position.Board[move.To])+" "+PieceName(position.Board[move.To])+" in the "+(position.Board[move.To]>0?"left":"right")+" gold capture-grid slot.";
    if(move.Promotion!=0)text+=" Replace pawn with "+PieceName(move.Promotion)+".";
    return text;
   }
@@ -80,7 +81,7 @@ namespace LivingTable.Chess
    if(companionOpen){
     Add("BACK TO GAME",0,0,CloseCompanion,Teal,true);Add("WHAT HAPPENED",2,0,()=>AskCompanion("what"),Orange);Add("EXPLAIN MOVE",1,0,()=>AskCompanion("explain"),Orange);Add("HELP CONTINUE",2,1,()=>AskCompanion("continue"),Orange);Add("RECONNECT",1,1,CheckCompanionConnection,Orange);return;
    }
-   if(GameOver){Add("PLAY AGAIN",0,0,PlayAgain,Teal,true);Add("HOME",-2,0,ShowHome,Teal);Add("NEW GAME",-1,0,ChooseNewGame,Teal);return;}
+   if(GameOver){Add("PLAY AGAIN",0,0,PlayAgain,Teal,true);Add("HOME",-2,0,ShowHome,Teal);Add("NEW GAME",-1,0,ChooseNewGame,Teal);Add("ASK META",2,0,OpenCompanion,Orange);if(CanUndoLastMove)Add("UNDO LAST MOVE",2,1,Undo,UndoPink);return;}
    if(sessionMenu){
     Add("BACK TO GAME",0,0,ToggleSessionMenu,Teal,true);
     Add(TwoPlayers?"AI TAKE OVER":"HUMAN RETURNS",2,0,SwitchOpponent,TwoPlayers?Orange:Teal);
@@ -95,7 +96,7 @@ namespace LivingTable.Chess
     else Add(VirtualRoom?"SEE ROOM":"VIRTUAL ROOM",-1,0,ToggleRoom,Teal);
     if(Match.CanClaim)Add("CLAIM DRAW",-2,1,()=>{Match.Claim();SaveSession("draw claimed");DrawUI();},Teal);return;
    }
-   Add("GAME OPTIONS",-2,0,ToggleSessionMenu,Teal);Add("ASK META",2,0,OpenCompanion,Orange);
+   Add("GAME OPTIONS",-2,0,ToggleSessionMenu,Teal);Add("ASK META",2,0,OpenCompanion,Orange);if(CanUndoLastMove)Add("UNDO LAST MOVE",2,1,Undo,UndoPink);
    if(Paused){Add("RESUME",0,0,TogglePause,Teal,true);return;}
    Add("PAUSE",-1,0,TogglePause,Teal);
    if(Recovering){Add(!Aligned?(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD"):Vision.Checking?"CANCEL SCAN":"CHECK BOARD",0,0,()=>{if(!Aligned)AlignBoard();else if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);if(Aligned)Add("MANUAL CHECK",-2,1,AttestRecovery,Teal);}
