@@ -1,5 +1,9 @@
 # Living Table: First Steps — first playable slice
 
+## Recognition reliability update — November 4, host 0.4.3 / app 0.1.14
+
+The current recognition path requires visibility/classification agreement for empty squares as well as occupied squares. `/ready/vision` checks the recognition model independently of companion readiness. The existing authorized login/recovery supervisor remains supported. App 0.1.14 preserves crop aspect ratio, rejects inadequate crops and requires fresh stable camera frames before layout review or move approval. See `releases/firststeps-0.1.14/README.md` in the repository for the acceptance procedure and limitations. Historical measurements below describe their named revisions, not today's accuracy.
+
 Existing Astra-derived Quest chess runtime, with an optional isolated First Steps app profile. General Living Table and Candy Land remain intact.
 
 ## Feature contract

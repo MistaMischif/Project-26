@@ -1,0 +1,15 @@
+{
+  "version": "0.1.14",
+  "versionCode": 15,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "b234c6ce7a2cdeb3b4d32ce1091cfdb6edd9eea29b16447833b1ddcdca49fff3",
+  "bytes": 88342545,
+  "file": "LivingTable-FirstSteps-0.1.14.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed and launched on Quest 3; local recognition host 0.4.3 ready",
+  "publishedVersion": "0.1.14",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.14",
+  "acceptance": "Pending real-board recognition, latency and founder headset acceptance",
+  "sourceCommit": "419170059bafe4f68bd6835ef882a7a924468218"
+}
