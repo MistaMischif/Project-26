@@ -20,7 +20,7 @@ namespace LivingTable.Chess
   public IEnumerator Observe(int revision,Crop[] cells,Action<ChessObservationGate.Observation> complete)
   {
    connection=ChessHostConnection.Load();if(!Configured||Busy){complete(null);yield break;}Busy=true;Status="Local vision is checking the moved squares…";
-   using(var probe=UnityWebRequest.Get(connection.url.TrimEnd('/')+"/ready")){
+   using(var probe=UnityWebRequest.Get(connection.url.TrimEnd('/')+"/ready/vision")){
     activeRequest=probe;ChessHostConnection.Configure(probe,connection);probe.timeout=5;yield return probe.SendWebRequest();activeRequest=null;
     if(probe.result!=UnityWebRequest.Result.Success){Busy=false;Status="Open Prepare-Local-AI on your computer. Camera will retry when host returns.";complete(null);yield break;}
    }

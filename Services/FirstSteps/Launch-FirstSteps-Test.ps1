@@ -24,7 +24,7 @@ $body=@{model='llama3.2:3b';stream=$false;keep_alive='30m';messages=@(@{role='us
 $null=Invoke-RestMethod http://127.0.0.1:11436/api/chat -Method Post -ContentType application/json -Body $body -TimeoutSec 120}
 if(!$UsbOnly){& (Join-Path $PSScriptRoot 'Configure-Wireless.ps1') -Address $WirelessAddress}
 $health=$null;try{$health=Invoke-RestMethod http://127.0.0.1:8790/health -TimeoutSec 2}catch{}
-if($health -and $health.service -eq 'Living Table First Steps' -and $health.version -ne '0.4.2'){
+if($health -and $health.service -eq 'Living Table First Steps' -and $health.version -ne '0.4.3'){
  $listener=Get-NetTCPConnection -LocalPort 8790 -State Listen | Select-Object -First 1;$process=Get-CimInstance Win32_Process -Filter "ProcessId=$($listener.OwningProcess)";$expected=Join-Path $PSScriptRoot 'server.mjs'
  if($process.Name -ne 'node.exe' -or !$process.CommandLine.Contains($expected)){throw 'Another host revision is running from a different folder. Close that host before using this package.'}
  Stop-Process -Id $process.ProcessId
@@ -34,6 +34,6 @@ if(!$Adb){$candidate='C:/Program Files/Unity/Hub/Editor/6000.3.9f1/Editor/Data/P
 & (Join-Path $PSScriptRoot 'Start-FirstSteps.ps1') -Adb $Adb
 Start-Sleep -Seconds 1
 $health=Invoke-RestMethod http://127.0.0.1:8790/health -TimeoutSec 3
-if($health.version -ne '0.4.2'){throw 'Wrong local host revision'}
+if($health.version -ne '0.4.3'){throw 'Wrong local host revision'}
 Write-Host 'Ready: Meta Llama companion + separate Qwen camera recognition.'
 if(!$Adb){Write-Host 'Headset not connected: install Android platform-tools and rerun to set up USB forwarding.'}else{Write-Host 'Pairing copied. With wireless configured, USB can now be unplugged. Keep host powered and on the same network.'}

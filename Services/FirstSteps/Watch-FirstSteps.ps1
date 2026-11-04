@@ -22,7 +22,7 @@ try {
     $powerFlags=if($health.clientActive){[uint32]2147483649}else{[uint32]2147483648}
     $powerResult=[LivingTablePower]::SetThreadExecutionState($powerFlags)
     if($powerResult -eq 0){Write-Availability 'SLEEP_HOLD_FAILED'}elseif($powerState -ne [string]$health.clientActive){$powerState=[string]$health.clientActive;Write-Availability ('SLEEP_HOLD '+$powerState)}
-    $healthy=$health.service -eq 'Living Table First Steps' -and $health.version -eq '0.4.2' -and $ready.ready
+    $healthy=$health.service -eq 'Living Table First Steps' -and $health.version -eq '0.4.3' -and $ready.ready
     $models=(Invoke-RestMethod 'http://127.0.0.1:11436/api/tags' -TimeoutSec 3).models.name
     $healthy=$healthy -and ($models -contains 'llama3.2:3b') -and ($models -contains 'qwen3.5:latest')
    } catch { $healthy=$false }

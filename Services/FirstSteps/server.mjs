@@ -23,11 +23,12 @@ export function createHost({env=process.env,fetchImpl=fetch}={}){
  const model=env.FIRST_STEPS_MODEL||'qwen3.5:latest',base=env.OLLAMA_URL||'http://127.0.0.1:11436';let busy=false,lastClientAt=0;
  const send=(res,status,data)=>{if(res.destroyed)return;res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
  return http.createServer(async(req,res)=>{
-  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.4.2',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy,clientActive:Date.now()-lastClientAt<90000});
-  if(!(req.method==='GET'&&req.url==='/ready')&&(req.method!=='POST'||!['/observe','/companion'].includes(req.url)))return send(res,404,{error:'Unknown route'});
+  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.4.3',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-classification-agreement',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy,clientActive:Date.now()-lastClientAt<90000});
+  if(!(req.method==='GET'&&['/ready','/ready/vision'].includes(req.url))&&(req.method!=='POST'||!['/observe','/companion'].includes(req.url)))return send(res,404,{error:'Unknown route'});
   const actual=Buffer.from(req.headers.authorization||''),expected=Buffer.from('Bearer '+(env.LIVING_TABLE_DEVICE_TOKEN||''));
   if(!env.LIVING_TABLE_DEVICE_TOKEN||actual.length!==expected.length||!timingSafeEqual(actual,expected))return send(res,401,{error:'Device connection required'});
   if(req.headers['x-living-table-monitor']!=='host')lastClientAt=Date.now();
+  if(req.url==='/ready/vision'){try{const r=await fetchImpl(base+'/api/tags',{signal:AbortSignal.timeout(3000)});if(!r.ok)throw Error('runtime');const tags=await r.json();if(!tags.models?.some(m=>m.name===model))return send(res,503,{error:'Vision model missing; your saved board is unchanged'});return send(res,200,{model,ready:true,busy});}catch{return send(res,503,{error:'Vision runtime unavailable; retry or use assisted controls'});}}
   if(req.url==='/ready'){try{const r=await fetchImpl((env.COMPANION_OLLAMA_URL||base)+'/api/tags',{signal:AbortSignal.timeout(3000)});if(!r.ok)throw Error('runtime');const tags=await r.json(),companionModel=env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b';if(!tags.models?.some(m=>m.name===companionModel))return send(res,503,{error:'Meta model missing; run Prepare-Local-AI'});return send(res,200,{companionModel,ready:true,busy});}catch{return send(res,503,{error:'Local model runtime unavailable; run Prepare-Local-AI'});}}
   if(busy)return send(res,429,{error:'Local AI busy; keep the board still and retry'});
   busy=true;const cancel=new AbortController();const onClose=()=>{if(!res.writableEnded)cancel.abort();};res.on('close',onClose);
@@ -47,11 +48,11 @@ export function createHost({env=process.env,fetchImpl=fetch}={}){
     const visibilityResult=await ask(cell.image,visibilityPrompt,visibilitySchema);
     let visibility='obscured';try{visibility=validateVisibility(visibilityResult);}catch{}
     let piece='uncertain';
-    if(visibility==='empty')piece='empty';
-    else if(visibility==='clear'){
+    if(visibility==='empty'||visibility==='clear'){
      const pieceResult=await ask(cell.image,piecePrompt,schema);try{piece=validateObservation(pieceResult);}catch{}
-     // The independent stages disagree: do not turn a visible object into an empty square.
-     if(piece==='empty')piece='uncertain';
+     // Both prompts must agree about occupancy. A false "empty" visibility answer
+     // must not bypass piece classification and erase a real piece from the proposal.
+     if((visibility==='clear'&&piece==='empty')||(visibility==='empty'&&piece!=='empty'))piece='uncertain';
     }
     cells.push({square:cell.square,piece});
    }

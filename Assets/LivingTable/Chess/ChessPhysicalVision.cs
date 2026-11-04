@@ -10,7 +10,7 @@ using LivingTable.CandyLand;
 namespace LivingTable.Chess {
  public sealed class ChessPhysicalVision:MonoBehaviour {
   ChessTable table;ChessMetaVision meta;PassthroughCameraAccess cameraAccess;
-  bool permissionAsked,pending,requested,suspended,layoutScan,scanning,confirmHuman,approvedFull;
+  bool permissionAsked,pending,requested,suspended,layoutScan,scanning,confirmHuman,approvedFull,pendingLayout;
   int generation,approvedVersion;float next,deadline;double approvedCapture,lastFrame;
   float[][] baseline,candidate,approvedView,surveyView,lastScanView;double lastScanHand;float nextAutoProbe;ChessMove? approved;int[] surveyPieces;
   public readonly byte[] CellProgress=new byte[64];
@@ -24,7 +24,7 @@ namespace LivingTable.Chess {
   public bool SurveyStable=>surveyView!=null&&candidate!=null&&Time.realtimeSinceStartupAsDouble-lastFrame<1&&Matches(surveyView,candidate)&&table.HandsClear;
   public float[] SurveyAppearance=>SurveyStable?surveyView.SelectMany(x=>x).ToArray():null;
   public void Initialize(ChessTable owner){table=owner;meta=gameObject.AddComponent<ChessMetaVision>();meta.Required=FindFirstObjectByType<LivingTableExperience>()?.firstStepsMode==true;}
-  public void ClearEvidence(){lastScanView=null;lastScanHand=table!=null?table.LastHandAt:0;nextAutoProbe=Time.unscaledTime+8;table?.ClearPhysicalMismatch();NeedsAttention=false;StopAllCoroutines();meta?.Cancel();generation++;stable.Reset();candidate=null;approved=null;approvedView=null;surveyView=null;requested=scanning=layoutScan=confirmHuman=false;suspended=false;table?.CancelHumanReview();}
+  public void ClearEvidence(){lastScanView=null;lastScanHand=table!=null?table.LastHandAt:0;nextAutoProbe=Time.unscaledTime+8;table?.ClearPhysicalMismatch();NeedsAttention=false;StopAllCoroutines();meta?.Cancel();generation++;stable.Reset();candidate=null;approved=null;approvedView=null;surveyView=null;requested=scanning=layoutScan=confirmHuman=pendingLayout=false;suspended=false;table?.CancelHumanReview();}
   public void CancelScan(){ClearEvidence();ClearProgress();suspended=true;Status="Scan stopped. Press CHECK BOARD to retry; your saved position is unchanged.";table.RefreshScanControls();}
   public void ResetBoard(){ClearProgress();baseline=null;ClearEvidence();Status="Keep the board visible and hands clear";}
   public void RetryRecovery()=>CheckNow();
@@ -62,6 +62,10 @@ namespace LivingTable.Chess {
     if(table.SetupReviewing){candidate=descriptor;return;}
     if(approvedView!=null){
      if(approvedVersion!=version||table.LastHandAt>approvedCapture||!Matches(approvedView,descriptor)){Failed("Board changed during verification. Hold still; camera will recheck.");return;}
+     // Inference can take seconds. Never accept its old image until multiple fresh,
+     // hands-clear frames agree with the captured board for a further stable interval.
+     if(!stable.Observe("verified-board-still",captured,.65f)){Status="Pieces read. Checking the board is still unchanged…";return;}
+     if(pendingLayout){pendingLayout=false;layoutScan=false;approvedView=null;surveyView=descriptor;candidate=descriptor;table.ReceiveLayout(surveyPieces,surveyPieces.Any(x=>x==99)?"Amber squares need correction or a clearer view.":"64 squares read and stability checked.");Status="Review every piece, then choose whose turn it is.";stable.Reset();table.RefreshScanControls();return;}
      if(!approved.HasValue){baseline=descriptor;approvedView=null;requested=false;if(table.AcceptRecovery(version,true)){ClearProgress();table.ClearPhysicalMismatch();Status="Saved position verified. Ready to play.";}return;}
      var move=approved.Value;bool fullApproval=approvedFull;approved=null;approvedView=null;confirmHuman=requested=false;
      var previous=baseline;baseline=descriptor;if(table.CommitObservedMove(move,version,fullApproval,true)){ClearProgress();table.ClearPhysicalMismatch();Status="Move verified. "+(table.Match.Position.Side==table.HumanSide?"Your turn.":"Opponent's turn.");stable.Reset();}else{baseline=previous;Failed("Position changed. Camera will recheck.");}return;
@@ -98,8 +102,9 @@ namespace LivingTable.Chess {
     if(observation==null||observation.revision!=version||observation.cells==null||observation.cells.Length!=batch.Length){Failed(observation==null?meta.Status:"Incomplete response. Retry the scan.");yield break;}
     foreach(int square in batch){var matching=observation.cells.Where(c=>c!=null&&c.square==ChessMove.Square(square)).ToArray();if(matching.Length!=1){Failed("Missing or duplicate square. Retry the scan.");yield break;}var cell=matching[0];cells.Add(cell);int piece=ParsePiece(cell.piece);CellProgress[square]=(byte)(piece==99||!layout&&position!=null&&(proposed.HasValue||table.Recovering)&&piece!=(proposed.HasValue?position.After(proposed.Value):position).Board[square]?3:2);if(layout)surveyPieces[square]=ParsePiece(cell.piece);}
    }
-   scanning=requested=false;layoutScan=false;
-   if(layout){surveyView=view;candidate=view;table.ReceiveLayout(surveyPieces,surveyPieces.Any(x=>x==99)?"Some squares were uncertain.":"64 squares read.");Status="Review the layout, then choose whose turn it is.";yield break;}
+   scanning=requested=false;
+   if(layout){pendingLayout=true;approvedView=view;approvedVersion=version;approvedCapture=captured;stable.Reset();deadline=Time.unscaledTime+12;Status="All squares read. Checking fresh camera frames before review…";yield break;}
+   layoutScan=false;
    var result=new ChessObservationGate.Observation{revision=version,cells=cells.ToArray()};
    if(proposed.HasValue){
     bool valid=full?ChessObservationGate.AcceptBoard(position.After(proposed.Value),version,result,out _):ChessObservationGate.Accept(position,proposed.Value,version,result);
@@ -110,20 +115,23 @@ namespace LivingTable.Chess {
     else if(ChessObservationGate.AcceptBoard(position,version,result,out _)){baseline=view;if(table.Recovering){approvedView=view;approvedVersion=version;approvedCapture=captured;approved=null;}else {Status="No move detected. Move your piece; camera is watching.";table.RefreshScanControls();}yield break;}
     else{if(table.Recovering){ChessObservationGate.AcceptBoard(position,version,result,out int mismatch);RejectLayout(mismatch>=0?"Restore "+ChessMove.Square(mismatch)+" to "+ChessObservationGate.Piece(position.Board[mismatch]).Replace('_',' ')+". Camera will recheck.":"Restore the pulsing guides to the saved layout.",position,result);}else RejectLayout("No legal move matches this scan. Red squares differ from the save; amber squares are unreadable. Restore the pulsing guides.",position,result);yield break;}
    }
-   approved=proposed;approvedFull=full;approvedVersion=version;approvedCapture=captured;approvedView=view;Status="Pieces match. Checking a fresh camera frame…";
+   approved=proposed;approvedFull=full;approvedVersion=version;approvedCapture=captured;approvedView=view;stable.Reset();deadline=Time.unscaledTime+12;Status="Pieces match. Checking fresh camera frames…";
   }
-  bool Current(int version,int session,double captured)=>this!=null&&Active&&generation==session&&table.Version==version&&table.LastHandAt<=captured;
+  bool Current(int version,int session,double captured)=>this!=null&&Active&&generation==session&&table.Version==version&&table.HandsClear&&table.LastHandAt<=captured;
   public static int ParsePiece(string value){for(int p=-6;p<=6;p++)if(ChessObservationGate.Piece(p)==value)return p;return 99;}
   ChessMetaVision.Crop CropSquare(int square,Unity.Collections.NativeArray<Color32> pixels,int w,int h,Pose pose)
   {
    var center=table.SquareLocal(square);float half=table.Size/8*.48f;Vector2 min=Vector2.one,max=Vector2.zero;
-   for(int x=-1;x<=1;x+=2)for(int z=-1;z<=1;z+=2)for(int y=0;y<=1;y++){var uv=cameraAccess.WorldToViewportPoint(table.transform.TransformPoint(center+new Vector3(x*half,y*table.MaxPhysicalPieceHeight,z*half)),pose);min=Vector2.Min(min,uv);max=Vector2.Max(max,uv);}
-   if(min.x<0||min.y<0||max.x>1||max.y>1)return null;
+   for(int x=-1;x<=1;x+=2)for(int z=-1;z<=1;z+=2)for(int y=0;y<=1;y++){var world=table.transform.TransformPoint(center+new Vector3(x*half,y*table.MaxPhysicalPieceHeight,z*half));if(Vector3.Dot(world-pose.position,pose.rotation*Vector3.forward)<=0)return null;var uv=cameraAccess.WorldToViewportPoint(world,pose);min=Vector2.Min(min,uv);max=Vector2.Max(max,uv);}
+   if(min.x<0||min.y<0||max.x>1||max.y>1||(max.x-min.x)*w<24||(max.y-min.y)*h<24)return null;
+   var fitted=FitCrop((max.x-min.x)*w,(max.y-min.y)*h);
    var image=new Texture2D(256,256,TextureFormat.RGB24,false);try{var colors=new Color32[256*256];
-    for(int y=0;y<256;y++)for(int x=0;x<256;x++){int px=Mathf.Clamp((int)(Mathf.Lerp(min.x,max.x,x/255f)*w),0,w-1),py=Mathf.Clamp((int)(Mathf.Lerp(min.y,max.y,y/255f)*h),0,h-1);colors[y*256+x]=pixels[py*w+px];}
+    for(int y=0;y<256;y++)for(int x=0;x<256;x++){if(x<fitted.xMin||x>=fitted.xMax||y<fitted.yMin||y>=fitted.yMax){colors[y*256+x]=new Color32(127,127,127,255);continue;}int px=Mathf.Clamp((int)(Mathf.Lerp(min.x,max.x,(x-fitted.xMin)/(fitted.width-1))*w),0,w-1),py=Mathf.Clamp((int)(Mathf.Lerp(min.y,max.y,(y-fitted.yMin)/(fitted.height-1))*h),0,h-1);colors[y*256+x]=pixels[py*w+px];}
     image.SetPixels32(colors);image.Apply();return new ChessMetaVision.Crop{square=ChessMove.Square(square),image=Convert.ToBase64String(image.EncodeToJPG(85))};
    }finally{Destroy(image);}
   }
+  // Letterbox rather than stretching a tall king or wide projected square into a new shape.
+  public static Rect FitCrop(float width,float height){float scale=256/Mathf.Max(width,height);float fw=Mathf.Max(2,Mathf.Round(width*scale)),fh=Mathf.Max(2,Mathf.Round(height*scale));return new Rect(Mathf.Floor((256-fw)*.5f),Mathf.Floor((256-fh)*.5f),fw,fh);}
   public static float Difference(float[] a,float[] b){float total=0;for(int i=0;i<a.Length;i++)total+=Mathf.Abs(a[i]-b[i]);return total/6;}
   static float AverageChange(float[][] a,float[][] b){float sum=0;for(int s=0;s<64;s++)sum+=Difference(a[s],b[s]);return sum/64;}
   public static int[] ChangedSquares(ChessPosition position,ChessMove move){var after=position.After(move);return Enumerable.Range(0,64).Where(i=>position.Board[i]!=after.Board[i]).ToArray();}
