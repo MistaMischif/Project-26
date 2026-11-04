@@ -1,0 +1,1 @@
+37 scene interaction checks passed; physical placement accuracy remains a headset acceptance test. Camera snapping requires separate image fixtures and physical headset acceptance.

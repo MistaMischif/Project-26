@@ -1,0 +1,15 @@
+{
+  "version": "0.1.16",
+  "versionCode": 17,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "fdcff64fb56a2427657ba1c0132bd64c645e367ae361cfcdc373106445a160e7",
+  "bytes": 88347913,
+  "file": "LivingTable-FirstSteps-0.1.16.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed and launched on Quest 3; physical alignment acceptance pending",
+  "publishedVersion": "0.1.16",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.16",
+  "acceptance": "Camera-assisted snapping, occlusion inference and center guides implemented; physical headset acceptance pending",
+  "sourceCommit": "98bf2b741709574df2691ef49807e0e6715be16c"
+}
