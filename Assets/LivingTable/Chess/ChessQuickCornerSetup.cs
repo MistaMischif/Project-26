@@ -13,7 +13,7 @@ namespace LivingTable.Chess {
   bool cornerSnapBusy;
   const string ManualCornerNotice="MANUAL markers — camera snapping unavailable. Confirm each marker on the playing-area corner, excluding the frame.";
   void CaptureSetupHeading(){var eye=Camera.main;setupForward=Vector3.ProjectOnPlane(eye!=null?eye.transform.forward:transform.forward,Vector3.up);if(setupForward.magnitude<.1f)setupForward=Vector3.ProjectOnPlane(eye!=null?eye.transform.up:transform.forward,Vector3.up);if(setupForward.sqrMagnitude<.01f)setupForward=Vector3.forward;setupForward.Normalize();setupRight=Vector3.Cross(Vector3.up,setupForward).normalized;quickGridConfirmed=false;cornerCount=0;}
-  void BeginQuickCorners(){
+  void BeginQuickCorners(){viewAlignedSince=-1;viewAttempted=false;
    calibration?.Cancel();calibrationBusy=false;Vision.CancelScan();CancelHumanReview();Version++;CancelGrab();HomeScreen=false;standardMenu=sessionMenu=extraSettings=pieceSettings=false;Aligned=BoardPoseLocked=quickGridConfirmed=false;metricFitReady=false;cornerCount=0;Array.Clear(cornerSnapped,0,4);Array.Clear(cornerInferred,0,4);cornerSnapBusy=false;editingSetupCorner=-1;alignStage=1;
    Message="1 / 4: pinch NEAR LEFT. "+ManualCornerNotice;DrawScene();
   }
@@ -28,7 +28,7 @@ namespace LivingTable.Chess {
   }
   public void ConfirmQuickGrid(){
    if(cornerSnapBusy||!ReviewingQuickGrid||cornerCount!=4||!OrderedFromView(setupCorners,setupRight,setupForward)||!PreciseCornerFit(setupCorners,out _,out _,out _))return;
-   calibration?.Lock();calibrationBusy=false;quickGridConfirmed=BoardPoseLocked=Aligned=true;metricFitReady=false;Version++;quickPhase=2;RecordRegistration();BeginKingSizing();
+   calibration?.Lock();calibrationBusy=false;quickGridConfirmed=BoardPoseLocked=Aligned=true;metricFitReady=false;Version++;quickPhase=2;RecordRegistration();BeginKingSizing();AnchorConfirmedPlane();
   }
   public void AdjustQuickCorners(){if(!quickCapture)return;cornerSnapBusy=false;calibration?.Cancel();calibrationBusy=false;quickGridConfirmed=BoardPoseLocked=Aligned=false;alignStage=1;Message="Pinch and move any labeled marker, then release. "+ManualCornerNotice;DrawScene();}
   public void RestartQuickSetup(){if(!quickCapture)return;cornerSnapBusy=false;quickGridConfirmed=BoardPoseLocked=Aligned=false;cornerCount=0;editingSetupCorner=-1;setupPosition=null;unknownSquares=null;quickPhase=0;BeginAutomaticAlignment();}
@@ -40,9 +40,40 @@ namespace LivingTable.Chess {
    Add(cornerCount<4?"PLACE CORNER "+(cornerCount+1):"REVIEW GRID",0,0,()=>{if(cornerCount==4)FinishQuickCorners();else Message="Pinch "+CornerNames[cornerCount]+". "+ManualCornerNotice;},Purple,true);
    Add("RESTART SETUP",-2,0,RestartQuickSetup,Teal);if(cornerCount>0)Add("UNDO CORNER",-1,0,()=>{cornerCount--;quickGridConfirmed=false;Message="Place "+CornerNames[cornerCount]+" again. "+ManualCornerNotice;DrawScene();},Teal);return true;
   }
+  readonly Renderer[] cornerBodies=new Renderer[4],cornerWedges=new Renderer[4];
+  readonly Transform[,] cornerAxes=new Transform[4,2];readonly TextMesh[] cornerLabels=new TextMesh[4];
+  Material cornerValid,cornerInvalid,cornerPending;
+  Material TransparentGuide(Color color,float opacity){var m=new Material(Resources.Load<Shader>("ChessAlignmentGhost"));m.color=color;m.SetFloat("_Opacity",opacity);materials.Add(m);return m;}
+  public static int CornerLayoutState(Vector3[] points,int count){
+   if(count==4)return PreciseCornerFit(points,out _,out _,out _)?1:-1;
+   for(int i=1;i<count;i++){float length=Vector3.Distance(points[i],points[i-1]);if(length<.2f||length>1.2f)return -1;}
+   if(count>=3){var a=points[1]-points[0];var b=points[2]-points[1];if(Mathf.Abs(Vector3.Dot(a.normalized,b.normalized))>.12f||Mathf.Abs(a.magnitude-b.magnitude)>.02f)return -1;}
+   return 0;
+  }
   void DrawQuickCornerMarkers(Transform guide){
+   if(cornerValid==null){cornerValid=TransparentGuide(new Color(.1f,1,.35f),.32f);cornerInvalid=TransparentGuide(new Color(1,.04f,.03f),.38f);cornerPending=TransparentGuide(new Color(1,.7f,.15f),.25f);}
    for(int i=0;i<4;i++)cornerMarkers[i]=null;
-   for(int i=0;i<cornerCount;i++){var marker=new GameObject("Manual corner "+(i+1)+" "+CornerNames[i]).transform;marker.SetParent(guide,false);marker.position=setupCorners[i];cornerMarkers[i]=marker;Shape(marker,"Square corner marker",PrimitiveType.Cube,new Vector3(0,-.002f,0),new Vector3(.029f,.004f,.029f),cornerInferred[i]?blue:gold);var wedge=new Mesh{name="Playable edge wedge"};wedge.vertices=new[]{Vector3.zero,new Vector3(.024f,0,0),new Vector3(0,0,.024f)};wedge.triangles=new[]{0,2,1};wedge.RecalculateNormals();guideMeshes.Add(wedge);var edge=new GameObject("Playable corner triangular edge");edge.transform.SetParent(marker,false);edge.transform.localPosition=Vector3.up*.001f;edge.transform.localRotation=Quaternion.Euler(0,new[]{0,-90,180,90}[i],0);edge.AddComponent<MeshFilter>().sharedMesh=wedge;edge.AddComponent<MeshRenderer>().sharedMaterial=cornerSnapped[i]?green:ebony;var text=Label(marker,(i+1)+" "+CornerNames[i]+(cornerSnapped[i]?"\nSNAPPED":cornerInferred[i]?"\nINFERRED":"\nMANUAL"),new Vector3(0,.018f,.025f),.0012f);text.transform.localRotation=Quaternion.Euler(90,0,0);}
+   for(int i=0;i<cornerCount;i++){
+    var marker=new GameObject("Manual corner "+(i+1)+" "+CornerNames[i]).transform;marker.SetParent(guide,false);marker.position=setupCorners[i];cornerMarkers[i]=marker;
+    cornerBodies[i]=Shape(marker,"Square corner marker",PrimitiveType.Cube,new Vector3(0,-.002f,0),new Vector3(.029f,.004f,.029f),cornerPending).GetComponent<Renderer>();
+    var wedge=new Mesh{name="Playable edge wedge"};wedge.vertices=new[]{Vector3.zero,new Vector3(.024f,0,0),new Vector3(0,0,.024f)};wedge.triangles=new[]{0,2,1};wedge.RecalculateNormals();guideMeshes.Add(wedge);
+    var edge=new GameObject("Playable corner triangular edge");edge.transform.SetParent(marker,false);edge.transform.localPosition=Vector3.up*.0005f;edge.transform.localRotation=Quaternion.Euler(0,new[]{0,-90,180,90}[i],0);edge.AddComponent<MeshFilter>().sharedMesh=wedge;cornerWedges[i]=edge.AddComponent<MeshRenderer>();
+    for(int axis=0;axis<2;axis++)cornerAxes[i,axis]=Shape(marker,"Corner edge axis",PrimitiveType.Cube,Vector3.zero,Vector3.one,cornerPending);
+    cornerLabels[i]=Label(marker,"",new Vector3(0,.018f,.025f),.0012f);cornerLabels[i].transform.localRotation=Quaternion.Euler(90,0,0);
+   }
+   UpdateCornerVisuals();
+  }
+  void UpdateCornerVisuals(){
+   int state=CornerLayoutState(setupCorners,cornerCount);var mat=state>0?cornerValid:state<0?cornerInvalid:cornerPending;
+   for(int i=0;i<cornerCount;i++)if(cornerMarkers[i]!=null){
+    var marker=cornerMarkers[i];marker.position=setupCorners[i];cornerBodies[i].sharedMaterial=cornerWedges[i].sharedMaterial=mat;
+    for(int axis=0;axis<2;axis++){
+     int neighbor=(i+(axis==0?1:3))%4;var localCorner=new Vector3(i==0||i==3?-.5f:.5f,0,i<2?-.5f:.5f);var nextCorner=new Vector3(neighbor==0||neighbor==3?-.5f:.5f,0,neighbor<2?-.5f:.5f);
+     var delta=neighbor<cornerCount?marker.InverseTransformVector(setupCorners[neighbor]-setupCorners[i]):(nextCorner-localCorner)*Size;
+     var rail=cornerAxes[i,axis];rail.localPosition=delta*.25f;rail.localRotation=delta.sqrMagnitude>.000001f?Quaternion.LookRotation(delta.normalized):Quaternion.identity;rail.localScale=new Vector3(.0025f,.0005f,delta.magnitude*.5f);rail.GetComponent<Renderer>().sharedMaterial=mat;
+    }
+    cornerLabels[i].text=(i+1)+" "+CornerNames[i]+(state>0?"\nVALID":state<0?"\nADJUST":"\nPLACE ALL FOUR")+(cornerSnapped[i]?" / SNAPPED":cornerInferred[i]?" / INFERRED":" / MANUAL");
+   }
   }
   bool GrabQuickCorner(int hand,Vector3 world){
    if(!quickCapture||!(SelectingCorners||ReviewingQuickGrid))return false;
@@ -59,10 +90,13 @@ namespace LivingTable.Chess {
   void RequestCornerSnapping(){
    if(desktop||calibration==null||!quickCapture||cornerCount==0||!(SelectingCorners||ReviewingQuickGrid))return;
    Array.Clear(cornerSnapped,0,4);Array.Clear(cornerInferred,0,4);cornerSnapBusy=true;Message="Checking playable edges. Lift hands and keep the board visible. Amber markers remain manual until verified.";DrawUI();
-   var seed=new ChessSurfaceSolver.Estimate();if(cornerCount==4&&FitCorners(setupCorners,out var c,out var r,out var size))seed=new ChessSurfaceSolver.Estimate{valid=true,center=c,rotation=r,size=size};
+   var seed=new ChessSurfaceSolver.Estimate();if(cornerCount==4&&FitCorners(pinchedCorners,out var c,out var r,out var size))seed=new ChessSurfaceSolver.Estimate{valid=true,center=c,rotation=r,size=size};
    calibration.SnapCorners(seed,(fit,edges,error)=>{
     cornerSnapBusy=false;if(!quickCapture||quickGridConfirmed||!(SelectingCorners||ReviewingQuickGrid))return;
     if(fit.valid){
+     // Pinches own the physical surface height and normal. Camera evidence only refines within it.
+     if(!seed.valid){Message="Place four surface corners before snapping.";DrawScene();return;}
+     fit=ConstrainSnapToPinchPlane(fit,seed);
      for(int i=0;i<cornerCount;i++){
       var best=NearestVerifiedCorner(fit,setupCorners[i],out float distance);
       var local=Quaternion.Inverse(fit.rotation)*(best-fit.center);int required=(local.x<0?1:2)|(local.z<0?4:8);bool observed=(edges&required)==required;
@@ -70,10 +104,14 @@ namespace LivingTable.Chess {
       else cornerSnapped[i]=false;
      }
      if(cornerCount==4)FinishQuickCorners();else {PreviewMarkedSquare();DrawScene();}
-     Message=ReviewingQuickGrid?"Does this grid match your chessboard? Green SNAPPED / blue INFERRED from square geometry / amber MANUAL. Check all four before confirming.":"Place the next labeled corner. Green SNAPPED / blue INFERRED / amber MANUAL.";
+     Message=ReviewingQuickGrid?"Does this grid match your chessboard? Green edges: valid square. Red edges: adjust corners. Labels show camera SNAPPED or MANUAL.":"Place the next labeled corner. Green: valid geometry; red: adjust; amber: incomplete.";
     }else Message=error;
     DrawScene();
    });
+  }
+  public static ChessSurfaceSolver.Estimate ConstrainSnapToPinchPlane(ChessSurfaceSolver.Estimate fit,ChessSurfaceSolver.Estimate plane){
+   var normal=plane.rotation*Vector3.up;fit.center-=normal*Vector3.Dot(fit.center-plane.center,normal);
+   var forward=Vector3.ProjectOnPlane(fit.rotation*Vector3.forward,normal);fit.rotation=Quaternion.LookRotation(forward.sqrMagnitude>.001f?forward:plane.rotation*Vector3.forward,normal);return fit;
   }
   public static Vector3 NearestVerifiedCorner(ChessSurfaceSolver.Estimate fit,Vector3 point,out float distance){
    Vector3 best=point;distance=float.PositiveInfinity;

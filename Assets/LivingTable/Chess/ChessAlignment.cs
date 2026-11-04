@@ -42,15 +42,30 @@ namespace LivingTable.Chess {
    var guide=new GameObject("Alignment grid").transform;guide.SetParent(board,false);
    if(quickCapture&&(SelectingCorners||ReviewingQuickGrid))DrawQuickCornerMarkers(guide);
    else if(SelectingCorners){for(int i=0;i<cornerCount;i++){var point=transform.InverseTransformPoint(setupCorners[i]);Shape(guide,"Selected playing corner "+(i+1),PrimitiveType.Sphere,point,Vector3.one*.018f,gold);}return;}
-   for(int i=0;i<=8;i++){float at=-Size*.5f+i*Size/8;Shape(guide,"Grid file "+i,PrimitiveType.Cube,new Vector3(at,relocating?.012f:.0008f,0),new Vector3(relocating?.004f:.0015f,.0015f,Size),relocating?adjustGrid:gold);Shape(guide,"Grid rank "+i,PrimitiveType.Cube,new Vector3(0,relocating?.012f:.0008f,at),new Vector3(Size,.0015f,relocating?.004f:.0015f),relocating?adjustGrid:gold);}
+   for(int i=0;i<=8;i++){float at=-Size*.5f+i*Size/8;Shape(guide,"Grid file "+i,PrimitiveType.Cube,new Vector3(at,relocating?.012f:.0002f,0),new Vector3(relocating?.004f:.0015f,.0004f,Size),relocating?adjustGrid:gold);Shape(guide,"Grid rank "+i,PrimitiveType.Cube,new Vector3(0,relocating?.012f:.0002f,at),new Vector3(Size,.0004f,relocating?.004f:.0015f),relocating?adjustGrid:gold);}
    if(quickCapture&&(SelectingCorners||ReviewingQuickGrid)){
     for(int level=0;level<5;level++){
-     float y=level*.035f;float span=level==0?.035f:.018f;
+     float y=level*.035f;float span=level==0?.105f:.054f;
      Shape(guide,"Center plus horizontal "+level,PrimitiveType.Cube,new Vector3(0,y,0),new Vector3(span,.0015f,.0025f),blue);
      Shape(guide,"Center plus vertical "+level,PrimitiveType.Cube,new Vector3(0,y,0),new Vector3(.0025f,.0015f,span),blue);
     }
    }
+   if(quickCapture&&(SelectingCorners||ReviewingQuickGrid)){viewGuidePrompt=Label(guide,"Line up the blue + centers, then hold still.",new Vector3(0,.17f,-.15f),.002f);viewGuidePrompt.color=Color.cyan;}else viewGuidePrompt=null;
    if(relocating)return;
+  }
+  TextMesh viewGuidePrompt;float viewAlignedSince=-1;bool viewAttempted;
+  public static bool ViewAlignedOverBoard(Vector3 eye,Vector3 look,Vector3 center,Vector3 normal){
+   var offset=eye-center;float height=Vector3.Dot(offset,normal);return height>.2f&&Vector3.ProjectOnPlane(offset,normal).magnitude<=height*Mathf.Tan(5*Mathf.Deg2Rad)&&Vector3.Angle(look,-normal)<=8;
+  }
+  void UpdateAlignmentViewGuide(){
+   if(viewGuidePrompt==null||Camera.main==null||!quickCapture||!(SelectingCorners||ReviewingQuickGrid))return;
+   var eye=Camera.main.transform;bool aligned=ViewAlignedOverBoard(eye.position,eye.forward,transform.position,transform.up);
+   if(!aligned){viewAlignedSince=-1;viewAttempted=false;}else if(viewAlignedSince<0)viewAlignedSince=Time.unscaledTime;
+   foreach(var child in board.GetComponentsInChildren<Renderer>())if(child.name.StartsWith("Center plus "))child.sharedMaterial=aligned?green:blue;
+   viewGuidePrompt.transform.rotation=eye.rotation;viewGuidePrompt.color=aligned?Color.green:Color.cyan;
+   viewGuidePrompt.text=!aligned?"Line up the blue + centers. Hold that view.":cornerCount<4?"View aligned. Place all four corners.":cornerSnapBusy?"View aligned. Refining grid...":viewAttempted?"View aligned. Check edges, then ALIGN.":"View aligned. Hold still...";
+   if(aligned&&cornerCount==4&&cornerSnapBusy)viewAttempted=true;
+   if(aligned&&cornerCount==4&&!viewAttempted&&!cornerSnapBusy&&HandsClear&&Time.unscaledTime-viewAlignedSince>=.35f){viewAttempted=true;RequestCornerSnapping();}
   }
   bool AlignmentPose(Vector3 point){var edge=point-firstCorner;edge.y=0;if(edge.magnitude<.2f||edge.magnitude>1.2f||Mathf.Abs(point.y-firstCorner.y)>.12f)return false;Size=edge.magnitude;var forward=Vector3.Cross(edge.normalized,Vector3.up);transform.SetPositionAndRotation(firstCorner+edge*.5f+forward*Size*.5f,Quaternion.LookRotation(forward));return true;}
   void PreviewAlignment(Vector3 world){if(alignStage!=2||Time.unscaledTime<nextAlignmentPreview)return;nextAlignmentPreview=Time.unscaledTime+.12f;if(AlignmentPose(world))DrawScene();}

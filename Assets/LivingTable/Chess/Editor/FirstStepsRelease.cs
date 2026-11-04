@@ -36,8 +36,8 @@ namespace LivingTable.Editor
    var oldHttp=PlayerSettings.insecureHttpOption;string oldName=PlayerSettings.productName;
    string oldId=PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android),oldVersion=PlayerSettings.bundleVersion;int oldCode=PlayerSettings.Android.bundleVersionCode;
    string exclusionError=AssetDatabase.MoveAsset(resources,excluded);if(!string.IsNullOrEmpty(exclusionError))throw new Exception(exclusionError);
-   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.19";PlayerSettings.Android.bundleVersionCode=20;
-    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.19.apk",target=BuildTarget.Android,options=BuildOptions.Development|BuildOptions.DetailedBuildReport});
+   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.20";PlayerSettings.Android.bundleVersionCode=21;
+    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.20.apk",target=BuildTarget.Android,options=BuildOptions.Development|BuildOptions.DetailedBuildReport});
     var packed=result.packedAssets.SelectMany(p=>p.contents).Select(a=>a.sourceAssetPath).Distinct().OrderBy(p=>p).ToArray();File.WriteAllLines("Builds/FirstSteps-packed-assets.txt",packed);
     if(packed.Any(p=>p.StartsWith(excluded+"/",StringComparison.OrdinalIgnoreCase)||p.StartsWith(resources+"/",StringComparison.OrdinalIgnoreCase)))throw new Exception("First Steps contains excluded Candy Land assets");
     File.WriteAllText("Builds/FirstSteps-build.txt",result.summary.result+" Errors: "+result.summary.totalErrors);if(result.summary.result!=BuildResult.Succeeded)throw new Exception("First Steps build failed");

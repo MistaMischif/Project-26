@@ -52,7 +52,7 @@ namespace LivingTable
         void CheckRoom(){
             if(!desktopPreview&&watchedDisplay==null&&OVRManager.display!=null){watchedDisplay=OVRManager.display;watchedDisplay.RecenteredPose+=RequestRoomRecovery;}
             if(!desktopPreview&&placed&&Time.unscaledTime>roomGrace&&Camera.main!=null){
-                if(BoardOutOfReach(Camera.main.transform.position,mount.position)){if(farSince<0)farSince=Time.unscaledTime;if(Time.unscaledTime-farSince>.8f)roomRecoveryRequested=true;}else farSince=-1;
+                if(BoardOutOfReach(Camera.main.transform.position,ChessActive?chess.transform.position:mount.position)){if(farSince<0)farSince=Time.unscaledTime;if(Time.unscaledTime-farSince>.8f)roomRecoveryRequested=true;}else farSince=-1;
             }
             if(roomRecoveryRequested&&placed&&!busy){roomRecoveryRequested=false;if(ChessActive&&chess.BoardPoseLocked){roomGrace=Time.unscaledTime+30;farSince=-1;chess.ReportBoardOutOfReach();}else RecoverRoom();}
         }
@@ -228,6 +228,14 @@ namespace LivingTable
         }
 
         void OnApplicationPause(bool paused){if(!paused){roomGrace=Time.unscaledTime+1f;farSince=-1;}if(paused&&boardGrip.Active){boardGrip.End();gripArmed=false;_ = FinishBoardGrip();}}
+        public async Task AnchorChessCalibration(){
+            if(busy||!ChessActive||!chess.BoardPoseLocked)return;
+            // Re-root at the calibrated surface, preserving its full XYZ pose instead of the old table anchor offset.
+            var position=chess.transform.position;var rotation=chess.transform.rotation;
+            mount.SetParent(transform,true);mount.SetPositionAndRotation(position,rotation);
+            chess.transform.SetLocalPositionAndRotation(Vector3.zero,Quaternion.identity);
+            await FinishBoardGrip();if(!destroyed)chess.SaveAnchoredRegistration();
+        }
         public Task RepositionBoard()=>Reposition();
         public Task PlaceBoard(Vector3 position,Quaternion rotation)=>Place(position,rotation);
 
