@@ -31,15 +31,17 @@ namespace LivingTable.Chess {
    var taken=new List<int>();if(state?.initial==null||state.moves==null)return taken.ToArray();var position=state.initial.Copy();foreach(var saved in state.moves){var move=saved.Move;int square=move.EnPassant?move.To-position.Side*8:move.To;int piece=position.Board[square];if(piece!=0)taken.Add(piece);position=position.After(move);}return taken.ToArray();
   }
   public static int MissingBeforeStart(ChessMatch.State state,int color)=>state?.initial==null?0:Math.Max(0,16-state.initial.Board.Count(piece=>Math.Sign(piece)==color));
+  public float CaptureSlotSize=>Mathf.Max(.045f*Size/.56f,.038f*PieceScale(6).x+.012f);
+  public float CaptureInnerEdge=>Size*.5f+.06f+.055f+Mathf.Max(.035f,Size*.06f);
   void DrawCapturedPieces(){
-   if(!Playing||HomeScreen)return;var state=Match.Capture();var recorded=CapturedSinceStart(state);float unit=Size/.56f;float slot=Mathf.Max(.045f*unit,.038f*PieceScale(6).x+.012f);
+   if(!Playing||HomeScreen)return;var state=Match.Capture();var recorded=CapturedSinceStart(state);float unit=Size/.56f;float slot=CaptureSlotSize;
    foreach(int color in new[]{1,-1}){var pieces=recorded.Where(p=>Math.Sign(p)==color).ToArray();int unknown=MissingBeforeStart(state,color),total=unknown+pieces.Length;
-    var tray=new GameObject(SideName(color)+" captured pieces").transform;tray.SetParent(men,false);tray.localPosition=new Vector3((color>0?-1:1)*(Size*.5f+slot*1.3f),0,0);
+    var tray=new GameObject(SideName(color)+" captured pieces").transform;tray.SetParent(men,false);tray.localPosition=new Vector3((color>0?-1:1)*(CaptureInnerEdge+slot),0,0);
     for(int column=0;column<=2;column++)Shape(tray,"Capture gold grid line",PrimitiveType.Cube,new Vector3((column-1)*slot,.0005f,0),new Vector3(.002f,.001f,slot*8),gold);
     for(int row=0;row<=8;row++)Shape(tray,"Capture gold grid line",PrimitiveType.Cube,new Vector3(0,.0005f,(row-4)*slot),new Vector3(slot*2,.001f,.002f),gold);
     for(int i=0;i<total;i++){var at=new Vector3((i%2==0?-.5f:.5f)*slot,.0015f,(i/2-3.5f)*slot);var name=Label(tray,i>=unknown?PieceName(pieces[i-unknown]).ToUpperInvariant():"UNKNOWN",at,.0009f*unit);name.name="Captured piece label";name.transform.localRotation=Quaternion.Euler(90,0,0);name.color=new Color(1,.85f,.45f);}
     if(Physical&&color==captureTrayColor&&Time.unscaledTime<capturePromptUntil&&total>0){int slotIndex=total-1;var at=new Vector3((slotIndex%2==0?-.5f:.5f)*slot,.001f,(slotIndex/2-3.5f)*slot);var marker=Shape(tray,"Place captured physical piece here",PrimitiveType.Quad,at,new Vector3(slot*.72f,slot*.72f,1),green);marker.localRotation=Quaternion.Euler(90,0,0);}
-    string caption=SideName(-color).ToUpperInvariant()+" CAPTURED: "+total+(unknown>0?"\n"+unknown+" before scan · types unknown":"");var label=Label(tray,caption,new Vector3(0,.065f,-Size*.37f),.0017f*unit);label.fontStyle=FontStyle.Bold;label.gameObject.AddComponent<TableFacingPanel>();
+    string caption=SideName(-color).ToUpperInvariant()+" CAPTURED: "+total+(unknown>0?"\n"+unknown+" before scan · types unknown":"");var label=Label(tray,caption,new Vector3(0,.065f,-slot*4-.035f),.0017f*unit);label.fontStyle=FontStyle.Bold;label.gameObject.AddComponent<TableFacingPanel>();
    }
   }
  }

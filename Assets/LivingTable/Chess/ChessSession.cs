@@ -7,11 +7,12 @@ namespace LivingTable.Chess
  {
   [Serializable] public sealed class SessionState
   {
-   public ChessPieceRegistry pieceRegistry;public bool draft,captureManual,turnChosen;public int capturePhase;public ChessPosition capturedPosition;public bool[] unknownSquares;public BoardRegistration registration;
+   public string capturedOriginId;public ChessPieceRegistry pieceRegistry;public bool draft,captureManual,turnChosen;public int capturePhase;public ChessPosition capturedPosition;public bool[] unknownSquares;public BoardRegistration registration;
    public ChessMatch.State match;public bool physical,twoPlayers,manual,unverified,room,imported;
    public bool paused;public bool hasPending;public int humanSide,promotion;public ChessMatch.SavedMove pending;public float[] appearance;public float setScale;public float boardSize;public float[] pieceSizes;
   }
   public string SessionId {get;private set;}
+  public string CapturedOriginId {get;private set;}
   public bool Unverified {get;private set;}
   public bool StorageBlocked {get;private set;}
   public bool VirtualRoom {get;private set;}
@@ -19,19 +20,29 @@ namespace LivingTable.Chess
   GameSessionStore.Entry[] saved=Array.Empty<GameSessionStore.Entry>();
   public bool Editing=>editing;
   ChessPieceRegistry pieceRegistry=new ChessPieceRegistry();
-  public SessionState CaptureSession()=>new SessionState{pieceRegistry=pieceRegistry,draft=Match==null,capturePhase=quickPhase,capturedPosition=setupPosition,unknownSquares=unknownSquares,captureManual=setupManual,turnChosen=turnChosen,registration=registration,match=Match?.Capture(),paused=Paused,physical=Physical,twoPlayers=TwoPlayers,manual=ManualFallback,unverified=Unverified,room=VirtualRoom,imported=imported,humanSide=HumanSide,promotion=Promotion,hasPending=PendingAi.HasValue,pending=PendingAi.HasValue?new ChessMatch.SavedMove(PendingAi.Value):null,appearance=Vision.CaptureAppearance(),setScale=setScale,boardSize=Size,pieceSizes=pieceSizes};
+  public SessionState CaptureSession()=>new SessionState{capturedOriginId=CapturedOriginId,pieceRegistry=pieceRegistry,draft=Match==null,capturePhase=quickPhase,capturedPosition=setupPosition,unknownSquares=unknownSquares,captureManual=setupManual,turnChosen=turnChosen,registration=registration,match=Match?.Capture(),paused=Paused,physical=Physical,twoPlayers=TwoPlayers,manual=ManualFallback,unverified=Unverified,room=VirtualRoom,imported=imported,humanSide=HumanSide,promotion=Promotion,hasPending=PendingAi.HasValue,pending=PendingAi.HasValue?new ChessMatch.SavedMove(PendingAi.Value):null,appearance=Vision.CaptureAppearance(),setScale=setScale,boardSize=Size,pieceSizes=pieceSizes};
   public bool SaveSession(string reason)
   {
    if(SessionId==null||Match==null&&!quickCapture)return true;
    try{GameSessionStore.Save(SessionId,"chess",reason,JsonUtility.ToJson(CaptureSession()));StorageBlocked=false;return true;}
    catch(Exception e){StorageBlocked=true;Paused=true;Message="Session save failed. Play is locked. "+e.Message;Debug.LogError("[Session] "+e.Message);if(ui!=null)DrawUI();return false;}
   }
+  bool SaveCaptureOrigin(){
+   if(CapturedOriginId!=null)return true;
+   try{CapturedOriginId=GameSessionStore.NewId();GameSessionStore.Save(CapturedOriginId,"chess","original physical capture",JsonUtility.ToJson(CaptureSession()));return true;}
+   catch(Exception e){CapturedOriginId=null;StorageBlocked=Paused=true;Message="Cannot preserve captured position: "+e.Message;DrawUI();return false;}
+  }
+  public void RestartFromCapture(){
+   if(CapturedOriginId==null||Busy||StorageBlocked||!SaveSession("experiment saved before restart"))return;
+   string origin=CapturedOriginId;ResumeSession(origin);if(SessionId!=origin)return;
+   SessionId=GameSessionStore.NewId();CapturedOriginId=origin;Paused=false;SaveSession("new experiment from original capture");DrawScene();
+  }
   void RefreshSaved(){saved=GameSessionStore.List("chess");savedIndex=0;}
   public void ResumeSession(string id)
   {
    try {
     var record=GameSessionStore.Load(id);if(record.game!="chess")throw new ArgumentException("Wrong game");var state=JsonUtility.FromJson<SessionState>(record.payload);
-    BoardPoseLocked=false;if(state.draft){ResumeCapture(state,id);return;}registration=state.registration;quickCapture=false;quickPhase=0;
+    CapturedOriginId=state.capturedOriginId;BoardPoseLocked=false;if(state.draft){ResumeCapture(state,id);return;}registration=state.registration;quickCapture=false;quickPhase=0;
     var restored=ChessMatch.Restore(state.match);if(state.humanSide!=1&&state.humanSide!=-1||state.promotion<2||state.promotion>5)throw new ArgumentException("Invalid saved settings");
     if(state.hasPending&&(state.pending==null||!restored.Position.LegalMoves().Contains(state.pending.Move)))throw new ArgumentException("Invalid pending AI move");
     HomeScreen=false;setScale=state.setScale>0?Mathf.Clamp(state.setScale,.3f,3):1;StopAllCoroutines();CancelGrab();Version++;Match=restored;pieceRegistry=state.pieceRegistry??new ChessPieceRegistry();pieceRegistry.Enroll(restored.Position);SessionId=id;Physical=state.physical;TwoPlayers=state.twoPlayers;HumanSide=state.humanSide;Promotion=state.promotion;ManualFallback=state.manual;Unverified=state.unverified;VirtualRoom=state.room;imported=state.imported;PendingAi=state.hasPending?(ChessMove?)state.pending.Move:null;

@@ -17,7 +17,7 @@ namespace LivingTable.Chess {
   void RecordRegistration(){registration=new BoardRegistration{pinchedCorners=pinchedCorners.Take(cornerCount).ToArray(),cameraSnapped=cornerSnapped.ToArray(),inferredCorners=cornerInferred.ToArray(),alignmentMethod=metricFitReady?metricFit.source:"assisted",detectedCorners=metricFitReady?metricFit.corners:0,fitErrorPixels=metricFitReady?metricFit.rmsPixels:0,corners=setupCorners.Take(cornerCount).ToArray(),center=transform.position,rotation=transform.rotation,size=Size,setScale=setScale,playerColor=HumanSide,recordedUtc=DateTime.UtcNow.ToString("O"),anchorId=FindFirstObjectByType<LivingTableExperience>()?.RegisteredAnchorId,parentLocalCenter=transform.localPosition,parentLocalRotation=transform.localRotation};SaveSession("physical board registration updated");}
   void CompleteKingSizing(){
    RecordRegistration();
-   if(entryPhase==4){entryPhase=3;PlayEntry();return;}
+   if(entryPhase==4){if(entryCapture&&!Playing&&setupPosition==null){entryPhase=0;quickPhase=3;entryKeepPhysical=false;BeginPositionScan();return;}entryPhase=3;PlayEntry();return;}
    if(quickCapture&&quickPhase==2&&setupPosition!=null&&unknownSquares!=null&&!unknownSquares.Any(x=>x)){
     quickPhase=3;ShowCapturedTurn();return;
    }

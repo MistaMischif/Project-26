@@ -57,7 +57,7 @@ namespace LivingTable.Chess {
    if(unknownSquares.Any(x=>x)){Message="Resolve every unknown square, or rescan. Tap a square, then set its piece.";return;}
    int side=setupPosition.Board.SequenceEqual(ChessPosition.Initial().Board)?1:InferSide(setupPosition.Board);if(side==0&&!LegalLayout(setupPosition.Board,1)&&!LegalLayout(setupPosition.Board,-1)){Message="This layout is not a legal position. Check kings, pawns, colors and selected squares.";return;}
    if(quickCapture&&quickPhase==1){quickPhase=2;SaveSession("captured position validated");if(Aligned)BeginKingSizing();else BeginFourCorners();return;}
-   alignStage=9;turnChosen=side!=0;if(turnChosen)setupPosition.Side=side;Message=turnChosen?SideName(side)+" is in check, so that side must move. Confirm before continuing.":"A piece layout cannot reveal whose turn it is. Choose WHITE or BLACK to move.";DrawUI();
+   alignStage=9;turnChosen=side!=0;if(turnChosen)setupPosition.Side=side;Message=turnChosen?SideName(side)+" to move. Confirm before continuing.":"A piece layout cannot reveal whose turn it is. Choose WHITE or BLACK to move.";DrawUI();
   }
   static string RightsName(int bits)=>new[]{"NONE","KING","QUEEN","BOTH"}[bits];
   void ConfirmTurn(){if(!turnChosen){Message="Choose whose turn it is first.";return;}alignStage=10;Message="Setup ready. Confirm known castling rights, then press the purple START GAME button. Earlier history is unknown.";DrawUI();}
@@ -68,7 +68,7 @@ namespace LivingTable.Chess {
    if(!quickCapture&&!verified&&!setupManual){Message="The board moved or the camera lost its view. Press RESCAN to verify it again.";return;}
    var position=setupPosition.Copy();bool capturedVirtual=quickCapture&&!entryKeepPhysical;if(capturedVirtual){Physical=false;TwoPlayers=false;}alignStage=0;if(!ImportPosition(position)){if(capturedVirtual)Physical=true;alignStage=10;DrawUI();return;}
    if(capturedVirtual){Recovering=false;ManualFallback=false;quickCapture=false;quickPhase=0;}else if(verified){Vision.RestoreAppearance(appearance);Recovering=false;ManualFallback=false;}else if(setupManual){Recovering=false;ManualFallback=true;}
-   if(verified)Vision.EnrollConfirmedPieces();quickCapture=false;quickPhase=0;setupPosition=null;unknownSquares=null;SaveSession(verified?"observed physical position imported":"manually reviewed physical position imported");DrawScene();
+   if(verified)Vision.EnrollConfirmedPieces();quickCapture=false;quickPhase=0;setupPosition=null;unknownSquares=null;if(capturedVirtual&&!SaveCaptureOrigin())return;SaveSession(verified?"observed physical position imported":"manually reviewed physical position imported");DrawScene();
   }
   void CorrectSelectedPiece(){if(setupSelected<0){Message="Tap the square you want to correct first.";return;}int value=setupPosition.Board[setupSelected];setupPosition.Board[setupSelected]=value>=6?-6:value+1;unknownSquares[setupSelected]=false;setupManual=true;Message=ChessMove.Square(setupSelected)+": "+ChessObservationGate.Piece(setupPosition.Board[setupSelected]);DrawMen();DrawUI();}
   void CancelSetupScan(){Vision.CancelScan();if(!Playing&&alignStage==6)ReceiveLayout(null,"Scan stopped. Rescan or enter the position manually.");else{Message="Scan stopped. Your saved game is unchanged.";DrawUI();}}

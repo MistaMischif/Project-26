@@ -252,7 +252,7 @@ namespace LivingTable
             return xr?OVRSkeleton.BoneId.XRHand_LittleTip:OVRSkeleton.BoneId.Hand_PinkyTip;
         }
         static bool IsObservedJoint(OVRSkeleton skeleton,OVRSkeleton.BoneId id)=>id==HandJoint(skeleton.GetSkeletonType(),1)||id==HandJoint(skeleton.GetSkeletonType(),2)||id==HandJoint(skeleton.GetSkeletonType(),3);
-        public static bool PiecePinchActive(float gap,bool holding)=>float.IsFinite(gap)&&gap>=0&&gap<=(holding?.09f:.065f);
+        public static bool PiecePinchActive(float gap,bool holding)=>float.IsFinite(gap)&&gap>=0&&gap<=(holding?.05f:.035f);
         static bool TryPinchPoint(OVRHand hand,out Vector3 point)=>TryPinchPoint(hand,out point,out _);
         static bool TryPinchPoint(OVRHand hand, out Vector3 point,out float gap)
         {
