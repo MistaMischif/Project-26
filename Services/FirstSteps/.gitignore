@@ -2,3 +2,4 @@ first-steps-connection.json
 runtime-config.json
 *.log
 private-tls/
+*.log.previous

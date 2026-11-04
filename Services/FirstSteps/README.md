@@ -83,3 +83,6 @@ Prepare-Local-AI now configures a local HTTPS endpoint with OpenSSL and pins its
 The launcher remembers an explicitly selected `-ModelDirectory` in ignored `runtime-config.json`, so restarts reuse the same weights instead of searching an empty default cache. The model drive must remain connected. Paired HTTPS headsets do not need ADB reverse or a USB connection when restarting the host. New headsets still need initial pairing. No scheduled job, startup entry or service is created. Keep the PC awake and the launcher host running on the same reachable Wi-Fi.
 
 Meta companion output now requires at least one fact ID chosen from the supplied authoritative facts in its JSON generation schema. Existing answer validation still rejects unknown facts and substituted moves. This fixes observed missing-citation rejection without inventing a fallback answer.
+
+## Automatic availability — host 0.4.2
+See releases/firststeps-host-0.4.2/README.md for founder-authorized login startup, crash recovery, active-headset sleep prevention, installation and rollback. Pairing, certificates and model directories remain private and are not included in the downloadable host package.

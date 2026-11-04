@@ -1,0 +1,18 @@
+✔ companion rejects invalid context, illegal or substituted moves and unknown facts (1.0783ms)
+✔ real HTTP route uses Meta model and returns bound read-only context (44.6067ms)
+✔ provider failure and invalid model answer do not become invented assistance (0.7527ms)
+✔ authenticated readiness checks the actual runtime and Meta model (13.9844ms)
+✔ short grounded prose is a valid Meta response (0.2649ms)
+✔ only authenticated headset activity keeps the host active (11.411ms)
+✔ strict input and observation contracts (0.9465ms)
+✔ empty and obscured squares bypass piece guessing; clear pieces get independent classification (47.5928ms)
+✔ stage disagreement, malformed output and provider errors fail closed (15.2169ms)
+✔ disconnect cancels provider work and frees the next scan (11.1438ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.2829

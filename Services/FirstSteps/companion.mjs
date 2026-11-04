@@ -5,7 +5,7 @@ export function validateCompanion(v){
  if(!Array.isArray(v.facts)||v.facts.length<1||v.facts.length>80||new Set(v.facts.map(f=>f.id)).size!==v.facts.length||v.facts.some(f=>!/^f\d+$/.test(f.id)||typeof f.text!=='string'||f.text.length>400))throw Error('Invalid facts');return v;
 }
 export function validateAnswer(v,input){
- if(!v||typeof v.answer!=='string'||!v.answer.trim()||v.answer.length<30||v.answer.length>500||v.answer.trim().split(/\s+/).length>75||/[<>]/.test(v.answer)||typeof v.move!=='string'||v.move!==''&&v.move!==input.suggestedMove||!Array.isArray(v.factIds)||!v.factIds.length||v.factIds.some(id=>!input.facts.some(f=>f.id===id)))throw Error('Ungrounded response');
+ if(!v||typeof v.answer!=='string'||!v.answer.trim()||v.answer.trim().split(/\s+/).length<3||v.answer.length>500||v.answer.trim().split(/\s+/).length>75||/[<>]/.test(v.answer)||typeof v.move!=='string'||v.move!==''&&v.move!==input.suggestedMove||!Array.isArray(v.factIds)||!v.factIds.length||v.factIds.some(id=>!input.facts.some(f=>f.id===id)))throw Error('Ungrounded response');
  return {answer:v.answer,move:v.move,factIds:v.factIds};
 }
 export async function explain(input,{env=process.env,fetchImpl=fetch,signal}={}){

@@ -20,13 +20,14 @@ export function validateInput(v){
 export function validateObservation(v){if(!v||Object.keys(v).length!==1||!pieces.includes(v.piece))throw Error('Invalid observation');return v.piece;}
 export function validateVisibility(v){if(!v||Object.keys(v).length!==1||!['empty','clear','obscured'].includes(v.visibility))throw Error('Invalid visibility');return v.visibility;}
 export function createHost({env=process.env,fetchImpl=fetch}={}){
- const model=env.FIRST_STEPS_MODEL||'qwen3.5:latest',base=env.OLLAMA_URL||'http://127.0.0.1:11436';let busy=false;
+ const model=env.FIRST_STEPS_MODEL||'qwen3.5:latest',base=env.OLLAMA_URL||'http://127.0.0.1:11436';let busy=false,lastClientAt=0;
  const send=(res,status,data)=>{if(res.destroyed)return;res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(data));};
  return http.createServer(async(req,res)=>{
-  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.4.1',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy});
+  if(req.method==='GET'&&req.url==='/health')return send(res,200,{service:'Living Table First Steps',version:'0.4.2',companionModel:env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b',recognizer:'visibility-gated',model,configured:!!env.LIVING_TABLE_DEVICE_TOKEN,busy,clientActive:Date.now()-lastClientAt<90000});
   if(!(req.method==='GET'&&req.url==='/ready')&&(req.method!=='POST'||!['/observe','/companion'].includes(req.url)))return send(res,404,{error:'Unknown route'});
   const actual=Buffer.from(req.headers.authorization||''),expected=Buffer.from('Bearer '+(env.LIVING_TABLE_DEVICE_TOKEN||''));
   if(!env.LIVING_TABLE_DEVICE_TOKEN||actual.length!==expected.length||!timingSafeEqual(actual,expected))return send(res,401,{error:'Device connection required'});
+  if(req.headers['x-living-table-monitor']!=='host')lastClientAt=Date.now();
   if(req.url==='/ready'){try{const r=await fetchImpl((env.COMPANION_OLLAMA_URL||base)+'/api/tags',{signal:AbortSignal.timeout(3000)});if(!r.ok)throw Error('runtime');const tags=await r.json(),companionModel=env.FIRST_STEPS_COMPANION_MODEL||'llama3.2:3b';if(!tags.models?.some(m=>m.name===companionModel))return send(res,503,{error:'Meta model missing; run Prepare-Local-AI'});return send(res,200,{companionModel,ready:true,busy});}catch{return send(res,503,{error:'Local model runtime unavailable; run Prepare-Local-AI'});}}
   if(busy)return send(res,429,{error:'Local AI busy; keep the board still and retry'});
   busy=true;const cancel=new AbortController();const onClose=()=>{if(!res.writableEnded)cancel.abort();};res.on('close',onClose);
