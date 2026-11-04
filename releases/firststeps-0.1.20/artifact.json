@@ -1,0 +1,15 @@
+{
+  "version": "0.1.20",
+  "versionCode": 21,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "a8c2867a702ff6f6792a0ccc94cf6d6e5282408facab206ac8c598078304e085",
+  "bytes": 88384757,
+  "file": "LivingTable-FirstSteps-0.1.20.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed and launched on Quest 3; physical alignment acceptance pending",
+  "publishedVersion": "0.1.20",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.20",
+  "acceptance": "XYZ pinch-plane calibration, transparent green/red edge guides and enlarged view-alignment plus column; headset acceptance pending",
+  "sourceCommit": "a4a3091848c7e07f7f5ae184be6c528d1ff03f3f"
+}
