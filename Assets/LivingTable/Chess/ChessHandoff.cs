@@ -32,12 +32,12 @@ namespace LivingTable.Chess
     if(Recovering)return !Aligned?"1 / 2 - Align the real board. Game held.":"2 / 2 - Match the guide pieces. "+Vision.Status;
     if(SessionMenuOpen)return "Game held while you choose. Same position and history.";
     if(Physical&&Time.unscaledTime<capturePromptUntil)return captureInstruction+"\n"+Vision.Status;
-    if(PendingAi.HasValue)return "Move for AI: "+MoveInstruction(Match.Position,PendingAi.Value)+(Physical?"\n"+Vision.Status:"");
+    if(PendingAi.HasValue)return "Move for AI: "+MoveInstruction(Match.Position,PendingAi.Value)+(Physical&&Vision.NeedsAttention?"\n"+Vision.Status:"");
     if(VisualMovePreview&&automaticPreview)return "Following your physical move. Verifying identity before the next turn. "+Vision.Status;
     if(AwaitingMoveAcceptance)return "Check the preview. ACCEPT MOVE saves it and starts the opponent turn. "+Vision.Status;
     if(Busy)return "Moving...";
     if(ai!=null)return "AI is thinking...";
-    if(Physical)return ManualFallback?"Manual fallback: move real pieces, then tap source and destination.":Vision.Status;
+    if(Physical)return ManualFallback?"Manual fallback: move real pieces, then tap source and destination.":Vision.NeedsAttention?Vision.Status:"Move your piece. The virtual board follows automatically.";
     return (TwoPlayers?SideName(Match.Position.Side)+" plays.":"Your move.")+" Pinch a piece and place it on a glowing square.";
    }
   }
@@ -99,10 +99,10 @@ namespace LivingTable.Chess
    Add("GAME OPTIONS",-2,0,ToggleSessionMenu,Teal);Add("ASK META",2,0,OpenCompanion,Orange);if(CanUndoLastMove)Add("UNDO LAST MOVE",2,1,Undo,UndoPink);
    if(Paused){Add("RESUME",0,0,TogglePause,Teal,true);return;}
    Add("PAUSE",-1,0,TogglePause,Teal);
-   if(Recovering){Add(!Aligned?(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD"):Vision.Checking?"CANCEL SCAN":"CHECK BOARD",0,0,()=>{if(!Aligned)AlignBoard();else if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);if(Aligned)Add("MANUAL CHECK",-2,1,AttestRecovery,Teal);}
+   if(Recovering){Add(!Aligned?(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD"):Vision.Checking?"CANCEL SYNC":"SYNC PIECES",0,0,()=>{if(!Aligned)AlignBoard();else if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);if(Aligned)Add("MANUAL CHECK",-2,1,AttestRecovery,Teal);}
    else if(Physical&&ManualFallback&&PendingAi.HasValue)Add("MOVED IT",0,0,()=>Play(PendingAi.Value),Orange,true);
    else if(Physical&&AwaitingMoveAcceptance)Add("ACCEPT MOVE",0,0,()=>Vision.ConfirmHuman(),Purple,true);
-   else if(Physical)Add(Vision.Checking?"CANCEL SCAN":"CHECK BOARD",0,0,()=>{if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);
+   else if(Physical)Add(PendingAi.HasValue?"MOVE AI PIECE":"YOUR MOVE",0,0,()=>{if(PendingAi.HasValue){Message=MoveInstruction(Match.Position,PendingAi.Value);Highlights();}else ShowAvailableMoves();},Purple,true);
    else Add("SHOW MOVES",0,0,ShowAvailableMoves,Teal,true);
   }
   bool extraSettings,pieceSettings;

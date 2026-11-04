@@ -9,9 +9,9 @@ namespace LivingTable {
   bool paused,unfocused,absent;float readyAt;bool wasListenerPaused;
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
   static void ResetState(){Blocked=false;}
-  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
   public static void ApplyRenderBudget(UniversalRenderPipelineAsset pipeline){if(pipeline==null)return;pipeline.renderScale=Mathf.Min(pipeline.renderScale,1f);pipeline.msaaSampleCount=Mathf.Min(pipeline.msaaSampleCount,2);}
   static void Memory(string stage){Debug.Log("[Living Table] "+stage+" managed/native="+(Profiler.GetTotalAllocatedMemoryLong()/1048576)+"MB graphics="+(Profiler.GetAllocatedMemoryForGraphicsDriver()/1048576)+"MB eye="+UnityEngine.XR.XRSettings.eyeTextureWidth+"x"+UnityEngine.XR.XRSettings.eyeTextureHeight);}
+  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
   static void Install(){
 #if !UNITY_ANDROID || UNITY_EDITOR
    return;

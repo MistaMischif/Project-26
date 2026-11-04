@@ -1,6 +1,6 @@
 # Living Table 0.1.23 — Quest graphics memory and sleep recovery
 
-Status: regression/build/device verification pending.
+Status: rejected by final build verification (one invalid RuntimeInitializeOnLoad method signature). Not installed or published. Corrected in combined 0.1.24.
 
 The 0.1.22 power-key test passed one sleep/wake cycle but lost the app on the second. Kernel logs recorded global out-of-memory kills and a failed 237512 KB GPU allocation before Android reported an undeliverable broadcast. A fresh 0.1.22 launch measured 1,745,962 KB graphics PSS and 2,153,467 KB total PSS. Earlier system audio errors were not sufficient to identify the original cause.
 
