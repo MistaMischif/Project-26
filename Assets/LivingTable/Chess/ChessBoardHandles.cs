@@ -6,6 +6,7 @@ namespace LivingTable.Chess {
   public bool AdjustingBoard=>relocating;
   public Vector3 ResizeHandleWorld(int corner)=>transform.TransformPoint(new Vector3((corner%2==0?-1:1)*(Size*.5f+.06f),.025f,(corner<2?-1:1)*(Size*.5f+.06f)));
   void DrawBoardHandles(){
+   if(quickCapture&&!quickGridConfirmed)return;
    if(handleGlow==null){handleGlow=Mat(new Color(1,.85f,.35f),true);handleGlow.SetFloat("_Square",1);adjustGrid=Mat(new Color(1,.72f,.2f),true);adjustGrid.SetFloat("_Square",1);}
    var root=new GameObject("Board adjustment handles").transform;root.SetParent(board,false);
    for(int i=0;i<4;i++){
@@ -15,14 +16,14 @@ namespace LivingTable.Chess {
    UpdateHandleFeedback();
   }
   public bool BeginBoardResize(int hand,Vector3 point){
-   if(BoardPoseLocked||HomeScreen||Busy||StorageBlocked||SessionMenuOpen||relocating||SelectingCorners||calibrationBusy)return false;
+   if(BoardPoseLocked||HomeScreen||Busy||StorageBlocked||SessionMenuOpen||relocating||SelectingCorners||calibrationBusy||quickCapture&&!quickGridConfirmed)return false;
    int corner=-1;float nearest=.055f;for(int i=0;i<4;i++){float distance=Vector3.Distance(point,ResizeHandleWorld(i));if(distance<nearest){nearest=distance;corner=i;}}
    if(corner<0)return false;resizeCorner=corner;resizeHand=hand;resizeSeen=Time.unscaledTime;resizeStartSize=Size;resizeStartPoint=point;resizeRotation=transform.rotation;resizeNormal=transform.up;
    var diagonal=new Vector3(corner%2==0?-1:1,0,corner<2?-1:1);resizeFixed=transform.TransformPoint(-diagonal*Size*.5f);resizeAxis=transform.rotation*diagonal;resizeOffset=point-ResizeHandleWorld(corner);
    BeginRelocation();Message="Opposite playing corner locked. Pull this knob to fit the board; release to review.";return true;
   }
   public void ScaleHeldBoard(float size){Size=Mathf.Clamp(size,.2f,1.2f);float ratio=Size/resizeStartSize;foreach(var root in new[]{board,men,ui,marks})if(root!=null)root.localScale=Vector3.one*ratio;}
-  public void BeginCornerAdjustment(){if(BoardPoseLocked)return;if(ResizingBoard){resizeHand=int.MinValue;resizeCorner=-1;DrawScene();}resizeStartSize=Size;BeginRelocation();}
+  public void BeginCornerAdjustment(){if(BoardPoseLocked||quickCapture&&!quickGridConfirmed)return;if(ResizingBoard){resizeHand=int.MinValue;resizeCorner=-1;DrawScene();}resizeStartSize=Size;BeginRelocation();}
   public bool UpdateBoardResize(int hand,Vector3 point,bool release){
    if(hand!=resizeHand)return false;resizeSeen=Time.unscaledTime;
    var line=Vector3.ProjectOnPlane(point-resizeOffset-resizeFixed,resizeNormal);if(line.magnitude<.08f){if(release)EndBoardResize();return true;}

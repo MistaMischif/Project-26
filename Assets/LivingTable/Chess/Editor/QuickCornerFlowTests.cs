@@ -1,0 +1,30 @@
+#if UNITY_EDITOR
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using UnityEngine;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using LivingTable.Chess;
+namespace LivingTable.Editor {
+ public static class QuickCornerFlowTests {
+  static double deadline;static int count;
+  static void Check(bool ok,string label){count++;if(!ok)throw new Exception("QUICK CORNERS: "+label);}
+  public static void Run(){SessionState.SetString("QuickCornerRoot",Path.GetFullPath("Logs/quick-corners-"+Guid.NewGuid().ToString("N")));EditorSceneManager.OpenScene(ChessContestRelease.DesktopScene);SessionState.SetBool("QuickCorners",true);EditorApplication.EnterPlaymode();}
+  [InitializeOnLoadMethod]static void Resume(){if(!SessionState.GetBool("QuickCorners",false))return;GameSessionStore.TestRoot=SessionState.GetString("QuickCornerRoot","");deadline=EditorApplication.timeSinceStartup+120;EditorApplication.update+=Tick;}
+  static void Tick(){try{if(EditorApplication.timeSinceStartup>deadline)throw new Exception("Timed out");if(!EditorApplication.isPlaying||EditorApplication.isCompiling)return;var t=UnityEngine.Object.FindFirstObjectByType<ChessTable>();if(t?.Vision==null)return;
+   Camera.main.transform.rotation=Quaternion.Euler(60,0,0);t.QuickPlay();Check(!t.Playing&&!t.Aligned,"Quick Play cannot start game");Check(t.GetComponentsInChildren<TableButtonVisual>().Any(x=>x.name=="Menu button"),"Main panel has labeled Menu");t.SendMessage("Update");var status=(TextMesh)typeof(ChessTable).GetField("status",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(t);Check(status.text==ChessTable.QuickSetupInstructions,"Exact stable Quick Play prompt");
+   t.PreviewMetricAlignment(new ChessSurfaceSolver.Estimate{valid=true,center=new Vector3(0,.8f,0),rotation=Quaternion.identity,size=.56f,corners=35,rmsPixels=.8f,rmsMeters=.002f,source="synthetic fixture"});Check(t.SelectingCorners&&!t.Aligned&&!t.Vision.Checking&&!t.BoardPoseLocked,"Automatic fit requires manual corners, no scan or lock");Check(t.GetComponentsInChildren<Transform>().Count(x=>x.name.StartsWith("Grid file "))==9,"Provisional grid is visible");
+   var corners=new[]{new Vector3(-.28f,.8f,-.28f),new Vector3(.28f,.8f,-.28f),new Vector3(.28f,.8f,.28f),new Vector3(-.28f,.8f,.28f)};
+   for(int i=0;i<4;i++){Check(t.SelectBoardCorner(corners[i]),"Ordered corner accepted "+i);if(i<3){t.ConfirmQuickGrid();Check(!t.Aligned&&!t.Playing,"Cannot confirm before all four");}}
+   Check(t.ReviewingQuickGrid&&!t.Aligned&&!t.Playing,"Fourth corner requires separate review");Check(t.Message.StartsWith("Does this grid match your chessboard?"),"Exact grid confirmation prompt");Check(t.GetComponentsInChildren<Transform>().Count(x=>x.name.StartsWith("Manual corner "))==4,"All four markers labeled manual");foreach(var label in new[]{"CONFIRM button","ADJUST CORNERS button","RESTART SETUP button","Menu button"})Check(t.GetComponentsInChildren<TableButtonVisual>().Any(x=>x.name==label),"Required control "+label);
+   var position=t.transform.position;t.PreviewMetricAlignment(new ChessSurfaceSolver.Estimate{valid=true,center=Vector3.one*10,size=.56f,rotation=Quaternion.identity,corners=35,rmsPixels=.8f,rmsMeters=.002f});Check(t.transform.position==position,"Late detection cannot replace chosen corners");
+   t.AdjustQuickCorners();Check(t.BeginSetupGrab(77,corners[2]),"Existing marker can be pinched");t.UpdateSetupGrab(77,corners[2]+Vector3.right*.08f,true);Check(!t.ReviewingQuickGrid&&!t.Aligned,"Distorted geometry blocks confirmation");Check(t.BeginSetupGrab(77,corners[2]+Vector3.right*.08f),"Invalid corner remains adjustable");t.UpdateSetupGrab(77,corners[2],true);Check(t.ReviewingQuickGrid,"Correcting corner restores grid review");
+   Check(!ChessTable.OrderedFromView(corners.Reverse().ToArray(),Vector3.right,Vector3.forward),"Wrong initial-view order rejected");t.ConfirmQuickGrid();Check(t.QuickGridConfirmed&&t.BoardPoseLocked&&t.Aligned&&t.SizingKing&&!t.Playing,"Confirmation locks grid and proceeds to existing piece setup");Check(t.CaptureSession().registration.corners.Length==4&&t.CaptureSession().registration.alignmentMethod=="assisted","Save labels manual geometry honestly");
+   position=t.transform.position;t.PreviewMetricAlignment(new ChessSurfaceSolver.Estimate{valid=true,center=Vector3.one,size=.56f,rotation=Quaternion.identity,corners=35,rmsPixels=.8f,rmsMeters=.002f});Check(t.transform.position==position,"Confirmed grid remains locked");t.OpenStandardMenu();Check(t.StandardMenuOpen,"Main menu action accessible after setup");t.OpenStandardMenu();t.RestartQuickSetup();Check(!t.QuickGridConfirmed&&!t.Aligned&&t.PlacedCornerCount==0,"Restart invalidates all corners and confirmation");t.BeginFourCorners();Check(t.SelectingCorners&&t.Message.Contains("MANUAL"),"Camera-unavailable fallback is explicit");t.NewGame();t.Configure(false,false,1);t.StartGame();Check(t.Playing&&t.GetComponentsInChildren<TableButtonVisual>().Any(x=>x.name=="Menu button"),"Menu remains on panel in gameplay");t.NewGame();Finish(0,"QUICK_CORNER_TESTS_PASSED "+count);
+  }catch(Exception ex){Finish(1,ex.ToString());}}
+  static void Finish(int code,string message){SessionState.SetBool("QuickCorners",false);EditorApplication.update-=Tick;if(code==0){File.WriteAllText("Builds/Quick-corner-tests.txt",count+" scene interaction checks passed; physical placement accuracy remains a headset acceptance test. Camera snapping is not implemented.");Debug.Log(message);}else Debug.LogError(message);EditorApplication.Exit(code);}
+ }
+}
+#endif

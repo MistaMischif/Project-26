@@ -3,7 +3,7 @@ namespace LivingTable.Chess {
  public sealed partial class ChessTable {
   public bool BoardPoseLocked {get;private set;}
   bool boardNeedsMove;
-  public void UnlockBoardForMove(){BoardPoseLocked=false;boardNeedsMove=false;metricFitReady=false;}
+  public void UnlockBoardForMove(){BoardPoseLocked=false;boardNeedsMove=false;metricFitReady=false;if(quickCapture)quickGridConfirmed=false;}
   public void ReportBoardOutOfReach(){boardNeedsMove=true;Message="Board remains locked. Open MENU and choose MOVE BOARD to place it in your new space.";DrawUI();}
   bool metricFitReady,assistedFitAvailable;ChessSurfaceSolver.Estimate metricFit;
   float nextAlignmentPreview;ChessCameraCalibration calibration;bool calibrationBusy;float[] pieceSizes=new float[24],proposedSizes;TextMesh turnHeading;
@@ -13,11 +13,12 @@ namespace LivingTable.Chess {
   public void BeginAutomaticAlignment(){if(!Physical||Busy||relocating||BoardPoseLocked)return;ResetAlignmentMessages();metricFitReady=false;if(Playing)Recovering=true;Version++;CancelGrab();Vision.ClearEvidence();alignStage=5;Aligned=false;calibrationBusy=true;Message=AlignmentInstructions;DrawScene();calibration.FitBoard();}
   public void CalibrationFailed(string reason){calibrationBusy=false;alignmentError=reason;lastAlignmentIssue=Time.unscaledTime;DrawUI();}
   public void PreviewAutoAlignment(ChessCheckerFit.Fit fit){CalibrationFailed("A coarse pattern is not a verified surface. Retry automatic refinement or use assisted corners.");}
-  public void AcceptAutoAlignment(){if(alignStage!=3||!metricFitReady)return;calibration.Lock();Aligned=true;Version++;if(Playing)Recovering=true;RecordRegistration();SaveSession("physical checker fit locked");if(quickCapture&&quickPhase==0){quickPhase=1;BeginPositionScan();return;}BeginKingSizing();}
+  public void AcceptAutoAlignment(){if(quickCapture){BeginFourCorners();return;}if(alignStage!=3||!metricFitReady)return;calibration.Lock();Aligned=true;Version++;if(Playing)Recovering=true;RecordRegistration();SaveSession("physical checker fit locked");BeginKingSizing();}
   public void CalibrationProgress(string text){if(!calibrationBusy)return;alignmentProgress=text;}
   public void PreviewMetricAlignment(ChessSurfaceSolver.Estimate fit){
-   if(BoardPoseLocked)return;
+   if(BoardPoseLocked||quickCapture&&(SelectingCorners||ReviewingQuickGrid||quickGridConfirmed))return;
    if(!fit.valid||fit.corners<16||!float.IsFinite(fit.rmsPixels)||fit.rmsPixels>1.25f||!float.IsFinite(fit.rmsMeters)||fit.rmsMeters>.006f||!float.IsFinite(fit.size)||fit.size<.2f||fit.size>1.2f||!float.IsFinite(fit.center.sqrMagnitude)||!float.IsFinite(fit.rotation.x+fit.rotation.y+fit.rotation.z+fit.rotation.w)){CalibrationFailed("Physical grid fit rejected; last pose held.");return;}
+   if(quickCapture){calibrationBusy=false;Size=fit.size;transform.SetPositionAndRotation(fit.center,fit.rotation);BeginQuickCorners();return;}
    // Preserve piece dimensions; changing board scale does not resize the pieces.
    for(int piece=-6;piece<=6;piece++)if(piece!=0){int i=ChessCameraCalibration.ProfileIndex(piece)*2;if(pieceSizes[i]<=.02f){var scale=MeasuredPieceScale(piece);pieceSizes[i]=scale.y*new[]{.05f,.075f,.0705f,.059f,.0685f,.082f}[System.Math.Abs(piece)-1];pieceSizes[i+1]=scale.x*.038f;}}
    calibrationBusy=false;BoardPoseLocked=true;alignmentError="";alignmentProgress="Grid ready. Check all edges, then ACCEPT BOARD.";metricFitReady=true;metricFit=fit;Size=fit.size;transform.SetPositionAndRotation(fit.center,fit.rotation);alignStage=3;Aligned=false;
@@ -39,7 +40,8 @@ namespace LivingTable.Chess {
    if(alignStage==11||quickCapture&&alignStage==5)return;
    if(!relocating&&(!Physical||Playing&&!Recovering&&alignStage==0&&!BoardPoseLocked))return;
    var guide=new GameObject("Alignment grid").transform;guide.SetParent(board,false);
-   if(SelectingCorners){for(int i=0;i<cornerCount;i++){var point=transform.InverseTransformPoint(setupCorners[i]);Shape(guide,"Selected playing corner "+(i+1),PrimitiveType.Sphere,point,Vector3.one*.018f,gold);}return;}
+   if(quickCapture&&(SelectingCorners||ReviewingQuickGrid))DrawQuickCornerMarkers(guide);
+   else if(SelectingCorners){for(int i=0;i<cornerCount;i++){var point=transform.InverseTransformPoint(setupCorners[i]);Shape(guide,"Selected playing corner "+(i+1),PrimitiveType.Sphere,point,Vector3.one*.018f,gold);}return;}
    for(int i=0;i<=8;i++){float at=-Size*.5f+i*Size/8;Shape(guide,"Grid file "+i,PrimitiveType.Cube,new Vector3(at,relocating?.012f:.0008f,0),new Vector3(relocating?.004f:.0015f,.0015f,Size),relocating?adjustGrid:gold);Shape(guide,"Grid rank "+i,PrimitiveType.Cube,new Vector3(0,relocating?.012f:.0008f,at),new Vector3(Size,.0015f,relocating?.004f:.0015f),relocating?adjustGrid:gold);}
    if(relocating)return;
   }

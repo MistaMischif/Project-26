@@ -55,6 +55,7 @@ namespace LivingTable.Chess
    if(GameOver){var result=Label(p.transform,Match.Result.Replace(" wins by "," wins\nby ").Replace("Draw \u2014 ","Draw\n"),new Vector3(0,.06f,-.015f),.0026f*4);result.name="Game result";result.fontStyle=FontStyle.Bold;result.color=status.color;}
    turnHeading=null;if(Playing&&!GameOver&&!companionOpen&&!guidance){turnHeading=Label(p.transform,TurnTitle,new Vector3(0,.10f,-.015f),.008f);turnHeading.fontStyle=FontStyle.Bold;turnHeading.color=status.color;turnHeading.name="Persistent turn heading";}
    ConfigureBackPanel(p.transform);DrawPanelMenu(p.transform);DrawScanSpinner(p.transform);DrawAlignmentMessages(p.transform);
+   DrawMainMenuButton();
    if(SetupUI())return;
    if(HomeScreen){
     status.text="LIVING TABLE\nby COLTRAN STUDIOS\n\nPatent application in preparation";status.fontStyle=FontStyle.Bold;status.characterSize=.0035f;
@@ -91,7 +92,7 @@ namespace LivingTable.Chess
     else Add(VirtualRoom?"SEE ROOM":"VIRTUAL ROOM",-1,0,ToggleRoom,Teal);
     if(Match.CanClaim)Add("CLAIM DRAW",-2,1,()=>{Match.Claim();SaveSession("draw claimed");DrawUI();},Teal);return;
    }
-   Add("MENU",-2,0,ToggleSessionMenu,Teal);Add("ASK META",2,0,OpenCompanion,Orange);
+   Add("GAME OPTIONS",-2,0,ToggleSessionMenu,Teal);Add("ASK META",2,0,OpenCompanion,Orange);
    if(Paused){Add("RESUME",0,0,TogglePause,Teal,true);return;}
    Add("PAUSE",-1,0,TogglePause,Teal);
    if(Recovering){Add(!Aligned?(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD"):Vision.Checking?"CANCEL SCAN":"CHECK BOARD",0,0,()=>{if(!Aligned)AlignBoard();else if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);if(Aligned)Add("MANUAL CHECK",-2,1,AttestRecovery,Teal);}

@@ -22,21 +22,24 @@ namespace LivingTable.Chess {
   }
   public void BeginFourCorners(){
    if(BoardPoseLocked){Message="Grid locked. Use MOVE BOARD before adjusting corners.";return;}
+   if(quickCapture){BeginQuickCorners();return;}
    metricFitReady=false;assistedFitAvailable=false;
    if(quickCapture&&quickPhase==0)quickPhase=2;
    calibration?.Cancel();calibrationBusy=false;Vision.CancelScan();Vision.ClearProgress();CancelHumanReview();Version++;CancelGrab();HomeScreen=false;standardMenu=extraSettings=pieceSettings=sessionMenu=false;cornerCount=0;alignStage=1;Aligned=false;
    Message="1 / 4: pinch the NEAR LEFT outer corner of the 8 x 8 playing squares. Exclude the frame. Sit behind your chosen color.";DrawScene();
   }
   public bool SelectBoardCorner(Vector3 point){
-   if(!SelectingCorners)return false;if(cornerCount>0&&Vector3.Distance(point,setupCorners[cornerCount-1])<.12f){Message="Choose the next corner, not the same point.";return false;}
+   if(!SelectingCorners||cornerCount>=4)return false;if(cornerCount>0&&Vector3.Distance(point,setupCorners[cornerCount-1])<.12f){Message="Choose the next corner, not the same point.";return false;}
    setupCorners[cornerCount++]=point;
-   if(cornerCount<4){Message=(cornerCount+1)+" / 4: pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner.";DrawScene();return true;}
+   if(cornerCount<4){Message=(cornerCount+1)+" / 4: pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner."+(quickCapture?" "+ManualCornerNotice:"");DrawScene();return true;}
+   if(quickCapture)return FinishQuickCorners();
    if(!FitCorners(setupCorners,out var center,out var rotation,out var size)){cornerCount=0;Message="Corners did not form a flat square. Start again at NEAR LEFT. MENU is always available.";DrawScene();return false;}
    Size=size;transform.SetPositionAndRotation(center,rotation);Aligned=true;alignStage=7;pieceSizes=new float[24];kingSquare=HumanSide>0?4:60;
    RecordRegistration();Message="Checking your selected board against the physical grid.";DrawScene();if(!desktop)RefineAdjustedBoard();return true;
   }
   void BeginKingSizing(){calibration?.Cancel();calibrationBusy=false;alignStage=7;Aligned=true;kingSquare=HumanSide>0?4:60;Message="Place the guide on your king's square, then pinch/pull its top to match size. Press SIZE READY.";DrawScene();}
   public void BeginPositionScan(){
+   if(quickCapture&&!quickGridConfirmed){BeginFourCorners();return;}
    if(!Physical||!Aligned){BeginFourCorners();return;}standardMenu=extraSettings=pieceSettings=sessionMenu=false;
    if(Playing){alignStage=0;Recovering=true;Vision.CheckNow();DrawScene();return;}
    setupPosition=new ChessPosition{Board=new int[64],Rights=0,Ep=-1};unknownSquares=Enumerable.Repeat(true,64).ToArray();setupManual=false;alignStage=6;Message="Reading all 64 physical squares. Keep hands clear. CANCEL or MENU remains available.";DrawScene();Vision.BeginLayoutScan();
@@ -60,6 +63,7 @@ namespace LivingTable.Chess {
   void ConfirmTurn(){if(!turnChosen){Message="Choose whose turn it is first.";return;}alignStage=10;Message="Setup ready. Confirm known castling rights, then press the purple START GAME button. Earlier history is unknown.";DrawUI();}
   void StartObservedGame(){if(quickCapture){RequestVirtualSafety(StartObservedGameConfirmed);return;}StartObservedGameConfirmed();}
   void StartObservedGameConfirmed(){
+   if(quickCapture&&!quickGridConfirmed){Message="Confirm all four corners and the grid before starting.";return;}
    if(setupPosition==null||!turnChosen||unknownSquares.Any(x=>x))return;bool verified=!setupManual&&Vision.SurveyStable;var appearance=Vision.SurveyAppearance;
    if(!quickCapture&&!verified&&!setupManual){Message="The board moved or the camera lost its view. Press RESCAN to verify it again.";return;}
    var position=setupPosition.Copy();bool capturedVirtual=quickCapture;if(capturedVirtual){Physical=false;TwoPlayers=false;}alignStage=0;if(!ImportPosition(position)){if(capturedVirtual)Physical=true;alignStage=10;DrawUI();return;}
@@ -77,6 +81,7 @@ namespace LivingTable.Chess {
   bool SetupUI(){
    if(DrawVirtualSafety())return true;
    if(standardMenu){status.text="MENU\nReturn, resize the panel, or leave the table.";Add("BACK",0,0,()=>{standardMenu=false;DrawUI();},Teal,true);Add("MAIN MENU",-2,0,MenuHome,Teal);Add("QUIT",-1,0,QuitGame,Teal);Add("STOP SCAN",-2,1,CancelSetupScan,Teal);Add("MOVE BOARD",-1,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);DrawPanelSlider();if(!gameObject.activeInHierarchy){int index=0;foreach(var b in buttons){b.root.SetParent(panel.transform,false);b.root.localPosition=new Vector3((index%3-1)*.10f,-.01f-(index/3)*.07f,-.03f);b.root.localRotation=Quaternion.Euler(-90,0,0);index++;}}return true;}
+   if(QuickCornerUI())return true;
    if(alignStage==11){Add("SCAN BOARD",0,0,BeginAutomaticAlignment,Purple,true);Add("CHOOSE CORNERS",-2,0,BeginFourCorners,Teal);Add("HOME",-1,0,ShowHome,Teal);return true;}
    if(alignStage==1){Add("SELECT CORNER "+(cornerCount+1),0,0,()=>{Message="Pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner.";},Purple,true);Add("RESTART",-2,0,BeginFourCorners,Teal);if(cornerCount>0)Add("UNDO CORNER",-2,0,()=>{cornerCount--;Message="Select corner "+(cornerCount+1)+" again.";DrawScene();},Teal);return true;}
    if(alignStage==7){Add("SIZE READY",0,0,CompleteKingSizing,Teal,true);Add("KING +",-2,0,()=>ResizePieceSet(1.08f),Teal);Add("KING -",-1,0,()=>ResizePieceSet(1/1.08f),Teal);Add("YOUR COLOR",-2,1,()=>{HumanSide=-HumanSide;kingSquare=HumanSide>0?4:60;Message="Your color: "+SideName(HumanSide);DrawMen();},Teal);return true;}
@@ -87,11 +92,12 @@ namespace LivingTable.Chess {
    return false;
   }
   public bool BeginSetupGrab(int hand,Vector3 world){
+   if(!standardMenu&&GrabQuickCorner(hand,world))return true;
    if(standardMenu&&PanelSliderPoint(world,out float value)){setupHand=hand;draggingPanel=true;setupSeen=Time.unscaledTime;SetPanelScale(value);return true;}
    if(!SizingKing||figures[kingSquare]==null)return false;var p=transform.InverseTransformPoint(world);var basePoint=SquareLocal(kingSquare);if(Vector2.Distance(new Vector2(p.x,p.z),new Vector2(basePoint.x,basePoint.z))>Size/8*.55f||p.y<.02f||p.y>.35f)return false;
    setupHand=hand;draggingPanel=false;setupSeen=Time.unscaledTime;setupGrabY=p.y;setupGrabScale=setScale;return true;
   }
-  public bool UpdateSetupGrab(int hand,Vector3 world,bool release){if(setupHand!=hand)return false;setupSeen=Time.unscaledTime;if(draggingPanel){if(PanelSliderPoint(world,out float value,true))SetPanelScale(value);}else{setScale=Mathf.Clamp(setupGrabScale+(transform.InverseTransformPoint(world).y-setupGrabY)/(.082f*Size/.56f),.3f,3);for(int s=0;s<64;s++)if(figures[s]!=null)figures[s].localScale=PieceScale(HumanSide*6);}if(release)EndSetupGrab();return true;}
-  void EndSetupGrab(){if(setupHand==int.MinValue)return;setupHand=int.MinValue;PlayerPrefs.SetFloat("LivingTable.PieceSetScale",setScale);PlayerPrefs.SetFloat("LivingTable.PanelScale",panelScale);PlayerPrefs.Save();SaveSession("manual sizing changed");}
+  public bool UpdateSetupGrab(int hand,Vector3 world,bool release){if(setupHand!=hand)return false;setupSeen=Time.unscaledTime;if(editingSetupCorner>=0){setupCorners[editingSetupCorner]=world;if(cornerMarkers[editingSetupCorner]!=null)cornerMarkers[editingSetupCorner].position=world;if(release){editingSetupCorner=-1;setupHand=int.MinValue;if(cornerCount==4)FinishQuickCorners();else DrawScene();}return true;}if(draggingPanel){if(PanelSliderPoint(world,out float value,true))SetPanelScale(value);}else{setScale=Mathf.Clamp(setupGrabScale+(transform.InverseTransformPoint(world).y-setupGrabY)/(.082f*Size/.56f),.3f,3);for(int s=0;s<64;s++)if(figures[s]!=null)figures[s].localScale=PieceScale(HumanSide*6);}if(release)EndSetupGrab();return true;}
+  void EndSetupGrab(){if(setupHand==int.MinValue)return;setupHand=int.MinValue;if(editingSetupCorner>=0){editingSetupCorner=-1;quickGridConfirmed=false;Message="Corner adjustment interrupted. Review all markers before confirming.";DrawScene();return;}PlayerPrefs.SetFloat("LivingTable.PieceSetScale",setScale);PlayerPrefs.SetFloat("LivingTable.PanelScale",panelScale);PlayerPrefs.Save();SaveSession("manual sizing changed");}
  }
 }
