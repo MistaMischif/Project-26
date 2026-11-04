@@ -79,6 +79,28 @@ namespace LivingTable.Chess {
    // The outermost observed intersections constrain extrapolation to the playing boundary.
    return corners.image.Keys.Any(i=>i%7==0)&&corners.image.Keys.Any(i=>i%7==6)&&corners.image.Keys.Any(i=>i/7==0)&&corners.image.Keys.Any(i=>i/7==6);
   }
+  // Require the 8x8 lattice to terminate at all four playing edges, not at a decorative frame.
+  public static bool PlayableBoundary(Estimate fit,Corners corners)=>PlayableEdgeMask(fit,corners)==15;
+  public static int PlayableEdgeMask(Estimate fit,Corners corners){
+   if(!EdgesAgree(fit,corners))return 0;int mask=0;
+   var f=corners.frame;
+   for(int axis=0;axis<2;axis++)for(int side=-1;side<=1;side+=2){
+    int supported=0;bool near=false,far=false,visible=true;float insideAlternation=0,outsideAlternation=0;float prevIn=0,prevOut=0;
+    for(int segment=0;segment<8;segment++){
+     Vector3 Q(float inset)=>axis==0?new Vector3(side*(.5f-inset/8),0,(segment+.5f)/8-.5f):new Vector3((segment+.5f)/8-.5f,0,side*(.5f-inset/8));
+     float Sample(float inset)=>f.Gray(fit.center+fit.rotation*Q(inset)*fit.size);
+     float inside=Sample(.22f),outside=Sample(-.22f);if(inside<0||outside<0){visible=false;break;}
+     if(segment>0){insideAlternation+=Mathf.Abs(inside-prevIn);outsideAlternation+=Mathf.Abs(outside-prevOut);}prevIn=inside;prevOut=outside;
+     var pixel=Pixel(f,f.Project(fit.center+fit.rotation*Q(0)*fit.size));var direction=Pixel(f,f.Project(fit.center+fit.rotation*Q(1)*fit.size))-pixel;float pitch=direction.magnitude;if(pitch<10){visible=false;break;}direction.Normalize();
+     float strongest=0,offset=99;
+     for(float d=-pitch*.28f;d<=pitch*.28f;d+=.25f){var a=pixel+direction*(d-1);var b=pixel+direction*(d+1);float av=Gray(f,a.x,a.y),bv=Gray(f,b.x,b.y);if(av<0||bv<0)continue;float contrast=Mathf.Abs(av-bv);if(contrast>strongest+.01f||(Mathf.Abs(contrast-strongest)<.01f&&Mathf.Abs(d)<Mathf.Abs(offset))){strongest=contrast;offset=d;}}
+     if(strongest>=30&&Mathf.Abs(offset)<=1.25f&&Mathf.Abs(inside-outside)>=30){supported++;if(segment<2)near=true;if(segment>=6)far=true;}
+    }
+    // A checker pattern continuing outside is a shifted/subset lattice, not the playable border.
+    if(visible&&supported>=4&&near&&far&&insideAlternation>=7*35&&outsideAlternation<=insideAlternation*.45f)mask|=1<<(axis*2+(side>0?1:0));
+   }
+   return mask;
+  }
   public static bool Consistent(Estimate a,Estimate b)=>a.valid&&b.valid&&Vector3.Distance(a.center,b.center)<.008f&&Mathf.Abs(a.size-b.size)<.008f&&Quaternion.Angle(a.rotation,b.rotation)<1.2f;
  }
 }

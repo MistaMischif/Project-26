@@ -4,7 +4,7 @@ using UnityEngine;
 namespace LivingTable.Chess {
  public sealed partial class ChessTable {
   [Serializable] public sealed class BoardRegistration {
-   public Vector3[] corners;public Vector3 center;public Quaternion rotation;public float size,setScale;public int playerColor;public string recordedUtc,anchorId,alignmentMethod;public int detectedCorners;public float fitErrorPixels;public Vector3 parentLocalCenter;public Quaternion parentLocalRotation;
+   public bool[] cameraSnapped,inferredCorners;public Vector3[] corners;public Vector3 center;public Quaternion rotation;public float size,setScale;public int playerColor;public string recordedUtc,anchorId,alignmentMethod;public int detectedCorners;public float fitErrorPixels;public Vector3 parentLocalCenter;public Quaternion parentLocalRotation;
   }
   bool quickCapture;int quickPhase;BoardRegistration registration;
   public bool CaptureInProgress=>quickCapture&&!Playing;
@@ -12,7 +12,7 @@ namespace LivingTable.Chess {
    NewGame();if(StorageBlocked)return;Configure(true,false,1);quickCapture=true;quickPhase=0;SessionId=GameSessionStore.NewId();alignStage=11;Aligned=false;
    CaptureSetupHeading();Message="Look at your physical chessboard to begin setup.";SaveSession("physical capture started");DrawScene();BeginAutomaticAlignment();
   }
-  void RecordRegistration(){registration=new BoardRegistration{alignmentMethod=metricFitReady?metricFit.source:"assisted",detectedCorners=metricFitReady?metricFit.corners:0,fitErrorPixels=metricFitReady?metricFit.rmsPixels:0,corners=setupCorners.Take(cornerCount).ToArray(),center=transform.position,rotation=transform.rotation,size=Size,setScale=setScale,playerColor=HumanSide,recordedUtc=DateTime.UtcNow.ToString("O"),anchorId=FindFirstObjectByType<LivingTableExperience>()?.RegisteredAnchorId,parentLocalCenter=transform.localPosition,parentLocalRotation=transform.localRotation};SaveSession("physical board registration updated");}
+  void RecordRegistration(){registration=new BoardRegistration{cameraSnapped=cornerSnapped.ToArray(),inferredCorners=cornerInferred.ToArray(),alignmentMethod=metricFitReady?metricFit.source:"assisted",detectedCorners=metricFitReady?metricFit.corners:0,fitErrorPixels=metricFitReady?metricFit.rmsPixels:0,corners=setupCorners.Take(cornerCount).ToArray(),center=transform.position,rotation=transform.rotation,size=Size,setScale=setScale,playerColor=HumanSide,recordedUtc=DateTime.UtcNow.ToString("O"),anchorId=FindFirstObjectByType<LivingTableExperience>()?.RegisteredAnchorId,parentLocalCenter=transform.localPosition,parentLocalRotation=transform.localRotation};SaveSession("physical board registration updated");}
   void CompleteKingSizing(){
    RecordRegistration();
    if(quickCapture&&quickPhase==2&&setupPosition!=null&&unknownSquares!=null&&!unknownSquares.Any(x=>x)){

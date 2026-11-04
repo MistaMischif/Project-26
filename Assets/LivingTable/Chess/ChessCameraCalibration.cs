@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Android;
 using UnityEngine.Rendering;
 namespace LivingTable.Chess {
- public sealed class ChessCameraCalibration:MonoBehaviour {
+ public sealed partial class ChessCameraCalibration:MonoBehaviour {
   PassthroughCameraAccess cameraAccess;ChessTable table;EnvironmentRaycastManager depth;bool ownsDepth;
   public enum AlignmentState {Searching,Calibrating,Aligned,TrackingLost,Recalibrating}
   public AlignmentState State{get;private set;}=AlignmentState.Searching;
@@ -17,7 +17,7 @@ namespace LivingTable.Chess {
   public void Lock(){Cancel();State=AlignmentState.Aligned;}
   public void Initialize(ChessTable owner){table=owner;}
   public void Cancel(){generation++;StopAllCoroutines();if(ownsDepth&&depth!=null)depth.enabled=false;if(cameraAccess!=null)cameraAccess.enabled=false;}
-  public void FitBoard(){Cancel();State=State==AlignmentState.Aligned?AlignmentState.Recalibrating:AlignmentState.Searching;if(EnvironmentRaycastManager.IsSupported){if(depth==null)depth=FindFirstObjectByType<EnvironmentRaycastManager>();if(depth==null){depth=gameObject.AddComponent<EnvironmentRaycastManager>();ownsDepth=true;}if(ownsDepth)depth.enabled=true;}StartCoroutine(Fit());}
+  public void FitBoard(){snapReference=default;Cancel();State=State==AlignmentState.Aligned?AlignmentState.Recalibrating:AlignmentState.Searching;if(EnvironmentRaycastManager.IsSupported){if(depth==null)depth=FindFirstObjectByType<EnvironmentRaycastManager>();if(depth==null){depth=gameObject.AddComponent<EnvironmentRaycastManager>();ownsDepth=true;}if(ownsDepth)depth.enabled=true;}StartCoroutine(Fit());}
   public void SizePieces(){Cancel();StartCoroutine(Measure());}
   IEnumerator Capture(Action<ChessCheckerFit.Frame> done){
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -63,7 +63,7 @@ namespace LivingTable.Chess {
     if(consistent==1)average=estimate;else{float weight=1f/consistent;average.center=Vector3.Lerp(average.center,estimate.center,weight);average.rotation=Quaternion.Slerp(average.rotation,estimate.rotation,weight);average.size=Mathf.Lerp(average.size,estimate.size,weight);average.corners=Mathf.Min(average.corners,estimate.corners);average.rmsMeters=Mathf.Max(average.rmsMeters,estimate.rmsMeters);}
     seed=estimate.center;seedSize=estimate.size;seedYaw=estimate.rotation.eulerAngles.y;
     table.CalibrationProgress("Checking alignment "+consistent+" / 3 — "+estimate.corners+" corners, "+estimate.rmsPixels.ToString("F1")+" px fit.");
-    if(consistent>=3){average.rmsPixels=ChessSurfaceSolver.Reprojection(average,corners.image.Keys,corners);if(average.rmsPixels>1.25f||!ChessSurfaceSolver.EdgesAgree(average,corners)){consistent=0;table.CalibrationIssue("Square edges do not match yet. Look straight down, reveal all board edges and keep the board still.");continue;}State=AlignmentState.Aligned;if(cameraAccess!=null)cameraAccess.enabled=false;if(ownsDepth&&depth!=null)depth.enabled=false;table.PreviewMetricAlignment(average);yield break;}
+    if(consistent>=3){average.rmsPixels=ChessSurfaceSolver.Reprojection(average,corners.image.Keys,corners);if(average.rmsPixels>1.25f||!ChessSurfaceSolver.EdgesAgree(average,corners)){consistent=0;table.CalibrationIssue("Square edges do not match yet. Look straight down, reveal all board edges and keep the board still.");continue;}State=AlignmentState.Aligned;if(cameraAccess!=null)cameraAccess.enabled=false;if(ownsDepth&&depth!=null)depth.enabled=false;snapReference=average;table.PreviewMetricAlignment(average);yield break;}
     yield return new WaitForSecondsRealtime(.25f);
    }
    Fail("Alignment could not be verified. Last grid position held. Retry or choose ASSISTED FIT.");

@@ -30,9 +30,9 @@ namespace LivingTable.Chess {
   }
   public bool SelectBoardCorner(Vector3 point){
    if(!SelectingCorners||cornerCount>=4)return false;if(cornerCount>0&&Vector3.Distance(point,setupCorners[cornerCount-1])<.12f){Message="Choose the next corner, not the same point.";return false;}
-   setupCorners[cornerCount++]=point;
-   if(cornerCount<4){Message=(cornerCount+1)+" / 4: pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner."+(quickCapture?" "+ManualCornerNotice:"");DrawScene();return true;}
-   if(quickCapture)return FinishQuickCorners();
+   setupCorners[cornerCount]=point;cornerSnapped[cornerCount]=cornerInferred[cornerCount]=false;cornerCount++;PreviewMarkedSquare();
+   if(cornerCount<4){Message=(cornerCount+1)+" / 4: pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner."+(quickCapture?" "+ManualCornerNotice:"");DrawScene();if(quickCapture)RequestCornerSnapping();return true;}
+   if(quickCapture){bool valid=FinishQuickCorners();RequestCornerSnapping();return valid;}
    if(!FitCorners(setupCorners,out var center,out var rotation,out var size)){cornerCount=0;Message="Corners did not form a flat square. Start again at NEAR LEFT. MENU is always available.";DrawScene();return false;}
    Size=size;transform.SetPositionAndRotation(center,rotation);Aligned=true;alignStage=7;pieceSizes=new float[24];kingSquare=HumanSide>0?4:60;
    RecordRegistration();Message="Checking your selected board against the physical grid.";DrawScene();if(!desktop)RefineAdjustedBoard();return true;
@@ -97,7 +97,7 @@ namespace LivingTable.Chess {
    if(!SizingKing||figures[kingSquare]==null)return false;var p=transform.InverseTransformPoint(world);var basePoint=SquareLocal(kingSquare);if(Vector2.Distance(new Vector2(p.x,p.z),new Vector2(basePoint.x,basePoint.z))>Size/8*.55f||p.y<.02f||p.y>.35f)return false;
    setupHand=hand;draggingPanel=false;setupSeen=Time.unscaledTime;setupGrabY=p.y;setupGrabScale=setScale;return true;
   }
-  public bool UpdateSetupGrab(int hand,Vector3 world,bool release){if(setupHand!=hand)return false;setupSeen=Time.unscaledTime;if(editingSetupCorner>=0){setupCorners[editingSetupCorner]=world;if(cornerMarkers[editingSetupCorner]!=null)cornerMarkers[editingSetupCorner].position=world;if(release){editingSetupCorner=-1;setupHand=int.MinValue;if(cornerCount==4)FinishQuickCorners();else DrawScene();}return true;}if(draggingPanel){if(PanelSliderPoint(world,out float value,true))SetPanelScale(value);}else{setScale=Mathf.Clamp(setupGrabScale+(transform.InverseTransformPoint(world).y-setupGrabY)/(.082f*Size/.56f),.3f,3);for(int s=0;s<64;s++)if(figures[s]!=null)figures[s].localScale=PieceScale(HumanSide*6);}if(release)EndSetupGrab();return true;}
+  public bool UpdateSetupGrab(int hand,Vector3 world,bool release){if(setupHand!=hand)return false;setupSeen=Time.unscaledTime;if(editingSetupCorner>=0){setupCorners[editingSetupCorner]=world;if(cornerMarkers[editingSetupCorner]!=null)cornerMarkers[editingSetupCorner].position=world;if(release){editingSetupCorner=-1;setupHand=int.MinValue;if(cornerCount==4)FinishQuickCorners();else {PreviewMarkedSquare();DrawScene();}RequestCornerSnapping();}return true;}if(draggingPanel){if(PanelSliderPoint(world,out float value,true))SetPanelScale(value);}else{setScale=Mathf.Clamp(setupGrabScale+(transform.InverseTransformPoint(world).y-setupGrabY)/(.082f*Size/.56f),.3f,3);for(int s=0;s<64;s++)if(figures[s]!=null)figures[s].localScale=PieceScale(HumanSide*6);}if(release)EndSetupGrab();return true;}
   void EndSetupGrab(){if(setupHand==int.MinValue)return;setupHand=int.MinValue;if(editingSetupCorner>=0){editingSetupCorner=-1;quickGridConfirmed=false;Message="Corner adjustment interrupted. Review all markers before confirming.";DrawScene();return;}PlayerPrefs.SetFloat("LivingTable.PieceSetScale",setScale);PlayerPrefs.SetFloat("LivingTable.PanelScale",panelScale);PlayerPrefs.Save();SaveSession("manual sizing changed");}
  }
 }

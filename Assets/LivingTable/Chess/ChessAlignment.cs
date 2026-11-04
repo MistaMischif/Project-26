@@ -43,6 +43,13 @@ namespace LivingTable.Chess {
    if(quickCapture&&(SelectingCorners||ReviewingQuickGrid))DrawQuickCornerMarkers(guide);
    else if(SelectingCorners){for(int i=0;i<cornerCount;i++){var point=transform.InverseTransformPoint(setupCorners[i]);Shape(guide,"Selected playing corner "+(i+1),PrimitiveType.Sphere,point,Vector3.one*.018f,gold);}return;}
    for(int i=0;i<=8;i++){float at=-Size*.5f+i*Size/8;Shape(guide,"Grid file "+i,PrimitiveType.Cube,new Vector3(at,relocating?.012f:.0008f,0),new Vector3(relocating?.004f:.0015f,.0015f,Size),relocating?adjustGrid:gold);Shape(guide,"Grid rank "+i,PrimitiveType.Cube,new Vector3(0,relocating?.012f:.0008f,at),new Vector3(Size,.0015f,relocating?.004f:.0015f),relocating?adjustGrid:gold);}
+   if(quickCapture&&(SelectingCorners||ReviewingQuickGrid)){
+    for(int level=0;level<5;level++){
+     float y=level*.035f;float span=level==0?.035f:.018f;
+     Shape(guide,"Center plus horizontal "+level,PrimitiveType.Cube,new Vector3(0,y,0),new Vector3(span,.0015f,.0025f),blue);
+     Shape(guide,"Center plus vertical "+level,PrimitiveType.Cube,new Vector3(0,y,0),new Vector3(.0025f,.0015f,span),blue);
+    }
+   }
    if(relocating)return;
   }
   bool AlignmentPose(Vector3 point){var edge=point-firstCorner;edge.y=0;if(edge.magnitude<.2f||edge.magnitude>1.2f||Mathf.Abs(point.y-firstCorner.y)>.12f)return false;Size=edge.magnitude;var forward=Vector3.Cross(edge.normalized,Vector3.up);transform.SetPositionAndRotation(firstCorner+edge*.5f+forward*Size*.5f,Quaternion.LookRotation(forward));return true;}
