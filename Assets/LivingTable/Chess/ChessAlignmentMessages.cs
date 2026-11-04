@@ -15,10 +15,10 @@ namespace LivingTable.Chess {
   void DrawAlignmentMessages(Transform parent){
    alignmentErrorLabel=alignmentProgressLabel=null;if(!AlignmentMessageView)return;
    status.transform.localPosition=new Vector3(0,.065f,-.015f);
-   alignmentProgressLabel=Label(parent,"",new Vector3(0,-.025f,-.018f),.0017f);alignmentProgressLabel.color=new Color(.6f,.85f,1);
-   Shape(parent,"Error divider",PrimitiveType.Cube,new Vector3(0,-.055f,-.012f),new Vector3(.46f,.001f,.001f),gold);
-   alignmentErrorLabel=Label(parent,"",new Vector3(0,-.095f,-.018f),.0019f);alignmentErrorLabel.color=new Color(1,.22f,.24f);alignmentErrorLabel.fontStyle=FontStyle.Bold;
-   if(spinner!=null)spinner.localPosition=new Vector3(-.225f,-.025f,-.025f);
+   alignmentProgressLabel=Label(parent,"",new Vector3(0,.015f,-.018f),.0017f);alignmentProgressLabel.color=new Color(.6f,.85f,1);
+   Shape(parent,"Error divider",PrimitiveType.Cube,new Vector3(0,-.005f,-.012f),new Vector3(.46f,.001f,.001f),gold);
+   alignmentErrorLabel=Label(parent,"",new Vector3(0,-.035f,-.018f),.0019f);alignmentErrorLabel.color=new Color(1,.22f,.24f);alignmentErrorLabel.fontStyle=FontStyle.Bold;
+   if(spinner!=null)spinner.localPosition=new Vector3(-.225f,.015f,-.025f);
    status.text=quickCapture?QuickSetupInstructions:AlignmentInstructions;
   }
   void UpdateAlignmentMessages(){if(!AlignmentMessageView)return;if(status!=null)status.text=quickCapture?QuickSetupInstructions:AlignmentInstructions;if(ui!=null&&alignmentDepthUiId!=ui.GetInstanceID()){alignmentDepthUiId=ui.GetInstanceID();foreach(var text in GetComponentsInChildren<TextMesh>()){var renderer=text.GetComponent<Renderer>();if(alignmentDepthText==null){alignmentDepthText=new Material(Resources.Load<Shader>("DepthText"));alignmentDepthText.mainTexture=renderer.sharedMaterial.mainTexture;materials.Add(alignmentDepthText);}renderer.sharedMaterial=alignmentDepthText;}}if(alignmentProgressLabel!=null)alignmentProgressLabel.text=WrapStatus(alignmentProgress);if(alignmentErrorLabel!=null)alignmentErrorLabel.text=alignmentError.Length==0?"":WrapStatus("ACTION NEEDED: "+alignmentError);}
