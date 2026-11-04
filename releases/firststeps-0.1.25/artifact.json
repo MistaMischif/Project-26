@@ -1,0 +1,16 @@
+{
+  "version": "0.1.25",
+  "versionCode": 26,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "437720cf4f81f7fee7ca5d13456b47ac0e3babe72339b86dabebed215681b3bb",
+  "bytes": 88393905,
+  "file": "LivingTable-FirstSteps-0.1.25.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed and launched on Quest; real-board interaction acceptance pending",
+  "publishedVersion": "0.1.25",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.25",
+  "acceptance": "Green Accept, physical pickup and automatic tracking require founder acceptance; sleep leak unresolved",
+  "sourceCommit": "4e9e4f965016434edf2beab305e89949e3367b9b",
+  "deviceVerification": "Version 0.1.25/code26 installed successfully and launched (PID 1216). Camera permission granted. Host readiness HTTP 200. Physical recognition accuracy unverified."
+}
