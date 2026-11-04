@@ -15,10 +15,11 @@ namespace LivingTable.Chess {
   void RecordRegistration(){registration=new BoardRegistration{cameraSnapped=cornerSnapped.ToArray(),inferredCorners=cornerInferred.ToArray(),alignmentMethod=metricFitReady?metricFit.source:"assisted",detectedCorners=metricFitReady?metricFit.corners:0,fitErrorPixels=metricFitReady?metricFit.rmsPixels:0,corners=setupCorners.Take(cornerCount).ToArray(),center=transform.position,rotation=transform.rotation,size=Size,setScale=setScale,playerColor=HumanSide,recordedUtc=DateTime.UtcNow.ToString("O"),anchorId=FindFirstObjectByType<LivingTableExperience>()?.RegisteredAnchorId,parentLocalCenter=transform.localPosition,parentLocalRotation=transform.localRotation};SaveSession("physical board registration updated");}
   void CompleteKingSizing(){
    RecordRegistration();
+   if(entryPhase==4){entryPhase=3;PlayEntry();return;}
    if(quickCapture&&quickPhase==2&&setupPosition!=null&&unknownSquares!=null&&!unknownSquares.Any(x=>x)){
     quickPhase=3;ShowCapturedTurn();return;
    }
-   if(quickCapture&&quickPhase==2)quickPhase=3;BeginPositionScan();
+   entryWasPhysical=Physical;entryKeepPhysical=Physical;entryPhase=3;PlayEntry();
   }
   void ShowCapturedTurn(){
    int side=InferSide(setupPosition.Board);alignStage=9;turnChosen=side!=0;if(turnChosen)setupPosition.Side=side;

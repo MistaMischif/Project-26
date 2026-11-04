@@ -37,7 +37,7 @@ namespace LivingTable.Chess {
    Size=size;transform.SetPositionAndRotation(center,rotation);Aligned=true;alignStage=7;pieceSizes=new float[24];kingSquare=HumanSide>0?4:60;
    RecordRegistration();Message="Checking your selected board against the physical grid.";DrawScene();if(!desktop)RefineAdjustedBoard();return true;
   }
-  void BeginKingSizing(){calibration?.Cancel();calibrationBusy=false;alignStage=7;Aligned=true;kingSquare=HumanSide>0?4:60;Message="Place the guide on your king's square, then pinch/pull its top to match size. Press SIZE READY.";DrawScene();}
+  void BeginKingSizing(){calibration?.Cancel();calibrationBusy=false;alignStage=7;Aligned=true;kingSquare=HumanSide>0?4:60;Message="Place the guide on your king's square, then pinch/pull its top to match size. Press PLAY when the size matches.";DrawScene();}
   public void BeginPositionScan(){
    if(quickCapture&&!quickGridConfirmed){BeginFourCorners();return;}
    if(!Physical||!Aligned){BeginFourCorners();return;}standardMenu=extraSettings=pieceSettings=sessionMenu=false;
@@ -84,7 +84,7 @@ namespace LivingTable.Chess {
    if(QuickCornerUI())return true;
    if(alignStage==11){Add("SCAN BOARD",0,0,BeginAutomaticAlignment,Purple,true);Add("CHOOSE CORNERS",-2,0,BeginFourCorners,Teal);Add("HOME",-1,0,ShowHome,Teal);return true;}
    if(alignStage==1){Add("SELECT CORNER "+(cornerCount+1),0,0,()=>{Message="Pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner.";},Purple,true);Add("RESTART",-2,0,BeginFourCorners,Teal);if(cornerCount>0)Add("UNDO CORNER",-2,0,()=>{cornerCount--;Message="Select corner "+(cornerCount+1)+" again.";DrawScene();},Teal);return true;}
-   if(alignStage==7){Add("SIZE READY",0,0,CompleteKingSizing,Teal,true);Add("KING +",-2,0,()=>ResizePieceSet(1.08f),Teal);Add("KING -",-1,0,()=>ResizePieceSet(1/1.08f),Teal);return true;}
+   if(alignStage==7){Add("PLAY",0,0,CompleteKingSizing,Purple,true);Add("KING +",-2,0,()=>ResizePieceSet(1.08f),Teal);Add("KING -",-1,0,()=>ResizePieceSet(1/1.08f),Teal);return true;}
    if(alignStage==6){Message=Vision.Status;Add("CANCEL SCAN",0,0,CancelSetupScan,Teal,true);return true;}
    if(alignStage==8){Add(quickCapture&&quickPhase==1?"ACCEPT POSITION":"CONFIRM LAYOUT",0,0,ConfirmLayout,Teal,true);Add("RESCAN",-2,0,BeginPositionScan,Teal);Add("SET PIECE",-1,0,CorrectSelectedPiece,Teal);Add("SET EMPTY",-2,1,()=>{if(setupSelected<0)return;setupPosition.Board[setupSelected]=0;unknownSquares[setupSelected]=false;setupManual=true;DrawMen();},Teal);Add("STANDARD SET",-1,1,()=>{setupPosition=ChessPosition.Initial();setupPosition.Rights=0;unknownSquares=new bool[64];setupManual=true;Message="Manual standard layout selected. Check every piece before confirming.";DrawMen();},Teal);return true;}
    if(alignStage==9){Add("CONFIRM TURN",0,0,ConfirmTurn,Teal,true);foreach(int side in new[]{1,-1}){int chosen=side;Add(SideName(side)+" TO MOVE",-2,0,()=>{if(!LegalLayout(setupPosition.Board,chosen)){Message="That side is inconsistent with check. Review the layout.";return;}setupPosition.Side=chosen;turnChosen=true;Message=SideName(chosen)+" to move.";},Teal);}Add("REVIEW PIECES",-2,1,()=>{alignStage=8;DrawUI();},Teal);return true;}
