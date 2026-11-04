@@ -47,7 +47,7 @@ namespace LivingTable.Chess {
    if(best<0)return false;editingSetupCorner=best;setupHand=hand;setupSeen=Time.unscaledTime;quickGridConfirmed=BoardPoseLocked=Aligned=false;alignStage=1;Message="Adjust "+CornerNames[best]+"; release to review. MANUAL — not camera verified.";return true;
   }
   void DrawMainMenuButton(){
-   float unit=Size/.56f;var root=new GameObject("Menu button").transform;root.SetParent(ui,false);root.localPosition=new Vector3(0,.025f,-Size*.5f-.16f*unit);var text=Label(root,"MENU",Vector3.up*.012f,.0014f*unit);text.transform.localRotation=Quaternion.Euler(90,0,0);var visual=root.gameObject.AddComponent<TableButtonVisual>();visual.Build(text.transform,Teal,false,false,.055f*unit);visual.UseGoldTrim();text.color=Color.black;buttons.Add(new Button{root=root,visual=visual,radius=.035f*unit,action=OpenStandardMenu});
+   float unit=Size/.56f;var root=new GameObject("Menu button").transform;root.SetParent(ui,false);root.localPosition=new Vector3(0,.025f,-Size*.5f-.18f*unit);var text=Label(root,"MENU",Vector3.up*.012f,.0014f*unit);text.transform.localRotation=Quaternion.Euler(90,0,0);var visual=root.gameObject.AddComponent<TableButtonVisual>();visual.Build(text.transform,Teal,false,false,.055f*unit);visual.UseGoldTrim();text.color=Color.black;buttons.Add(new Button{root=root,visual=visual,radius=.035f*unit,action=OpenStandardMenu});
   }
  }
 }
