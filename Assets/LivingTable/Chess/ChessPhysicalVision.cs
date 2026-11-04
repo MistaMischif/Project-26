@@ -12,10 +12,12 @@ namespace LivingTable.Chess {
   ChessTable table;ChessMetaVision meta;PassthroughCameraAccess cameraAccess;
   bool permissionAsked,pending,requested,suspended,layoutScan,scanning,confirmHuman,approvedFull,pendingLayout;
   int generation,approvedVersion;float next,deadline;double approvedCapture,lastFrame;
+  float[][] currentShapes;Vector3 currentView;
   float[][] baseline,candidate,approvedView,surveyView,lastScanView;double lastScanHand;float nextAutoProbe;ChessMove? approved;int[] surveyPieces;
   public readonly byte[] CellProgress=new byte[64];
   public void ClearProgress()=>Array.Clear(CellProgress,0,64);
   readonly CandyVisionStability stable=new CandyVisionStability();
+  public void EnrollConfirmedPieces(){table.LearnPhysicalPieces(currentShapes,currentView);}
   public bool Ready=>baseline!=null;
   public bool RequiresIdentity=>meta!=null&&meta.Required;
   public bool Checking=>requested||scanning;
@@ -51,14 +53,14 @@ namespace LivingTable.Chess {
 #endif
 #pragma warning disable CS0162
    if(cameraAccess==null){var go=new GameObject("Chess local board camera");go.transform.SetParent(transform,false);go.SetActive(false);cameraAccess=go.AddComponent<PassthroughCameraAccess>();cameraAccess.RequestedResolution=new Vector2Int(1280,960);cameraAccess.MaxFramerate=15;go.SetActive(true);}cameraAccess.enabled=true;
-   if(!cameraAccess.IsPlaying){Status="Starting camera…";return;}if(meta.Busy||scanning||pending||Time.unscaledTime<next||!cameraAccess.IsUpdatedThisFrame)return;
+   if(!cameraAccess.IsPlaying){Status="Starting camera…";return;}if(pending||Time.unscaledTime<next||!cameraAccess.IsUpdatedThisFrame)return;
    if(!table.HandsClear){stable.Reset();Status="Lift your hand away from the playing squares";return;}
    var source=cameraAccess.GetTexture();if(source==null)return;var pose=cameraAccess.GetCameraPose();var samples=new Vector2[64][];
    for(int square=0;square<64;square++){samples[square]=new Vector2[144];var center=table.SquareLocal(square);for(int y=0;y<12;y++)for(int x=0;x<12;x++){var local=center+new Vector3((x/11f-.5f)*table.Size/8*.7f,.005f,(y/11f-.5f)*table.Size/8*.7f);var world=table.transform.TransformPoint(local);var uv=cameraAccess.WorldToViewportPoint(world,pose);if(uv.x<.02f||uv.y<.02f||uv.x>.98f||uv.y>.98f||Vector3.Dot(world-pose.position,pose.rotation*Vector3.forward)<0){Status="Look at the entire board from above";stable.Reset();return;}samples[square][y*12+x]=uv;}}
    pending=true;next=Time.unscaledTime+.3f;int version=table.Version,session=generation,w=source.width,h=source.height;double captured=Time.realtimeSinceStartupAsDouble;
-   AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,request=>{pending=false;if(this==null||!Active||session!=generation||version!=table.Version||request.hasError||table.LastHandAt>captured||!table.HandsClear||Time.realtimeSinceStartupAsDouble-captured>.8)return;var pixels=request.GetData<Color32>();var descriptor=new float[64][];
-    for(int square=0;square<64;square++){var values=new float[12];foreach(var uv in samples[square]){var c=pixels[Mathf.Clamp((int)(uv.y*h),0,h-1)*w+Mathf.Clamp((int)(uv.x*w),0,w-1)];values[Mathf.Min(3,c.r/64)]++;values[4+Mathf.Min(3,c.g/64)]++;values[8+Mathf.Min(3,c.b/64)]++;}for(int i=0;i<12;i++)values[i]/=144;descriptor[square]=values;}
-    lastFrame=captured;
+   AsyncGPUReadback.Request(source,0,TextureFormat.RGBA32,request=>{pending=false;if(this==null||!Active||session!=generation||version!=table.Version||request.hasError||table.LastHandAt>captured||!table.HandsClear||Time.realtimeSinceStartupAsDouble-captured>.8)return;var pixels=request.GetData<Color32>();var descriptor=new float[64][];var shapes=new float[64][];
+    for(int square=0;square<64;square++){var values=new float[12];var patch=new Color32[144];int patchIndex=0;foreach(var uv in samples[square]){var c=pixels[Mathf.Clamp((int)(uv.y*h),0,h-1)*w+Mathf.Clamp((int)(uv.x*w),0,w-1)];patch[patchIndex++]=c;values[Mathf.Min(3,c.r/64)]++;values[4+Mathf.Min(3,c.g/64)]++;values[8+Mathf.Min(3,c.b/64)]++;}for(int i=0;i<12;i++)values[i]/=144;descriptor[square]=values;shapes[square]=ChessPieceRegistry.Describe(patch);}
+    lastFrame=captured;currentShapes=shapes;currentView=table.transform.InverseTransformDirection(pose.position-table.transform.position).normalized;
     if(table.SetupReviewing){candidate=descriptor;return;}
     if(approvedView!=null){
      if(approvedVersion!=version||table.LastHandAt>approvedCapture||!Matches(approvedView,descriptor)){Failed("Board changed during verification. Hold still; camera will recheck.");return;}
@@ -66,14 +68,17 @@ namespace LivingTable.Chess {
      // hands-clear frames agree with the captured board for a further stable interval.
      if(!stable.Observe("verified-board-still",captured,.65f)){Status="Pieces read. Checking the board is still unchanged…";return;}
      if(pendingLayout){pendingLayout=false;layoutScan=false;approvedView=null;surveyView=descriptor;candidate=descriptor;table.ReceiveLayout(surveyPieces,surveyPieces.Any(x=>x==99)?"Amber squares need correction or a clearer view.":"64 squares read and stability checked.");Status="Review every piece, then choose whose turn it is.";stable.Reset();table.RefreshScanControls();return;}
-     if(!approved.HasValue){baseline=descriptor;approvedView=null;requested=false;if(table.AcceptObservedBaseline(version)){ClearProgress();table.ClearPhysicalMismatch();Status="Saved position verified. Ready to play.";}return;}
+     if(!approved.HasValue){baseline=descriptor;approvedView=null;requested=false;table.LearnPhysicalPieces(shapes,currentView);if(table.AcceptObservedBaseline(version)){ClearProgress();table.ClearPhysicalMismatch();Status="Saved position verified. Ready to play.";}return;}
      var move=approved.Value;bool fullApproval=approvedFull;approved=null;approvedView=null;confirmHuman=requested=false;
-     var previous=baseline;baseline=descriptor;if(table.CommitObservedMove(move,version,fullApproval,true)){ClearProgress();table.ClearPhysicalMismatch();Status="Move verified. "+(table.Match.Position.Side==table.HumanSide?"Your turn.":"Opponent's turn.");stable.Reset();}else{baseline=previous;Failed("Position changed. Camera will recheck.");}return;
+     var previous=baseline;baseline=descriptor;if(table.CommitObservedMove(move,version,fullApproval,true)){table.LearnPhysicalPieces(shapes,currentView);table.SaveSession("verified physical piece profiles updated");ClearProgress();table.ClearPhysicalMismatch();Status="Move verified. "+(table.Match.Position.Side==table.HumanSide?"Your turn.":"Opponent's turn.");stable.Reset();}else{baseline=previous;Failed("Position changed. Camera will recheck.");}return;
     }
     if(candidate==null||!Matches(candidate,descriptor)){candidate=descriptor;stable.Reset();Status="Keep the board still for a moment";return;}
     if(!stable.Observe("board-still",captured,.65f))return;
     // An unknown baseline must be identity-verified, never learned blindly after a first move.
     ChessMove? proposed=table.Playing?(table.PendingAi??Infer(table.Match.Position,baseline,descriptor,table.Promotion)):null;
+    if(proposed.HasValue&&!table.PendingAi.HasValue&&!table.Recovering)table.PreviewTrackedMove(proposed.Value,version,shapes[proposed.Value.To],currentView);
+    else if(!proposed.HasValue&&table.VisualMovePreview)table.CancelHumanReview();
+    if(meta.Busy||scanning)return;
     // Appearance/hand activity triggers a read; only legal identity observations authorize a move.
     bool handChanged=table.LastHandAt>lastScanHand,visualChanged=AppearanceChanged(lastScanView??baseline,descriptor);
     if(!requested&&!layoutScan){
@@ -106,6 +111,7 @@ namespace LivingTable.Chess {
    if(layout){pendingLayout=true;approvedView=view;approvedVersion=version;approvedCapture=captured;stable.Reset();deadline=Time.unscaledTime+12;Status="All squares read. Checking fresh camera frames before review…";yield break;}
    layoutScan=false;
    var result=new ChessObservationGate.Observation{revision=version,cells=cells.ToArray()};
+   if(full&&table.Recovering){var observed=new int[64];for(int s=0;s<64;s++){var cell=result.cells.FirstOrDefault(c=>c.square==ChessMove.Square(s));observed[s]=cell==null?99:ParsePiece(cell.piece);}if(table.OrientRecoveredBoard(observed))yield break;}
    if(proposed.HasValue){
     bool valid=full?ChessObservationGate.AcceptBoard(position.After(proposed.Value),version,result,out _):ChessObservationGate.Accept(position,proposed.Value,version,result);
     if(!valid){var target=position.After(proposed.Value);int mismatch;ChessObservationGate.AcceptCells(target,squares,version,result,out mismatch);RejectLayout(mismatch>=0?ChessMove.Square(mismatch)+": expected "+ChessObservationGate.Piece(target.Board[mismatch]).Replace('_',' ')+". Follow the pulsing guides; camera will recheck.":"Uncertain board. Amber squares need a clearer view.",target,result);yield break;}

@@ -157,6 +157,7 @@ namespace LivingTable
                     var skeleton=hand.GetComponent<OVRSkeleton>();if(skeleton!=null&&skeleton.IsInitialized&&skeleton.Bones!=null)foreach(var bone in skeleton.Bones){if(IsObservedJoint(skeleton,bone.Id))chess.ObserveHand(bone.Transform.position);if(!busy&&bone.Id==HandJoint(skeleton.GetSkeletonType(),1))chess.DirectPress(hand.GetInstanceID(),bone.Transform.position);}
                     bool valid=TryPinchPoint(hand,out var cp,out float fingerGap);
                     if(!valid||busy){chess.ForgetHand(hand.GetInstanceID());held[hand]=strength>=.4f;continue;}
+                    chess.HoverPiece(cp);
                     if(chess.UpdateSetupGrab(hand.GetInstanceID(),cp,strength<.4f)||chess.UpdateBoardResize(hand.GetInstanceID(),cp,strength<.4f)){held[hand]=strength>=.4f;continue;}
                     if(chess.UpdateGrab(hand.GetInstanceID(),cp,!PiecePinchActive(fingerGap,true))){held[hand]=PiecePinchActive(fingerGap,true);continue;}
                     if(!wasHeld&&PiecePinchActive(fingerGap,false)&&chess.BeginGrab(hand.GetInstanceID(),cp)){held[hand]=true;continue;}
@@ -211,7 +212,7 @@ namespace LivingTable
             if(!pinching){if(released)gripArmed=true;if(!boardGrip.Active)return false;boardGrip.End();gripArmed=false;_ = FinishBoardGrip();return true;}
             if(!placed||busy||!ChessActive)return false;
             if(boardGrip.Active){boardGrip.Follow(mount,a,b);chess.ScaleHeldBoard(gripStartSize*boardGrip.Scale);return true;}
-            if(chess.BoardPoseLocked||!gripArmed||chess.Busy||chess.StorageBlocked||platform.board.IsAnimating||chess.HomeScreen||!boardGrip.BeginCorners(mount,chess.Size,a,b,chess.transform))return false;
+            if(chess.BoardPoseLocked&&chess.EntryPhase!=3||!gripArmed||chess.Busy||chess.StorageBlocked||platform.board.IsAnimating||chess.HomeScreen||!boardGrip.BeginCorners(mount,chess.Size,a,b,chess.transform))return false;
             gripStartSize=chess.Size;chess.BeginCornerAdjustment();mount.SetParent(transform,true);Status="Hold two corner knobs to move, resize or turn. Release to place.";return true;
         }
 
@@ -239,7 +240,7 @@ namespace LivingTable
             return xr?OVRSkeleton.BoneId.XRHand_LittleTip:OVRSkeleton.BoneId.Hand_PinkyTip;
         }
         static bool IsObservedJoint(OVRSkeleton skeleton,OVRSkeleton.BoneId id)=>id==HandJoint(skeleton.GetSkeletonType(),1)||id==HandJoint(skeleton.GetSkeletonType(),2)||id==HandJoint(skeleton.GetSkeletonType(),3);
-        public static bool PiecePinchActive(float gap,bool holding)=>float.IsFinite(gap)&&gap>=0&&gap<=(holding?.065f:.045f);
+        public static bool PiecePinchActive(float gap,bool holding)=>float.IsFinite(gap)&&gap>=0&&gap<=(holding?.09f:.065f);
         static bool TryPinchPoint(OVRHand hand,out Vector3 point)=>TryPinchPoint(hand,out point,out _);
         static bool TryPinchPoint(OVRHand hand, out Vector3 point,out float gap)
         {

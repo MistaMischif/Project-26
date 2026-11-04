@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 namespace LivingTable.Chess {
  public sealed partial class ChessTable {
+  string captureInstruction;float capturePromptUntil;int captureTrayColor;
   Material instructionMaterial,scanReading,scanComplete,scanUncertain,scanMismatch;Transform spinner,scanRoot;readonly Renderer[] scanSquares=new Renderer[64];
   bool CriticalInstructions=>boardNeedsMove||VirtualSafetyOpen||standardMenu||!HomeScreen&&Physical&&(!Playing||relocating||AlignmentInProgress||Recovering||AwaitingMoveAcceptance||Vision.Checking||Vision.NeedsAttention);
   public bool PointAtMenu(Ray ray,bool activate){
@@ -31,11 +32,12 @@ namespace LivingTable.Chess {
   }
   public static int MissingBeforeStart(ChessMatch.State state,int color)=>state?.initial==null?0:Math.Max(0,16-state.initial.Board.Count(piece=>Math.Sign(piece)==color));
   void DrawCapturedPieces(){
-   if(!Playing||HomeScreen)return;var state=Match.Capture();var recorded=CapturedSinceStart(state);float unit=Size/.56f;
+   if(!Playing||HomeScreen)return;var state=Match.Capture();var recorded=CapturedSinceStart(state);float unit=Size/.56f;float slot=Mathf.Max(.045f*unit,.038f*PieceScale(6).x+.012f);
    foreach(int color in new[]{1,-1}){var pieces=recorded.Where(p=>Math.Sign(p)==color).ToArray();int unknown=MissingBeforeStart(state,color),total=unknown+pieces.Length;
-    var tray=new GameObject(SideName(color)+" captured pieces").transform;tray.SetParent(men,false);tray.localPosition=new Vector3((color>0?-1:1)*(Size*.5f+.115f*unit),0,0);
-    Shape(tray,"Captured tray",PrimitiveType.Cube,new Vector3(0,.003f,0),new Vector3(.105f*unit,.009f,Size*.70f),gold);
-    for(int i=0;i<total;i++){var at=new Vector3((i%2==0?-.025f:.025f)*unit,.012f,(-.145f+(i/2)*.041f)*unit);if(i<pieces.Length){var model=ChessPieceModel.Build(tray,pieces[i],color>0?ivory:ebony,gold,meshes);model.localPosition=at;model.localScale=Vector3.one*.48f*unit;}else{Shape(tray,"Earlier capture type unknown",PrimitiveType.Cylinder,at,new Vector3(.025f*unit,.004f,.025f*unit),color>0?ivory:ebony);var mark=Label(tray,"?",at+Vector3.up*.009f,.0013f*unit);mark.color=color>0?Color.black:Color.white;mark.transform.localRotation=Quaternion.Euler(90,0,0);}}
+    var tray=new GameObject(SideName(color)+" captured pieces").transform;tray.SetParent(men,false);tray.localPosition=new Vector3((color>0?-1:1)*(Size*.5f+slot*1.3f),0,0);
+    var cabinet=tray.gameObject.AddComponent<TableCabinetVisual>();cabinet.CaptureTray(slot*2.2f,slot*8.2f);for(int pocket=0;pocket<16;pocket++)cabinet.Pocket(new Vector3((pocket%2==0?-.5f:.5f)*slot,0,(pocket/2-3.5f)*slot),slot*.78f);
+    for(int i=0;i<total;i++){var at=new Vector3((i%2==0?-.5f:.5f)*slot,.002f,(i/2-3.5f)*slot);if(Physical){var name=Label(tray,i>=unknown?PieceName(pieces[i-unknown]).ToUpperInvariant():"UNKNOWN",at+Vector3.forward*slot*.32f,.0009f*unit);name.transform.localRotation=Quaternion.Euler(90,0,0);continue;}if(i>=unknown){var model=ChessPieceModel.Build(tray,pieces[i-unknown],color>0?ivory:ebony,gold,meshes);model.localPosition=at;model.localScale=PieceScale(pieces[i-unknown]);}else{Shape(tray,"Earlier capture type unknown",PrimitiveType.Cylinder,at,new Vector3(.025f*unit,.004f,.025f*unit),color>0?ivory:ebony);var mark=Label(tray,"?",at+Vector3.up*.009f,.0013f*unit);mark.color=color>0?Color.black:Color.white;mark.transform.localRotation=Quaternion.Euler(90,0,0);}}
+    if(Physical&&color==captureTrayColor&&Time.unscaledTime<capturePromptUntil&&total>0){int slotIndex=total-1;var at=new Vector3((slotIndex%2==0?-.5f:.5f)*slot,.001f,(slotIndex/2-3.5f)*slot);var marker=Shape(tray,"Place captured physical piece here",PrimitiveType.Quad,at,new Vector3(slot*.72f,slot*.72f,1),green);marker.localRotation=Quaternion.Euler(90,0,0);}
     string caption=SideName(-color).ToUpperInvariant()+" CAPTURED: "+total+(unknown>0?"\n"+unknown+" before scan · types unknown":"");var label=Label(tray,caption,new Vector3(0,.065f,-Size*.37f),.0017f*unit);label.fontStyle=FontStyle.Bold;label.gameObject.AddComponent<TableFacingPanel>();
    }
   }

@@ -2,10 +2,13 @@ using System;
 using UnityEngine;
 namespace LivingTable.Chess {
  public sealed partial class ChessTable {
-  ChessMove? humanPreview;int humanPreviewVersion;
+  bool automaticPreview;ChessMove? humanPreview;int humanPreviewVersion;
   public float MaxPhysicalPieceHeight=>Mathf.Clamp(PieceScale(HumanSide*6).y*.082f,.04f,.22f);
   public void RefreshScanControls(){if(ui!=null&&isActiveAndEnabled)DrawUI();}
-  public bool AwaitingMoveAcceptance=>humanPreview.HasValue&&humanPreviewVersion==Version;
+  public bool VisualMovePreview=>humanPreview.HasValue&&humanPreviewVersion==Version;
+  public bool AwaitingMoveAcceptance=>VisualMovePreview&&!automaticPreview;
+  public void LearnPhysicalPieces(float[][] shapes,Vector3 view){if(Match!=null){pieceRegistry.Learn(Match.Position,shapes,view);}}
+  public bool PreviewTrackedMove(ChessMove move,int version,float[] shape,Vector3 view){if(move.Promotion!=0||!pieceRegistry.Recognizes(move.From,shape,view))return false;if(VisualMovePreview&&humanPreview.Value.Equals(move))return true;if(!PreviewHumanMove(move,version))return false;automaticPreview=true;DrawUI();return true;}
   ChessPosition DisplayedPosition {
    get {
     if(editing)return importPosition;
@@ -13,13 +16,13 @@ namespace LivingTable.Chess {
     if(setupPosition!=null&&!Playing)return setupPosition;
     var position=Match?.Position??ChessPosition.Initial();
     if(Physical&&PendingAi.HasValue)return position.After(PendingAi.Value);
-    return AwaitingMoveAcceptance?position.After(humanPreview.Value):position;
+    return VisualMovePreview?position.After(humanPreview.Value):position;
    }
   }
-  public void CancelHumanReview(){bool redraw=humanPreview.HasValue;humanPreview=null;if(redraw&&men!=null&&isActiveAndEnabled){DrawMen();DrawUI();}}
+  public void CancelHumanReview(){bool redraw=humanPreview.HasValue;humanPreview=null;automaticPreview=false;if(redraw&&men!=null&&isActiveAndEnabled){DrawMen();DrawUI();}}
   public bool PreviewHumanMove(ChessMove move,int version){
    if(version!=Version||!Playing||!Physical||Recovering||PendingAi.HasValue||Paused||Busy||SessionMenuOpen||StorageBlocked||!HandsClear||!Match.Position.LegalMoves().Contains(move)||(!TwoPlayers&&Match.Position.Side!=HumanSide))return false;
-   humanPreview=move;humanPreviewVersion=version;DrawMen();DrawUI();return true;
+   automaticPreview=false;humanPreview=move;humanPreviewVersion=version;DrawMen();DrawUI();return true;
   }
   public bool AcceptObservedBaseline(int version){
    if(Recovering)return AcceptRecovery(version,true);
@@ -37,7 +40,7 @@ namespace LivingTable.Chess {
   void ConfigureBackPanel(Transform p){
    p.SetParent(FindFirstObjectByType<LivingTableExperience>()?.transform,true);p.localScale=Vector3.one*panelScale;
    if(AlignmentMessageView){panel.InstructionDistance=.35f;p.localScale*=.35f/.60f;}
-   panel.SetBoardBackground(transform,Size,Playing?.34f:.25f);panel.SetInstructionView(CriticalInstructions,!standardMenu&&!VirtualSafetyOpen);panel.FaceViewer();
+   panel.SetBoardBackground(transform,Size,Playing?.34f:.25f);panel.FixedToBoard=entryPhase>0&&!standardMenu;panel.SetInstructionView(entryPhase==0&&CriticalInstructions,!standardMenu&&!VirtualSafetyOpen);panel.FaceViewer();
   }
   void DrawPanelMenu(Transform p){
    panelMenu=new GameObject("Always available menu").transform;panelMenu.SetParent(p,false);panelMenu.localPosition=new Vector3(.19f,CriticalInstructions&&!standardMenu?.045f:.075f,-.025f);panelMenu.localRotation=Quaternion.Euler(-90,0,0);

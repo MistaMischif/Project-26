@@ -28,6 +28,10 @@ namespace LivingTable
     if(candy){var post=Part("Purple candy rail",PrimitiveType.Cylinder,new Vector3(side*(width*.5f+.021f),.002f,0),new Vector3(.014f,depth*.5f+.013f,.014f),purple);post.localRotation=Quaternion.Euler(90,0,0);for(int end=-1;end<=1;end+=2)Part("Candy finial",PrimitiveType.Sphere,new Vector3(side*(width*.5f+.021f),.002f,end*(depth*.5f+.013f)),Vector3.one*.019f,gold);}
    }
   }
+  public Material WoodFinish(){Init();return wood;}
+  public void Knob(){Init();Box("Polished burl oak knob",Vector3.zero,new Vector3(.052f,.028f,.052f),.006f,wood);Box("Beveled gold inlay",new Vector3(0,.014f,0),new Vector3(.037f,.003f,.037f),.001f,gold);}
+  public void CaptureTray(float width,float depth){Init();Box("Polished burl oak tray",new Vector3(0,-.018f,0),new Vector3(width,.018f,depth),.004f,wood);foreach(int sign in new[]{-1,1}){Box("Tray gold rim",new Vector3(sign*(width*.5f-.003f),-.005f,0),new Vector3(.006f,.008f,depth),.002f,gold);Box("Tray wood lip",new Vector3(0,-.005f,sign*(depth*.5f-.004f)),new Vector3(width,.008f,.008f),.002f,wood);}}
+  public void Pocket(Vector3 center,float diameter){Init();foreach(int sign in new[]{-1,1}){Box("Recess side",center+new Vector3(sign*(diameter*.5f+.002f),-.004f,0),new Vector3(.004f,.008f,diameter+.008f),.001f,wood);Box("Recess end",center+new Vector3(0,-.004f,sign*(diameter*.5f+.002f)),new Vector3(diameter,.008f,.004f),.001f,wood);}}
   public void Panel(float width,float height,bool candy)
   {
    Init();var backing=Part(candy?"Cream candy panel":"Burl oak panel",PrimitiveType.Cube,new Vector3(0,0,.020f),new Vector3(width+.038f,height+.035f,.025f),candy?purple:wood);
