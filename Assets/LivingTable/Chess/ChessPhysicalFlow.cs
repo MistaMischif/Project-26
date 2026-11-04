@@ -5,6 +5,7 @@ namespace LivingTable.Chess {
   bool automaticPreview;ChessMove? humanPreview;int humanPreviewVersion;
   public float MaxPhysicalPieceHeight=>Mathf.Clamp(PieceScale(HumanSide*6).y*.082f,.04f,.22f);
   public void RefreshScanControls(){if(ui!=null&&isActiveAndEnabled)DrawUI();}
+  public ChessMove? TrackingMoveHint=>VisualMovePreview?humanPreview:null;
   public bool VisualMovePreview=>humanPreview.HasValue&&humanPreviewVersion==Version;
   public bool AwaitingMoveAcceptance=>VisualMovePreview&&!automaticPreview;
   public void LearnPhysicalPieces(float[][] shapes,Vector3 view){if(Match!=null){pieceRegistry.Learn(Match.Position,shapes,view);}}
@@ -18,6 +19,12 @@ namespace LivingTable.Chess {
     if(Physical&&PendingAi.HasValue)return position.After(PendingAi.Value);
     return VisualMovePreview?position.After(humanPreview.Value):position;
    }
+  }
+  void PreviewPhysicalDrop(int from,int to){
+   var moves=Match.Position.LegalMoves().FindAll(m=>m.From==from&&m.To==to&&(m.Promotion==0||m.Promotion==Promotion));
+   if(moves.Count!=1)return;
+   Vision.ResumeTracking();humanPreview=moves[0];humanPreviewVersion=Version;automaticPreview=true;
+   Message="Place the physical piece on "+ChessMove.Square(to)+" and lift your hand. Camera will verify the move.";DrawMen();Highlights();DrawUI();
   }
   public void CancelHumanReview(){bool redraw=humanPreview.HasValue;humanPreview=null;automaticPreview=false;if(redraw&&men!=null&&isActiveAndEnabled){DrawMen();DrawUI();}}
   public bool PreviewHumanMove(ChessMove move,int version){

@@ -9,8 +9,8 @@ namespace LivingTable.Chess {
    var eye=Camera.main;if(eye!=null)transform.SetPositionAndRotation(eye.transform.position+setupForward*.65f-Vector3.up*.40f,Quaternion.LookRotation(setupForward));
    Message="Align the board over your physical board, then select CONTINUE.";DrawScene();
   }
-  public void ContinueEntry(){if(entryPhase!=1)return;entryPhase=2;BeginQuickCorners();Message="Set four playable corners: near-left, near-right, far-right, far-left. Then select ALIGN.";DrawScene();}
-  public void AlignEntry(){if(entryPhase!=2)return;if(cornerSnapBusy){Message="Checking corners. Lift hands or cancel snapping through MENU.";return;}if(!FinishQuickCorners())return;quickGridConfirmed=BoardPoseLocked=Aligned=true;calibration?.Lock();RecordRegistration();entryPhase=4;quickPhase=2;BeginKingSizing();AnchorConfirmedPlane();}
+  public void ContinueEntry(){if(entryPhase!=1)return;entryPhase=2;BeginQuickCorners();Message="Set four playable corners: near-left, near-right, far-right, far-left. Then select ACCEPT when the border turns green.";DrawScene();}
+  public void AlignEntry(){if(entryPhase!=2)return;if(cornerSnapBusy){Message="Checking corners. Lift hands or cancel snapping through MENU.";return;}if(!CanAcceptCorners||!FinishQuickCorners())return;quickGridConfirmed=BoardPoseLocked=Aligned=true;calibration?.Lock();RecordRegistration();entryPhase=4;quickPhase=2;BeginKingSizing();AnchorConfirmedPlane();}
   public void PlayEntry(){
    if(entryPhase!=3)return;entryPhase=0;alignStage=0;quickCapture=false;Paused=false;Vision.ClearEvidence();
    if(Playing){Physical=entryWasPhysical;Recovering=false;Vision.ResetBoard();Message="Your saved game is ready. Move a piece to continue.";SaveSession("user accepted layout; gameplay resumed");DrawScene();return;}
@@ -21,7 +21,8 @@ namespace LivingTable.Chess {
    }
    Match=new ChessMatch();pieceRegistry.Enroll(Match.Position);SessionId=GameSessionStore.NewId();Version++;Recovering=false;ManualFallback=false;PendingAi=null;Unverified=false;Vision.ResetBoard();SaveSession("new standard game; White to move");DrawScene();
   }
-  bool DrawEntryUI(){if(entryPhase==0||standardMenu)return false;status.text=EntryInstructions;if(entryPhase==4){Add("PLAY",0,0,CompleteKingSizing,Purple,true);Add("KING +",-2,0,()=>ResizePieceSet(1.08f),Teal);Add("KING -",-1,0,()=>ResizePieceSet(1/1.08f),Teal);return true;}Add(entryPhase==1?"CONTINUE":entryPhase==2?"ALIGN":"PLAY",0,0,()=>{if(entryPhase==1)ContinueEntry();else if(entryPhase==2)AlignEntry();else PlayEntry();},Purple,true);return true;}
+  public bool CanAcceptCorners=>cornerCount==4&&!cornerSnapBusy&&editingSetupCorner<0&&OrderedFromView(setupCorners,setupRight,setupForward)&&CornerLayoutState(setupCorners,cornerCount)==1;
+  bool DrawEntryUI(){if(entryPhase==0||standardMenu)return false;status.text=EntryInstructions;if(entryPhase==4){Add("PLAY",0,0,CompleteKingSizing,Purple,true);Add("KING +",-2,0,()=>ResizePieceSet(1.08f),Teal);Add("KING -",-1,0,()=>ResizePieceSet(1/1.08f),Teal);return true;}Add(entryPhase==1?"CONTINUE":entryPhase==2?(CanAcceptCorners?"ACCEPT":"ALIGN"):"PLAY",0,0,()=>{if(entryPhase==1)ContinueEntry();else if(entryPhase==2)AlignEntry();else PlayEntry();},entryPhase==2&&CanAcceptCorners?new Color(.12f,.85f,.3f):Purple,true);return true;}
   void DrawEntryGuide(){if(entryPhase!=3)return;var label=Label(board,"To adjust go to MENU / ALIGN or use these knobs",new Vector3(0,.045f,-Size*.5f-.075f),.0014f);label.transform.localRotation=Quaternion.Euler(90,0,0);}
   public void MenuAlign(){standardMenu=false;entryPhase=1;quickGridConfirmed=false;BoardPoseLocked=false;BeginEntry(false);}
  }

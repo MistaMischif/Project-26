@@ -74,13 +74,14 @@ namespace LivingTable.Chess {
   void CancelSetupScan(){Vision.CancelScan();if(!Playing&&alignStage==6)ReceiveLayout(null,"Scan stopped. Rescan or enter the position manually.");else{Message="Scan stopped. Your saved game is unchanged.";DrawUI();}}
   public void OpenStandardMenu(){
    if(VirtualSafetyOpen){CancelVirtualSafety();return;}
-   if(standardMenu){standardMenu=false;DrawUI();return;}Version++;CancelGrab();CancelHumanReview();Vision.CancelScan();calibration?.Cancel();calibrationBusy=false;if(alignStage==6)ReceiveLayout(null,"Scan stopped by menu.");standardMenu=true;DrawUI();
+   if(standardMenu){CloseStandardMenu();return;}Version++;CancelGrab();CancelHumanReview();Vision.CancelScan();calibration?.Cancel();calibrationBusy=false;if(alignStage==6)ReceiveLayout(null,"Scan stopped by menu.");standardMenu=true;DrawUI();
   }
+  void CloseStandardMenu(){standardMenu=false;if(Physical&&Playing&&!AlignmentInProgress)Vision.ResumeTracking();DrawUI();}
   void MenuHome(){standardMenu=false;relocating=false;CancelSetupScan();ShowHome();}
   void QuitGame(){if(!SaveSession("quit from menu"))return;Vision.CancelScan();calibration?.Cancel();Application.Quit();}
   bool SetupUI(){
    if(DrawVirtualSafety())return true;
-   if(standardMenu){status.text="MENU\nReturn, resize the panel, or leave the table.";Add("BACK",0,0,()=>{standardMenu=false;DrawUI();},Teal,true);Add("MAIN MENU",-2,0,MenuHome,Teal);Add("QUIT",-1,0,QuitGame,Teal);Add("STOP SCAN",-2,1,CancelSetupScan,Teal);Add("ALIGN",-1,1,MenuAlign,Teal);DrawPanelSlider();DrawOpacitySlider();if(!gameObject.activeInHierarchy){int index=0;foreach(var b in buttons){b.root.SetParent(panel.transform,false);b.root.localPosition=new Vector3((index%3-1)*.10f,-.01f-(index/3)*.07f,-.03f);b.root.localRotation=Quaternion.Euler(-90,0,0);index++;}}return true;}
+   if(standardMenu){status.text="MENU\nReturn, resize the panel, or leave the table.";Add("BACK",0,0,CloseStandardMenu,Teal,true);Add("MAIN MENU",-2,0,MenuHome,Teal);Add("QUIT",-1,0,QuitGame,Teal);Add("STOP SCAN",-2,1,CancelSetupScan,Teal);Add("ALIGN",-1,1,MenuAlign,Teal);DrawPanelSlider();DrawOpacitySlider();if(!gameObject.activeInHierarchy){int index=0;foreach(var b in buttons){b.root.SetParent(panel.transform,false);b.root.localPosition=new Vector3((index%3-1)*.10f,-.01f-(index/3)*.07f,-.03f);b.root.localRotation=Quaternion.Euler(-90,0,0);index++;}}return true;}
    if(QuickCornerUI())return true;
    if(alignStage==11){Add("SCAN BOARD",0,0,BeginAutomaticAlignment,Purple,true);Add("CHOOSE CORNERS",-2,0,BeginFourCorners,Teal);Add("HOME",-1,0,ShowHome,Teal);return true;}
    if(alignStage==1){Add("SELECT CORNER "+(cornerCount+1),0,0,()=>{Message="Pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner.";},Purple,true);Add("RESTART",-2,0,BeginFourCorners,Teal);if(cornerCount>0)Add("UNDO CORNER",-2,0,()=>{cornerCount--;Message="Select corner "+(cornerCount+1)+" again.";DrawScene();},Teal);return true;}

@@ -78,7 +78,7 @@ namespace LivingTable.Chess {
   bool GrabQuickCorner(int hand,Vector3 world){
    if(!quickCapture||!(SelectingCorners||ReviewingQuickGrid))return false;
    int best=-1;float distance=.045f;for(int i=0;i<cornerCount;i++){float d=Vector3.Distance(world,setupCorners[i]);if(d<distance){best=i;distance=d;}}
-   if(best<0)return false;calibration?.Cancel();cornerSnapBusy=false;cornerSnapped[best]=cornerInferred[best]=false;editingSetupCorner=best;setupHand=hand;setupSeen=Time.unscaledTime;quickGridConfirmed=BoardPoseLocked=Aligned=false;alignStage=1;Message="Adjust "+CornerNames[best]+"; release to review. MANUAL — not camera verified.";return true;
+   if(best<0)return false;calibration?.Cancel();cornerSnapBusy=false;cornerSnapped[best]=cornerInferred[best]=false;editingSetupCorner=best;setupHand=hand;setupSeen=Time.unscaledTime;quickGridConfirmed=BoardPoseLocked=Aligned=false;alignStage=1;Message="Adjust "+CornerNames[best]+"; release to review. MANUAL — not camera verified.";DrawUI();return true;
   }
   void PreviewMarkedSquare(){
    if(!quickCapture||cornerCount<2||cornerCount>=4)return;
