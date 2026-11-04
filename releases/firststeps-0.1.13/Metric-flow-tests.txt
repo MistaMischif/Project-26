@@ -1,0 +1,1 @@
+20 synthetic metric-preview/acceptance/provenance/dimension/world-frame checks passed. Hardware accuracy is unmeasured.
