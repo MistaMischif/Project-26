@@ -1,0 +1,16 @@
+{
+  "version": "0.1.22",
+  "versionCode": 23,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "cdb77603a43a60d836ba90f49d69b633df071ef0dc52055aadd7f57170938ca7",
+  "bytes": 88386121,
+  "file": "LivingTable-FirstSteps-0.1.22.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed on Quest 3; foreground launch and sleep/resume acceptance pending",
+  "publishedVersion": "0.1.22",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.22",
+  "acceptance": "Sleep/resume recovery; physical visor and in-game acceptance pending",
+  "sourceCommit": "6bc2d9d05b18471debc39adcfb11765ad81dfef3",
+  "deviceVerification": "APK signature, installed package 0.1.22/code 23 and clean build verified. Headset is not entering a foreground app session; device sleep/wake test is pending."
+}
