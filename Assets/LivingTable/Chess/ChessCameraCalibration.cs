@@ -50,20 +50,20 @@ namespace LivingTable.Chess {
     if(reference==null&&depth!=null&&TryTableSurface(frame,out var surface))seed=surface;
     var search=Task.Run(()=>{var coarse=ChessCheckerFit.Find(frame,seed,seedSize,seedYaw,!haveGrid);return ChessSurfaceSolver.Detect(frame,coarse);});while(!search.IsCompleted&&Time.unscaledTime<deadline)yield return null;
     if(!search.IsCompleted){Fail("Grid search timed out. Retry or use assisted corners.");yield break;}
-    if(search.IsFaulted||!ChessSurfaceSolver.Coverage(search.Result.image.Keys)){consistent=0;State=AlignmentState.Searching;table.CalibrationProgress("Not enough visible grid corners. Look down at the whole board; move your head slightly to uncover corners.");yield return new WaitForSecondsRealtime(.3f);continue;}
-    if(!table.HandsClear||table.LastHandAt>frame.capturedAt){consistent=0;reference=null;table.CalibrationProgress("Lift hands away from the grid. Restarting stability check.");continue;}
+    if(search.IsFaulted||!ChessSurfaceSolver.Coverage(search.Result.image.Keys)){consistent=0;State=AlignmentState.Searching;table.CalibrationIssue("Not enough visible grid corners. Look down at the whole board; move your head slightly to uncover corners.");yield return new WaitForSecondsRealtime(.3f);continue;}
+    if(!table.HandsClear||table.LastHandAt>frame.capturedAt){consistent=0;reference=null;table.CalibrationIssue("Lift hands away from the grid. Restarting stability check.");continue;}
     haveGrid=true;var corners=search.Result;var estimate=DepthEstimate(corners);
     if(!estimate.valid){
-     if(reference==null){reference=corners;table.CalibrationProgress("Depth is unclear. Keep the board still and move your head sideways about a hand's width.");yield return new WaitForSecondsRealtime(.3f);continue;}
-     if(Vector3.Distance(reference.frame.camera,frame.camera)<.045f){table.CalibrationProgress("Move your head sideways a little further to measure the real board size.");yield return new WaitForSecondsRealtime(.3f);continue;}
+     if(reference==null){reference=corners;table.CalibrationIssue("Depth is unclear. Keep the board still and move your head sideways about a hand's width.");yield return new WaitForSecondsRealtime(.3f);continue;}
+     if(Vector3.Distance(reference.frame.camera,frame.camera)<.045f){table.CalibrationIssue("Move your head sideways a little further to measure the real board size.");yield return new WaitForSecondsRealtime(.3f);continue;}
      estimate=ChessSurfaceSolver.FromViews(reference,corners);
     }
-    if(!estimate.valid){consistent=0;State=AlignmentState.TrackingLost;table.CalibrationProgress("Grid measurements disagree. Keep the board still and reveal more corners; last alignment held.");yield return new WaitForSecondsRealtime(.3f);continue;}
+    if(!estimate.valid){consistent=0;State=AlignmentState.TrackingLost;table.CalibrationIssue("Grid measurements disagree. Keep the board still and reveal more corners; last alignment held.");yield return new WaitForSecondsRealtime(.3f);continue;}
     consistent=ChessSurfaceSolver.Consistent(previous,estimate)&&ChessSurfaceSolver.Consistent(average,estimate)?consistent+1:1;previous=estimate;
     if(consistent==1)average=estimate;else{float weight=1f/consistent;average.center=Vector3.Lerp(average.center,estimate.center,weight);average.rotation=Quaternion.Slerp(average.rotation,estimate.rotation,weight);average.size=Mathf.Lerp(average.size,estimate.size,weight);average.corners=Mathf.Min(average.corners,estimate.corners);average.rmsMeters=Mathf.Max(average.rmsMeters,estimate.rmsMeters);}
     seed=estimate.center;seedSize=estimate.size;seedYaw=estimate.rotation.eulerAngles.y;
     table.CalibrationProgress("Checking alignment "+consistent+" / 3 — "+estimate.corners+" corners, "+estimate.rmsPixels.ToString("F1")+" px fit.");
-    if(consistent>=3){average.rmsPixels=ChessSurfaceSolver.Reprojection(average,corners.image.Keys,corners);if(average.rmsPixels>2.5f){consistent=0;continue;}State=AlignmentState.Aligned;if(cameraAccess!=null)cameraAccess.enabled=false;if(ownsDepth&&depth!=null)depth.enabled=false;table.PreviewMetricAlignment(average);yield break;}
+    if(consistent>=3){average.rmsPixels=ChessSurfaceSolver.Reprojection(average,corners.image.Keys,corners);if(average.rmsPixels>1.25f||!ChessSurfaceSolver.EdgesAgree(average,corners)){consistent=0;table.CalibrationIssue("Square edges do not match yet. Look straight down, reveal all board edges and keep the board still.");continue;}State=AlignmentState.Aligned;if(cameraAccess!=null)cameraAccess.enabled=false;if(ownsDepth&&depth!=null)depth.enabled=false;table.PreviewMetricAlignment(average);yield break;}
     yield return new WaitForSecondsRealtime(.25f);
    }
    Fail("Alignment could not be verified. Last grid position held. Retry or choose ASSISTED FIT.");

@@ -23,7 +23,7 @@ namespace LivingTable.Chess
   public string TurnGuidance
   {
    get {
-    if(StorageBlocked)return Message;
+    if(StorageBlocked||boardNeedsMove)return Message;
     if(relocating)return "Board held. Move or turn, then release to place.";
     if(!Playing)return Message;
     if(GameOver)return sessionMenu?"Game complete. PLAY AGAIN starts a fresh game with the same settings.":"Game complete. Press PLAY AGAIN for a new game.";
@@ -50,11 +50,11 @@ namespace LivingTable.Chess
    if(panel!=null){panel.gameObject.SetActive(false);Destroy(panel.gameObject);panel=null;}panelMenu=null;panelSlider=null;sliderKnob=null;
    if(ui!=null){ui.gameObject.SetActive(false);Destroy(ui.gameObject);}ui=Node("Chess controls");buttons.Clear();leftButtons=rightButtons=0;
    bool guidance=CriticalInstructions;var p=new GameObject(guidance?"Floating setup instructions":"Chess status");p.transform.SetParent(ui,false);p.transform.localPosition=new Vector3(0,.23f,Size*.5f+.02f);panel=p.AddComponent<TableFacingPanel>();status=Label(p.transform,"",guidance?new Vector3(0,.005f,-.015f):GameOver?new Vector3(0,-.115f,-.015f):Playing?new Vector3(0,-.05f,-.015f):Vector3.zero,guidance&&!standardMenu?.0022f:.0026f);
-   if(guidance){if(instructionMaterial==null)instructionMaterial=Mat(new Color(.025f,.035f,.06f));Shape(p.transform,"Floating instruction card",PrimitiveType.Cube,new Vector3(0,0,.005f),new Vector3(.52f,VirtualSafetyOpen?.30f:standardMenu?.25f:.15f,.009f),instructionMaterial);status.color=Color.white;}
+   if(guidance){if(instructionMaterial==null)instructionMaterial=Mat(new Color(.025f,.035f,.06f));Shape(p.transform,"Floating instruction card",PrimitiveType.Cube,new Vector3(0,0,.005f),new Vector3(.52f,VirtualSafetyOpen?.30f:standardMenu?.25f:AlignmentMessageView?.30f:.15f,.009f),instructionMaterial);status.color=Color.white;}
    else{p.AddComponent<TableCabinetVisual>().Panel(GameOver?.72f:companionOpen?.65f:Playing?.72f:.50f,GameOver?.34f:companionOpen?.36f:Playing?.34f:.21f,false);status.color=new Color(.10f,.04f,.008f);}
    if(GameOver){var result=Label(p.transform,Match.Result.Replace(" wins by "," wins\nby ").Replace("Draw \u2014 ","Draw\n"),new Vector3(0,.06f,-.015f),.0026f*4);result.name="Game result";result.fontStyle=FontStyle.Bold;result.color=status.color;}
    turnHeading=null;if(Playing&&!GameOver&&!companionOpen&&!guidance){turnHeading=Label(p.transform,TurnTitle,new Vector3(0,.10f,-.015f),.008f);turnHeading.fontStyle=FontStyle.Bold;turnHeading.color=status.color;turnHeading.name="Persistent turn heading";}
-   ConfigureBackPanel(p.transform);DrawPanelMenu(p.transform);DrawScanSpinner(p.transform);
+   ConfigureBackPanel(p.transform);DrawPanelMenu(p.transform);DrawScanSpinner(p.transform);DrawAlignmentMessages(p.transform);
    if(SetupUI())return;
    if(HomeScreen){
     status.text="LIVING TABLE\nby COLTRAN STUDIOS\n\nPatent application in preparation";status.fontStyle=FontStyle.Bold;status.characterSize=.0035f;
@@ -65,7 +65,7 @@ namespace LivingTable.Chess
    if(StorageBlocked){Add("RETRY SAVE",0,0,()=>{if(SaveSession("save retry")){Message="Saved. Resume to continue.";DrawUI();}},Teal,true);return;}
    if(pieceSettings){Add("BACK",0,0,()=>{pieceSettings=false;DrawUI();},Teal,true);Add("PIECES +",-2,0,()=>ResizePieceSet(1.1f),Teal);Add("PIECES -",-1,0,()=>ResizePieceSet(1/1.1f),Teal);if(!Playing)Add("YOU: "+SideName(HumanSide),-2,1,()=>Configure(Physical,TwoPlayers,-HumanSide),Teal);else Add("MORE",-2,1,()=>{pieceSettings=false;sessionMenu=false;extraSettings=true;DrawUI();},Teal);Add("HOME",-1,1,ShowHome,Teal);return;}
    if(!Playing){
-    Add(Physical&&!Aligned?"ALIGN BOARD":"START GAME",0,0,()=>{if(Physical&&!Aligned)BeginAlignment();else StartGame();},Teal,true);
+    Add(Physical&&!Aligned?(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD"):"START GAME",0,0,()=>{if(Physical&&!Aligned)BeginAlignment();else StartGame();},Teal,true);
     Add(Physical?"GO VIRTUAL":"REAL BOARD",-2,0,()=>{Configure(!Physical,TwoPlayers,HumanSide);if(Physical)BeginAlignment();},Teal);
     Add("OPTIONS",-1,0,()=>{pieceSettings=true;DrawUI();},Teal);
     Add("HOME",-2,1,ShowHome,Teal);
@@ -80,21 +80,21 @@ namespace LivingTable.Chess
    if(sessionMenu){
     Add("BACK TO GAME",0,0,ToggleSessionMenu,Teal,true);
     Add(TwoPlayers?"AI TAKE OVER":"HUMAN RETURNS",2,0,SwitchOpponent,TwoPlayers?Orange:Teal);
-    Add(Physical?"GO VIRTUAL":"REAL BOARD",-2,0,()=>{SwitchSurface();if(Physical&&!VirtualSafetyOpen){sessionMenu=false;BeginAlignment();}},Teal);
+    Add(Physical?"GO VIRTUAL":"REAL BOARD",-2,0,()=>{SwitchSurface();if(Physical&&!VirtualSafetyOpen){sessionMenu=false;if(!BoardPoseLocked)BeginAlignment();else DrawUI();}},Teal);
     Add("MOVE BOARD",-2,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);
     Add("OPTIONS",-1,1,()=>{pieceSettings=true;DrawUI();},Teal);Add("ASK META",2,1,OpenCompanion,Orange);return;
    }
    if(extraSettings){
     Add("BACK TO GAME",0,0,()=>{extraSettings=false;DrawUI();},Teal,true);
     Add("PROMOTE: "+PieceName(Promotion).ToUpperInvariant(),-2,0,()=>{Promotion=Promotion==5?4:Promotion==4?3:Promotion==3?2:5;SaveSession("promotion changed");DrawUI();},Teal);
-    if(Physical){Add("ALIGN BOARD",-1,0,()=>{extraSettings=false;BeginAlignment();},Teal);if(!Recovering)Add(ManualFallback?"USE CAMERA":"MANUAL MODE",-2,1,ToggleManual,Teal);}
+    if(Physical){Add(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD",-1,0,()=>{extraSettings=false;BeginAlignment();},Teal);if(!Recovering)Add(ManualFallback?"USE CAMERA":"MANUAL MODE",-2,1,ToggleManual,Teal);}
     else Add(VirtualRoom?"SEE ROOM":"VIRTUAL ROOM",-1,0,ToggleRoom,Teal);
     if(Match.CanClaim)Add("CLAIM DRAW",-2,1,()=>{Match.Claim();SaveSession("draw claimed");DrawUI();},Teal);return;
    }
    Add("MENU",-2,0,ToggleSessionMenu,Teal);Add("ASK META",2,0,OpenCompanion,Orange);
    if(Paused){Add("RESUME",0,0,TogglePause,Teal,true);return;}
    Add("PAUSE",-1,0,TogglePause,Teal);
-   if(Recovering){Add(!Aligned?"ALIGN BOARD":Vision.Checking?"CANCEL SCAN":"CHECK BOARD",0,0,()=>{if(!Aligned)AlignBoard();else if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);if(Aligned)Add("MANUAL CHECK",-2,1,AttestRecovery,Teal);}
+   if(Recovering){Add(!Aligned?(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD"):Vision.Checking?"CANCEL SCAN":"CHECK BOARD",0,0,()=>{if(!Aligned)AlignBoard();else if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);if(Aligned)Add("MANUAL CHECK",-2,1,AttestRecovery,Teal);}
    else if(Physical&&ManualFallback&&PendingAi.HasValue)Add("MOVED IT",0,0,()=>Play(PendingAi.Value),Orange,true);
    else if(Physical&&AwaitingMoveAcceptance)Add("ACCEPT MOVE",0,0,()=>Vision.ConfirmHuman(),Purple,true);
    else if(Physical)Add(Vision.Checking?"CANCEL SCAN":"CHECK BOARD",0,0,()=>{if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);

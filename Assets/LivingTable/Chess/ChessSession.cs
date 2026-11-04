@@ -30,7 +30,7 @@ namespace LivingTable.Chess
   {
    try {
     var record=GameSessionStore.Load(id);if(record.game!="chess")throw new ArgumentException("Wrong game");var state=JsonUtility.FromJson<SessionState>(record.payload);
-    if(state.draft){ResumeCapture(state,id);return;}registration=state.registration;quickCapture=false;quickPhase=0;
+    BoardPoseLocked=false;if(state.draft){ResumeCapture(state,id);return;}registration=state.registration;quickCapture=false;quickPhase=0;
     var restored=ChessMatch.Restore(state.match);if(state.humanSide!=1&&state.humanSide!=-1||state.promotion<2||state.promotion>5)throw new ArgumentException("Invalid saved settings");
     if(state.hasPending&&(state.pending==null||!restored.Position.LegalMoves().Contains(state.pending.Move)))throw new ArgumentException("Invalid pending AI move");
     HomeScreen=false;setScale=state.setScale>0?Mathf.Clamp(state.setScale,.3f,3):1;StopAllCoroutines();CancelGrab();Version++;Match=restored;SessionId=id;Physical=state.physical;TwoPlayers=state.twoPlayers;HumanSide=state.humanSide;Promotion=state.promotion;ManualFallback=state.manual;Unverified=state.unverified;VirtualRoom=state.room;imported=state.imported;PendingAi=state.hasPending?(ChessMove?)state.pending.Move:null;

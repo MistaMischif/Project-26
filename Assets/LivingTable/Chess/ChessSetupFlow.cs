@@ -21,6 +21,7 @@ namespace LivingTable.Chess {
    return true;
   }
   public void BeginFourCorners(){
+   if(BoardPoseLocked){Message="Grid locked. Use MOVE BOARD before adjusting corners.";return;}
    metricFitReady=false;assistedFitAvailable=false;
    if(quickCapture&&quickPhase==0)quickPhase=2;
    calibration?.Cancel();calibrationBusy=false;Vision.CancelScan();Vision.ClearProgress();CancelHumanReview();Version++;CancelGrab();HomeScreen=false;standardMenu=extraSettings=pieceSettings=sessionMenu=false;cornerCount=0;alignStage=1;Aligned=false;
@@ -52,7 +53,7 @@ namespace LivingTable.Chess {
   void ConfirmLayout(){
    if(unknownSquares.Any(x=>x)){Message="Resolve every unknown square, or rescan. Tap a square, then set its piece.";return;}
    int side=InferSide(setupPosition.Board);if(side==0&&!LegalLayout(setupPosition.Board,1)&&!LegalLayout(setupPosition.Board,-1)){Message="This layout is not a legal position. Check kings, pawns, colors and selected squares.";return;}
-   if(quickCapture&&quickPhase==1){quickPhase=2;SaveSession("captured position validated; geometry next");BeginFourCorners();return;}
+   if(quickCapture&&quickPhase==1){quickPhase=2;SaveSession("captured position validated");if(Aligned)BeginKingSizing();else BeginFourCorners();return;}
    alignStage=9;turnChosen=side!=0;if(turnChosen)setupPosition.Side=side;Message=turnChosen?SideName(side)+" is in check, so that side must move. Confirm before continuing.":"A piece layout cannot reveal whose turn it is. Choose WHITE or BLACK to move.";DrawUI();
   }
   static string RightsName(int bits)=>new[]{"NONE","KING","QUEEN","BOTH"}[bits];
@@ -75,7 +76,7 @@ namespace LivingTable.Chess {
   void QuitGame(){if(!SaveSession("quit from menu"))return;Vision.CancelScan();calibration?.Cancel();Application.Quit();}
   bool SetupUI(){
    if(DrawVirtualSafety())return true;
-   if(standardMenu){status.text="MENU\nReturn, resize the panel, or leave the table.";Add("BACK",0,0,()=>{standardMenu=false;DrawUI();},Teal,true);Add("MAIN MENU",-2,0,MenuHome,Teal);Add("QUIT",-1,0,QuitGame,Teal);Add("STOP SCAN",-2,1,CancelSetupScan,Teal);if(Physical)Add("ALIGN AGAIN",-1,1,BeginFourCorners,Teal);DrawPanelSlider();if(!gameObject.activeInHierarchy){int index=0;foreach(var b in buttons){b.root.SetParent(panel.transform,false);b.root.localPosition=new Vector3((index%3-1)*.10f,-.01f-(index/3)*.07f,-.03f);b.root.localRotation=Quaternion.Euler(-90,0,0);index++;}}return true;}
+   if(standardMenu){status.text="MENU\nReturn, resize the panel, or leave the table.";Add("BACK",0,0,()=>{standardMenu=false;DrawUI();},Teal,true);Add("MAIN MENU",-2,0,MenuHome,Teal);Add("QUIT",-1,0,QuitGame,Teal);Add("STOP SCAN",-2,1,CancelSetupScan,Teal);Add("MOVE BOARD",-1,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);DrawPanelSlider();if(!gameObject.activeInHierarchy){int index=0;foreach(var b in buttons){b.root.SetParent(panel.transform,false);b.root.localPosition=new Vector3((index%3-1)*.10f,-.01f-(index/3)*.07f,-.03f);b.root.localRotation=Quaternion.Euler(-90,0,0);index++;}}return true;}
    if(alignStage==11){Add("SCAN BOARD",0,0,BeginAutomaticAlignment,Purple,true);Add("CHOOSE CORNERS",-2,0,BeginFourCorners,Teal);Add("HOME",-1,0,ShowHome,Teal);return true;}
    if(alignStage==1){Add("SELECT CORNER "+(cornerCount+1),0,0,()=>{Message="Pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner.";},Purple,true);Add("RESTART",-2,0,BeginFourCorners,Teal);if(cornerCount>0)Add("UNDO CORNER",-2,0,()=>{cornerCount--;Message="Select corner "+(cornerCount+1)+" again.";DrawScene();},Teal);return true;}
    if(alignStage==7){Add("SIZE READY",0,0,CompleteKingSizing,Teal,true);Add("KING +",-2,0,()=>ResizePieceSet(1.08f),Teal);Add("KING -",-1,0,()=>ResizePieceSet(1/1.08f),Teal);Add("YOUR COLOR",-2,1,()=>{HumanSide=-HumanSide;kingSquare=HumanSide>0?4:60;Message="Your color: "+SideName(HumanSide);DrawMen();},Teal);return true;}

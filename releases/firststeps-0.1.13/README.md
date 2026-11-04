@@ -1,0 +1,9 @@
+# Living Table First Steps 0.1.13
+
+Quick Play creates a new saved capture session and immediately starts camera alignment. Contrast localizes the checker pattern; the existing metric depth/tracked-view solver fits a square lattice in the camera/surface coordinate frame. Acceptance additionally requires <=1.25-pixel RMS projection error and contrast transitions within 1.25 pixels at three visible segments on each of the seven internal ranks and files, with observed intersections at all four outermost internal lines. The playing boundary is extrapolated by one square; the decorative frame is excluded. These are image rejection thresholds, not a claim of measured headset accuracy.
+
+The instructions remain fixed. Progress and red ACTION NEEDED errors have separate areas. Accepted grid previews are locked against knobs, two-hand grabbing and automatic out-of-reach relocation. MOVE BOARD explicitly unlocks placement. Quick Play no longer requires four-corner setup again after a valid capture; king sizing, layout review, turn/history confirmation and START GAME remain.
+
+Test on Quest: choose QUICK PLAY, look down at a stationary physical board, keep hands clear; follow the red corrective message if needed. Confirm every grid line against its physical edge before ACCEPT BOARD. Inspect near/far corners and walk around without touching MOVE BOARD. Then use MOVE BOARD and verify deliberate relocation/refinement. Check that position review goes directly to king sizing and START GAME, preserving the captured position and Continue save.
+
+No perfect alignment, drift tolerance or founder acceptance is claimed until the physical headset test. Board tracking is stationary-world registration; physically moving the board requires MOVE BOARD. This release changes no host services, paid dependencies or chess rules. Rollback: install firststeps-v0.1.12 APK with adb install -r; preserve app data.

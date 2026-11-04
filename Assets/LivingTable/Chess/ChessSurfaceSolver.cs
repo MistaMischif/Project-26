@@ -60,6 +60,25 @@ namespace LivingTable.Chess {
   }
   public static Vector3 Position(Estimate fit,int id){var q=BoardPoint(id);return fit.center+fit.rotation*new Vector3(q.x,0,q.y)*fit.size;}
   public static float Reprojection(Estimate fit,IEnumerable<int> ids,Corners image){return Mathf.Sqrt(ids.Average(id=>(Pixel(image.frame,image.frame.Project(Position(fit,id)))-Pixel(image.frame,image.image[id])).sqrMagnitude));}
+  // Verify visible boundaries on every internal rank/file, not only a plausible coarse lattice.
+  public static bool EdgesAgree(Estimate fit,Corners corners){
+   if(!fit.valid||corners?.frame?.pixels==null||!Coverage(corners.image.Keys))return false;
+   for(int axis=0;axis<2;axis++)for(int line=1;line<8;line++){
+    int support=0;
+    for(int segment=0;segment<8;segment++){
+     var q=axis==0?new Vector3(line/8f-.5f,0,(segment+.5f)/8-.5f):new Vector3((segment+.5f)/8-.5f,0,line/8f-.5f);
+     var world=fit.center+fit.rotation*q*fit.size;var f=corners.frame;var pixel=Pixel(f,f.Project(world));
+     var direction=Pixel(f,f.Project(world+fit.rotation*(axis==0?Vector3.right:Vector3.forward)*fit.size/8))-pixel;
+     float pitch=direction.magnitude;if(pitch<8)continue;direction.Normalize();
+     float strongest=0,offset=99;
+     for(float d=-Mathf.Min(6,pitch*.2f);d<=Mathf.Min(6,pitch*.2f);d+=.25f){var a=pixel+direction*(d-1);var b=pixel+direction*(d+1);float av=Gray(f,a.x,a.y),bv=Gray(f,b.x,b.y);if(av<0||bv<0)continue;float contrast=Mathf.Abs(av-bv);if(contrast>strongest+.01f||(Mathf.Abs(contrast-strongest)<.01f&&Mathf.Abs(d)<Mathf.Abs(offset))){strongest=contrast;offset=d;}}
+     if(strongest>=35&&Mathf.Abs(offset)<=1.25f)support++;
+    }
+    if(support<3)return false;
+   }
+   // The outermost observed intersections constrain extrapolation to the playing boundary.
+   return corners.image.Keys.Any(i=>i%7==0)&&corners.image.Keys.Any(i=>i%7==6)&&corners.image.Keys.Any(i=>i/7==0)&&corners.image.Keys.Any(i=>i/7==6);
+  }
   public static bool Consistent(Estimate a,Estimate b)=>a.valid&&b.valid&&Vector3.Distance(a.center,b.center)<.008f&&Mathf.Abs(a.size-b.size)<.008f&&Quaternion.Angle(a.rotation,b.rotation)<1.2f;
  }
 }

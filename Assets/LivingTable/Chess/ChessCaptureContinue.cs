@@ -10,7 +10,7 @@ namespace LivingTable.Chess {
   public bool CaptureInProgress=>quickCapture&&!Playing;
   public void BeginQuickCapture(){
    NewGame();if(StorageBlocked)return;Configure(true,false,1);quickCapture=true;quickPhase=0;SessionId=GameSessionStore.NewId();alignStage=11;Aligned=false;
-   Message="Step 1: position yourself over the physical chess board and look down. Keep the whole playing area visible, then SCAN BOARD.";SaveSession("physical capture started");DrawScene();
+   Message="Step 1: position yourself over the physical chess board and look down. Keep the whole playing area visible, then SCAN BOARD.";SaveSession("physical capture started");DrawScene();BeginAutomaticAlignment();
   }
   void RecordRegistration(){registration=new BoardRegistration{alignmentMethod=metricFitReady?metricFit.source:"assisted",detectedCorners=metricFitReady?metricFit.corners:0,fitErrorPixels=metricFitReady?metricFit.rmsPixels:0,corners=setupCorners.Take(cornerCount).ToArray(),center=transform.position,rotation=transform.rotation,size=Size,setScale=setScale,playerColor=HumanSide,recordedUtc=DateTime.UtcNow.ToString("O"),anchorId=FindFirstObjectByType<LivingTableExperience>()?.RegisteredAnchorId,parentLocalCenter=transform.localPosition,parentLocalRotation=transform.localRotation};SaveSession("physical board registration updated");}
   void CompleteKingSizing(){

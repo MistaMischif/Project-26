@@ -31,6 +31,7 @@ namespace LivingTable.Chess {
   Transform panelMenu;TableButtonVisual panelMenuVisual;bool panelArmed;float panelClickAt;
   void ConfigureBackPanel(Transform p){
    p.SetParent(FindFirstObjectByType<LivingTableExperience>()?.transform,true);p.localScale=Vector3.one*panelScale;
+   if(AlignmentMessageView){panel.InstructionDistance=.35f;p.localScale*=.35f/.60f;}
    panel.SetBoardBackground(transform,Size,Playing?.34f:.25f);panel.SetInstructionView(CriticalInstructions,!standardMenu&&!VirtualSafetyOpen);panel.FaceViewer();
   }
   void DrawPanelMenu(Transform p){

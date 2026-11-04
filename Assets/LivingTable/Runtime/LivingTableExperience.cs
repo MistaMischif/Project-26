@@ -54,7 +54,7 @@ namespace LivingTable
             if(!desktopPreview&&placed&&Time.unscaledTime>roomGrace&&Camera.main!=null){
                 if(BoardOutOfReach(Camera.main.transform.position,mount.position)){if(farSince<0)farSince=Time.unscaledTime;if(Time.unscaledTime-farSince>.8f)roomRecoveryRequested=true;}else farSince=-1;
             }
-            if(roomRecoveryRequested&&placed&&!busy){roomRecoveryRequested=false;RecoverRoom();}
+            if(roomRecoveryRequested&&placed&&!busy){roomRecoveryRequested=false;if(ChessActive&&chess.BoardPoseLocked){roomGrace=Time.unscaledTime+30;farSince=-1;chess.ReportBoardOutOfReach();}else RecoverRoom();}
         }
         void RecoverRoom(){
             boardGrip.End();gripArmed=false;farSince=-1;
@@ -209,7 +209,7 @@ namespace LivingTable
             if(!pinching){if(released)gripArmed=true;if(!boardGrip.Active)return false;boardGrip.End();gripArmed=false;_ = FinishBoardGrip();return true;}
             if(!placed||busy||!ChessActive)return false;
             if(boardGrip.Active){boardGrip.Follow(mount,a,b);chess.ScaleHeldBoard(gripStartSize*boardGrip.Scale);return true;}
-            if(!gripArmed||chess.Busy||chess.StorageBlocked||platform.board.IsAnimating||chess.HomeScreen||!boardGrip.BeginCorners(mount,chess.Size,a,b,chess.transform))return false;
+            if(chess.BoardPoseLocked||!gripArmed||chess.Busy||chess.StorageBlocked||platform.board.IsAnimating||chess.HomeScreen||!boardGrip.BeginCorners(mount,chess.Size,a,b,chess.transform))return false;
             gripStartSize=chess.Size;chess.BeginCornerAdjustment();mount.SetParent(transform,true);Status="Hold two corner knobs to move, resize or turn. Release to place.";return true;
         }
 
@@ -401,7 +401,7 @@ namespace LivingTable
         {
             if (!placed || busy || boardGrip.Active || platform.board.IsAnimating || (ChessActive&&chess.Busy)) return;
             busy = true;
-            if(ChessActive)chess.BeginRelocation();else if(candyLandMode&&candy!=null)candy.BeginRelocation();
+            if(ChessActive){chess.UnlockBoardForMove();chess.BeginRelocation();}else if(candyLandMode&&candy!=null)candy.BeginRelocation();
             placed=false;mount.gameObject.SetActive(false);Status="Preparing a new placement...";
             try
             {
