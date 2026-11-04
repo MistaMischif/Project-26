@@ -13,3 +13,7 @@ Verification: 10 HTTP/contract tests passed. An identified idle host was deliber
 Install on an already configured self-hosted machine: run Install-AI-Availability.ps1. For initial model/TLS setup, run Launch-FirstSteps-Test.ps1 with the existing model directory (or use -PrepareModels for a new installation). Models, private pairing and certificates are excluded from this archive. No paid services.
 
 Disable: Stop-ScheduledTask -TaskName 'COLTRAN Living Table AI'; Disable-ScheduledTask -TaskName 'COLTRAN Living Table AI'. Disabling supervision does not forcibly stop an in-flight game host. Existing on-device chess AI is independent of Meta conversation and camera recognition.
+
+Native sleep-hold API returned success: SLEEP_HOLD True recorded at 07:07:54 Central. The scheduled supervisor is running. Actual Meta inference returned HTTP 200. Source: 51de2c9.
+
+Sleep hold released automatically at 07:09:26 Central after activity expired. Published archive digest verified against GitHub. Dashboard source: 498e81b7906131f3fe144eff76870dfd879d5f7d.
