@@ -96,6 +96,7 @@ namespace LivingTable.Chess {
     if(fit.valid){
      // Pinches own the physical surface height and normal. Camera evidence only refines within it.
      if(!seed.valid){Message="Place four surface corners before snapping.";DrawScene();return;}
+     if(Mathf.Abs(Vector3.Dot(fit.center-seed.center,seed.rotation*Vector3.up))>.006f||Vector3.Angle(fit.rotation*Vector3.up,seed.rotation*Vector3.up)>2)edges=0; // A corrected plane is inferred, not camera-verified.
      fit=ConstrainSnapToPinchPlane(fit,seed);
      for(int i=0;i<cornerCount;i++){
       var best=NearestVerifiedCorner(fit,setupCorners[i],out float distance);
