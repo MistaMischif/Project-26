@@ -1,0 +1,15 @@
+{
+  "version": "0.1.17",
+  "versionCode": 18,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "e033cefa19643a5ab0e9223bf967aec419da412a1e8e3fb2d83b080bfe917dfc",
+  "bytes": 88346945,
+  "file": "LivingTable-FirstSteps-0.1.17.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed and launched on Quest 3; physical alignment acceptance pending",
+  "publishedVersion": "0.1.17",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.17",
+  "acceptance": "Comfortable grip and automatic physical tracking fixes implemented; headset acceptance pending",
+  "sourceCommit": "c71dd06cee17d17bf8f0dc1e5caf2c55d7f5c6bd"
+}
