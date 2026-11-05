@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Profiling;
+using UnityEngine.Rendering;
 namespace LivingTable {
  // One gate for focus, sleep and headset presence. Never reset the native audio device on wake.
  [DefaultExecutionOrder(-10000)]
@@ -9,14 +10,17 @@ namespace LivingTable {
   bool paused,unfocused,absent;float readyAt;bool wasListenerPaused;
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
   static void ResetState(){Blocked=false;}
-  public static void ApplyRenderBudget(UniversalRenderPipelineAsset pipeline){if(pipeline==null)return;pipeline.renderScale=Mathf.Min(pipeline.renderScale,1f);pipeline.msaaSampleCount=Mathf.Min(pipeline.msaaSampleCount,2);}
+  public static void ApplyRenderBudget(UniversalRenderPipelineAsset pipeline){if(pipeline==null)return;pipeline.renderScale=Mathf.Min(pipeline.renderScale,1f);pipeline.msaaSampleCount=Mathf.Min(pipeline.msaaSampleCount,2);pipeline.supportsCameraDepthTexture=false;pipeline.supportsCameraOpaqueTexture=false;}
   static void Memory(string stage){Debug.Log("[Living Table] "+stage+" managed/native="+(Profiler.GetTotalAllocatedMemoryLong()/1048576)+"MB graphics="+(Profiler.GetAllocatedMemoryForGraphicsDriver()/1048576)+"MB eye="+UnityEngine.XR.XRSettings.eyeTextureWidth+"x"+UnityEngine.XR.XRSettings.eyeTextureHeight);}
   [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
   static void Install(){
 #if !UNITY_ANDROID || UNITY_EDITOR
    return;
 #else
+   ApplyRenderBudget(GraphicsSettings.defaultRenderPipeline as UniversalRenderPipelineAsset);
    ApplyRenderBudget(QualitySettings.renderPipeline as UniversalRenderPipelineAsset);
+   var active=(QualitySettings.renderPipeline??GraphicsSettings.defaultRenderPipeline) as UniversalRenderPipelineAsset;
+   Debug.Log("[Living Table] XR sleep safety OpenXR=1.17.1 pipeline="+(active==null?"none":active.name+" scale="+active.renderScale+" msaa="+active.msaaSampleCount+" depth="+active.supportsCameraDepthTexture+" opaque="+active.supportsCameraOpaqueTexture));
    var go=new GameObject("Living Table lifecycle");DontDestroyOnLoad(go);go.AddComponent<TableLifecycle>();
 #endif
   }
