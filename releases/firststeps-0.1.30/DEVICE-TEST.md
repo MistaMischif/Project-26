@@ -14,4 +14,6 @@ Runtime confirmed OpenXR 1.17.1, Mobile_RPAsset, render scale 1, MSAA 2, depth t
 
 Automated handoff: 50 checks passed using the actual chess AI across six plies and physical > virtual > physical; all 247 regression checks passed. Input/corner placement and lifecycle events in that suite are synthetic.
 
-Founder headset test requested: one human/AI turn per mode, return to physical without setup, then two manual visor removal/replacement cycles. Result pending. Do not label physical headset handoff or manual visor acceptance as complete until founder response is recorded.
+Live headset handoff telemetry: the user played physical chess, switched to virtual at ply 3, returned to physical at ply 16, and continued to ply 20. Both surface switches preserved the exact match and board registration. All 35 captured checkpoints passed hash-chain validation. App PID remained 15085. Two additional suspend/resume pairs during user testing retained reported graphics allocation at 375 MiB; a subsequent third suspension was still awaiting wake at this observation. Android Graphics PSS during gameplay was 446562 KiB. Raw saved sessions and device logs remain private.
+
+The physical > virtual > physical handoff and continued physical play are verified by headset checkpoints. Visual/control comfort and explicit founder acceptance remain pending; no response has yet been received to the hands-on test question.

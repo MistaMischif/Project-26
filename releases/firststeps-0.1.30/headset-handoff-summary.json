@@ -1,0 +1,23 @@
+{
+  "checkpoints": 35,
+  "hashChainValid": true,
+  "switches": [
+    {
+      "revision": 11,
+      "physical": false,
+      "moves": 3,
+      "sameMatch": true,
+      "sameRegistration": true
+    },
+    {
+      "revision": 26,
+      "physical": true,
+      "moves": 16,
+      "sameMatch": true,
+      "sameRegistration": true
+    }
+  ],
+  "suspendedCheckpoints": 3,
+  "latestPhysical": true,
+  "moves": 20
+}
