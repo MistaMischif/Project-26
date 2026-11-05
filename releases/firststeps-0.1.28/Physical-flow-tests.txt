@@ -1,0 +1,1 @@
+80 synthetic scene checks passed. Real-board recognition and world-lock accuracy still require Quest testing.

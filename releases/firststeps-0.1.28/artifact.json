@@ -1,0 +1,16 @@
+{
+  "version": "0.1.28",
+  "versionCode": 29,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "c1fe0be757e8c50fc105e14f0653e445770a76b8d9e7d43c05136133071b45ba",
+  "bytes": 88399489,
+  "file": "LivingTable-FirstSteps-0.1.28.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed on Quest; gameplay acceptance pending",
+  "publishedVersion": "0.1.28",
+  "publishedUrl": "https://github.com/MistaMischif/Project-26/releases/tag/firststeps-v0.1.28",
+  "acceptance": "Accept size to play; MOVED IT must advance turns without scans. Sleep/wake issue remains unresolved.",
+  "sourceCommit": "90b657d3289d0dc1e7707c30a3e36e409d2c6e4c",
+  "deviceVerification": "Version 0.1.28/code29 installed successfully. Game process 10740 is running; headset was asleep during final verification."
+}

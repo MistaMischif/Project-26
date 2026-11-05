@@ -4,7 +4,7 @@ Accepting chess-piece size now starts gameplay immediately. New Game and Continu
 
 Green MOVED IT now commits the legal move immediately with user-confirmed provenance; turn-time occupancy/board scanning is disabled. AI physical placement also ends with MOVED IT and returns the turn immediately. Initial capture and explicit physical-return reconciliation remain separate from gameplay. No camera accuracy or sleep/wake fix is claimed.
 
-Verification: 108 integrated checks and 80 physical-flow checks passed. Android build and headset installation pending.
+Verification: 108 integrated checks and 80 physical-flow checks passed. Android build succeeded with zero errors; APK signature verified; version 0.1.28/code29 installed on Quest and process 10740 running. Headset was asleep at final verification; gameplay acceptance remains pending.
 
 Headset test: accept four corners, complete any initial Quick Play capture/review, size the king and press PLAY. The game must open immediately with the selected size and saved/reviewed position. Repeat with New Game and Continue. There must be no scan or alignment screen after sizing.
 
