@@ -45,7 +45,7 @@ namespace LivingTable.Chess
    float z=-Size*.5f-.085f*unit+(big?0:(index/2==0?.030f:-.030f)*unit);
    var pos=new Vector3(x,.025f,z);var root=new GameObject(name+" button").transform;root.SetParent(ui,false);root.localPosition=pos;
    var text=Label(ui,name.Replace(" ","\n"),pos+Vector3.up*.01f,(big?.002f:.0011f)*unit);text.transform.localRotation=Quaternion.Euler(90,0,0);
-   var visual=root.gameObject.AddComponent<TableButtonVisual>();visual.Build(text.transform,big&&name!="ACCEPT"?Purple:color,false,big,diameter,big,!big);visual.UseGoldTrim();text.color=big?Color.white:new Color(.05f,.025f,.01f);if(big)text.fontStyle=FontStyle.Bold;
+   var visual=root.gameObject.AddComponent<TableButtonVisual>();visual.Build(text.transform,big&&name!="ACCEPT"&&name!="MOVED IT"?Purple:color,false,big,diameter,big,!big);visual.UseGoldTrim();text.color=big?Color.white:new Color(.05f,.025f,.01f);if(big)text.fontStyle=FontStyle.Bold;
    buttons.Add(new Button{root=root,visual=visual,radius=diameter*.5f,action=action});
   }
   public void ResizePieceSet(float factor){if(Busy||relocating)return;CancelGrab();setScale=Mathf.Clamp(setScale*factor,.3f,3);PlayerPrefs.SetFloat("LivingTable.PieceSetScale",setScale);PlayerPrefs.Save();SaveSession("piece set resized");DrawMen();Message="Piece set size: "+Mathf.RoundToInt(setScale*100)+"%.";}

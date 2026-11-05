@@ -10,7 +10,7 @@ namespace LivingTable.Chess {
    Message="Align the board over your physical board, then select CONTINUE.";DrawScene();
   }
   public void ContinueEntry(){if(entryPhase!=1)return;entryPhase=2;BeginQuickCorners();Message="Set four playable corners: near-left, near-right, far-right, far-left. Then select ACCEPT when the border turns green.";DrawScene();}
-  public void AlignEntry(){if(entryPhase!=2)return;if(cornerSnapBusy){Message="Checking corners. Lift hands or cancel snapping through MENU.";return;}if(!CanAcceptCorners||!FinishQuickCorners())return;quickGridConfirmed=BoardPoseLocked=Aligned=true;calibration?.Lock();RecordRegistration();entryPhase=4;quickPhase=2;BeginKingSizing();AnchorConfirmedPlane();}
+  public void AlignEntry(){if(entryPhase!=2)return;if(cornerSnapBusy){Message="Checking corners. Lift hands or cancel snapping through MENU.";return;}if(!CanAcceptCorners||!FinishQuickCorners())return;for(int i=0;i<4;i++)cornerLocked[i]=true;quickGridConfirmed=BoardPoseLocked=Aligned=true;calibration?.Lock();RecordRegistration();entryPhase=4;quickPhase=2;BeginKingSizing();AnchorConfirmedPlane();}
   public void PlayEntry(){
    if(entryPhase!=3)return;entryPhase=0;alignStage=0;quickCapture=false;Paused=false;Vision.ClearEvidence();
    if(Playing){Physical=entryWasPhysical;Recovering=false;Vision.ResetBoard();Message="Your saved game is ready. Move a piece to continue.";SaveSession("user accepted layout; gameplay resumed");DrawScene();return;}

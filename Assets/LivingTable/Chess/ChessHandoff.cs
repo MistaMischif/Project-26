@@ -33,7 +33,7 @@ namespace LivingTable.Chess
     if(SessionMenuOpen)return "Game held while you choose. Same position and history.";
     if(Physical&&Time.unscaledTime<capturePromptUntil)return captureInstruction+"\n"+Vision.Status;
     if(PendingAi.HasValue)return "Move for AI: "+MoveInstruction(Match.Position,PendingAi.Value)+(Physical&&(Vision.NeedsAttention||Vision.DestinationChecking)?"\n"+Vision.Status:"");
-    if(AwaitingDone)return Vision.DestinationChecking?Vision.Status:"Happy with your move? Press DONE, or pick up the piece to adjust it.";
+    if(AwaitingDone)return Vision.DestinationChecking?Vision.Status:(Physical?"Move your physical piece to the virtual destination, then press MOVED IT.":"Happy with your move? Press DONE, or pick up the piece to adjust it.");
     if(VisualMovePreview&&automaticPreview)return "Following your physical move. Verifying identity before the next turn. "+Vision.Status;
     if(AwaitingMoveAcceptance)return "Check the preview. ACCEPT MOVE saves it and starts the opponent turn. "+Vision.Status;
     if(Busy)return "Moving...";
@@ -101,7 +101,7 @@ namespace LivingTable.Chess
    if(Paused){Add("RESUME",0,0,TogglePause,Teal,true);return;}
    Add("PAUSE",-1,0,TogglePause,Teal);
    if(Recovering){Add(!Aligned?(BoardPoseLocked?"MOVE BOARD":"ALIGN BOARD"):Vision.Checking?"CANCEL SYNC":"SYNC PIECES",0,0,()=>{if(!Aligned)AlignBoard();else if(Vision.Checking)Vision.CancelScan();else Vision.CheckNow();},Purple,true);if(Aligned)Add("MANUAL CHECK",-2,1,AttestRecovery,Teal);}
-   else if(AwaitingDone)Add("DONE",0,0,()=>ConfirmPlayerMove(),Purple,true);
+   else if(AwaitingDone)Add(Physical?"MOVED IT":"DONE",0,0,()=>ConfirmPlayerMove(),Physical?new Color(.12f,.85f,.3f):Purple,true);
    else if(Physical&&ManualFallback&&PendingAi.HasValue)Add("MOVED IT",0,0,()=>Play(PendingAi.Value),Orange,true);
    else if(Physical&&AwaitingMoveAcceptance)Add("ACCEPT MOVE",0,0,()=>Vision.ConfirmHuman(),Purple,true);
    else if(Physical)Add(PendingAi.HasValue?"MOVE AI PIECE":"YOUR MOVE",0,0,()=>{if(PendingAi.HasValue){Message=MoveInstruction(Match.Position,PendingAi.Value);Highlights();}else ShowAvailableMoves();},Purple,true);

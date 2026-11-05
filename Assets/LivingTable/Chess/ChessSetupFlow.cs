@@ -30,7 +30,7 @@ namespace LivingTable.Chess {
   }
   public bool SelectBoardCorner(Vector3 point){
    if(!SelectingCorners||cornerCount>=4)return false;if(cornerCount>0&&Vector3.Distance(point,setupCorners[cornerCount-1])<.12f){Message="Choose the next corner, not the same point.";return false;}
-   setupCorners[cornerCount]=pinchedCorners[cornerCount]=point;cornerSnapped[cornerCount]=cornerInferred[cornerCount]=false;cornerCount++;PreviewMarkedSquare();
+   setupCorners[cornerCount]=pinchedCorners[cornerCount]=point;cornerSnapped[cornerCount]=cornerInferred[cornerCount]=false;cornerCount++;LockPassingCorners();PreviewMarkedSquare();
    if(cornerCount<4){Message=(cornerCount+1)+" / 4: pinch the "+new[]{"NEAR LEFT","NEAR RIGHT","FAR RIGHT","FAR LEFT"}[cornerCount]+" outer playing corner."+(quickCapture?" "+ManualCornerNotice:"");DrawScene();if(quickCapture)RequestCornerSnapping();return true;}
    if(quickCapture){bool valid=FinishQuickCorners();RequestCornerSnapping();return valid;}
    if(!FitCorners(setupCorners,out var center,out var rotation,out var size)){cornerCount=0;Message="Corners did not form a flat square. Start again at NEAR LEFT. MENU is always available.";DrawScene();return false;}

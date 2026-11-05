@@ -6,7 +6,7 @@ Grab at up to 35 mm fingertip spacing; release beyond 50 mm. Capture grids now s
 
 New Game retains standard-position setup. Quick Play captures an existing board after alignment and sizing, allows correction and side-to-move review, and opens that position in virtual AI play. The original capture is saved separately; GAME OPTIONS / RESTART CAPTURE creates a fresh experiment without overwriting it. Returning to physical play retains full saved-board reconciliation.
 
-Verification: 103 integrated checks and 80 physical-flow checks passed. Android build and device installation pending. Five destination parser checks also run during the release build. Physical recognition accuracy and comfort require founder headset testing.
+Verification: 103 integrated checks and 80 physical-flow checks passed. Android build succeeded with zero errors; superseded by 0.1.27 before installation. Five destination parser checks also run during the release build. Physical recognition accuracy and comfort require founder headset testing.
 
 Test: green ACCEPT, size, Play in New Game; pinch, adjust, DONE. In real mode leave the destination empty and verify no advance, then place a piece there. In virtual mode verify DONE advances without camera. Check capture-grid clearance with hands on knobs. Quick Play should review the actual scanned position and preserve its original save while you explore against AI.
 
