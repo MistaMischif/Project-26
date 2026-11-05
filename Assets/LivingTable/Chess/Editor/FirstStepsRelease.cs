@@ -29,7 +29,7 @@ namespace LivingTable.Editor
    File.WriteAllText("Builds/FirstSteps-tests.txt",count+" observation gate cases and chess regression suite passed");Debug.Log("FIRST_STEPS_TESTS_PASSED "+count);
   }
   public static void Build(){
-   File.WriteAllText("Builds/FirstSteps-build.txt","Building 0.1.28; verification pending");
+   File.WriteAllText("Builds/FirstSteps-build.txt","Building 0.1.29; verification pending");
    const string resources="Assets/LivingTable/CandyLand/Resources",excluded="Assets/LivingTable/CandyLand/ContestExcluded";
    if(AssetDatabase.IsValidFolder(excluded)&&!AssetDatabase.IsValidFolder(resources)){string restored=AssetDatabase.MoveAsset(excluded,resources);if(!string.IsNullOrEmpty(restored))throw new Exception(restored);}
    Tests();var scene=EditorSceneManager.OpenScene(ChessContestRelease.QuestScene);var experience=UnityEngine.Object.FindFirstObjectByType<LivingTableExperience>();experience.firstStepsMode=true;experience.chessOnlyMode=true;experience.desktopPreview=false;
@@ -37,8 +37,8 @@ namespace LivingTable.Editor
    var oldHttp=PlayerSettings.insecureHttpOption;string oldName=PlayerSettings.productName;
    string oldId=PlayerSettings.GetApplicationIdentifier(BuildTargetGroup.Android),oldVersion=PlayerSettings.bundleVersion;int oldCode=PlayerSettings.Android.bundleVersionCode;
    string exclusionError=AssetDatabase.MoveAsset(resources,excluded);if(!string.IsNullOrEmpty(exclusionError))throw new Exception(exclusionError);
-   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.28";PlayerSettings.Android.bundleVersionCode=29;
-    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.28.apk",target=BuildTarget.Android,options=BuildOptions.Development|BuildOptions.DetailedBuildReport});
+   try{PlayerSettings.productName="Living Table First Steps";PlayerSettings.insecureHttpOption=InsecureHttpOption.DevelopmentOnly;PlayerSettings.SetApplicationIdentifier(BuildTargetGroup.Android,"com.livingtable.firststeps");PlayerSettings.bundleVersion="0.1.29";PlayerSettings.Android.bundleVersionCode=30;
+    var result=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{target},locationPathName="Builds/LivingTable-FirstSteps-0.1.29.apk",target=BuildTarget.Android,options=BuildOptions.Development|BuildOptions.DetailedBuildReport});
     var packed=result.packedAssets.SelectMany(p=>p.contents).Select(a=>a.sourceAssetPath).Distinct().OrderBy(p=>p).ToArray();File.WriteAllLines("Builds/FirstSteps-packed-assets.txt",packed);
     if(packed.Any(p=>p.StartsWith(excluded+"/",StringComparison.OrdinalIgnoreCase)||p.StartsWith(resources+"/",StringComparison.OrdinalIgnoreCase)))throw new Exception("First Steps contains excluded Candy Land assets");
     File.WriteAllText("Builds/FirstSteps-build.txt",result.summary.result+" Errors: "+result.summary.totalErrors);if(result.summary.result!=BuildResult.Succeeded||result.summary.totalErrors!=0||packed.Length==0)throw new Exception("First Steps build failed verification: "+result.summary.totalErrors+" errors, "+packed.Length+" packed assets");

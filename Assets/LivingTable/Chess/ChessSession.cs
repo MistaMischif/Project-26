@@ -60,9 +60,9 @@ namespace LivingTable.Chess
   void CompleteSurfaceSwitch()
   {
    if(!Playing||Busy||StorageBlocked)return;CancelGrab();Version++;Physical=!Physical;selected=-1;
-   if(Physical){VirtualRoom=false;Aligned=false;Recovering=true;Vision.ClearEvidence();Message="Align your board. Recreate the saved position before continuing.";}
+   if(Physical){VirtualRoom=false;Aligned=true;BoardPoseLocked=true;Recovering=false;Paused=false;alignStage=0;entryPhase=0;quickCapture=false;calibration?.Cancel();calibrationBusy=false;Vision.CancelScan();Unverified=true;Message="Real board ready. Match your physical pieces to the shown position and continue.";}
    else{Recovering=false;Vision.ClearEvidence();Message="Continuing the same game on the virtual board.";}
-   SaveSession("surface changed; position retained");ApplyRoom();DrawScene();
+   sessionMenu=standardMenu=false;SaveSession("surface changed; position retained; physical placement user-managed");ApplyRoom();DrawScene();
    if(!Physical&&PendingAi.HasValue&&!Paused&&!SessionMenuOpen)Play(PendingAi.Value);
   }
   public bool AcceptRecovery(int version,bool identityVerified=false)

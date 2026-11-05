@@ -63,8 +63,8 @@ namespace LivingTable.Chess
    if(DrawEntryUI())return;
    if(SetupUI())return;
    if(HomeScreen){
-    status.text="LIVING TABLE\nby COLTRAN STUDIOS\n\nPatent application in preparation";status.fontStyle=FontStyle.Bold;status.characterSize=.0035f;
-    Add("NEW GAME",-2,0,ChooseNewGame,Teal);Add("CONTINUE",-1,0,ContinueLatest,Teal);Add("QUICK PLAY",0,0,QuickPlay,Orange,true);return;
+    status.text="LIVING TABLE: FIRST STEPS\n\nby COLTRAN STUDIOS";status.fontStyle=FontStyle.Bold;status.characterSize=.0035f;
+    Add("START",0,0,ChooseNewGame,Purple,true);return;
    }
    if(CalibrationUI())return;
    if(editing){SessionUI();return;}
@@ -86,7 +86,7 @@ namespace LivingTable.Chess
    if(sessionMenu){
     Add("BACK TO GAME",0,0,ToggleSessionMenu,Teal,true);
     Add(TwoPlayers?"AI TAKE OVER":"HUMAN RETURNS",2,0,SwitchOpponent,TwoPlayers?Orange:Teal);
-    Add(Physical?"GO VIRTUAL":"REAL BOARD",-2,0,()=>{SwitchSurface();if(Physical&&!VirtualSafetyOpen){sessionMenu=false;if(!BoardPoseLocked)BeginAlignment();else DrawUI();}},Teal);
+    Add(Physical?"GO VIRTUAL":"REAL BOARD",-2,0,SwitchSurface,Teal);
     Add("MOVE BOARD",-2,1,()=>FindFirstObjectByType<LivingTableExperience>()?.MoveCandyTable(),Teal);
     if(CapturedOriginId!=null)Add("RESTART CAPTURE",1,1,RestartFromCapture,Orange);Add("OPTIONS",-1,1,()=>{pieceSettings=true;DrawUI();},Teal);Add("ASK META",2,1,OpenCompanion,Orange);return;
    }
