@@ -1,0 +1,33 @@
+[
+    {
+        "label":  "baseline",
+        "pid":  "15085",
+        "graphicsKB":  432374,
+        "power":  "mWakefulness=Awake",
+        "utc":  "2026-11-05T02:01:28.5015940Z"
+    },
+    {
+        "label":  "cycle1",
+        "pid":  "15085",
+        "graphicsKB":  435562,
+        "power":  "mWakefulness=Awake",
+        "utc":  "2026-11-05T02:01:43.8430602Z",
+        "sleep":  "mWakefulness=Asleep"
+    },
+    {
+        "label":  "cycle2",
+        "pid":  "15085",
+        "graphicsKB":  435730,
+        "power":  "mWakefulness=Awake",
+        "utc":  "2026-11-05T02:01:59.3034646Z",
+        "sleep":  "mWakefulness=Asleep"
+    },
+    {
+        "label":  "cycle3",
+        "pid":  "15085",
+        "graphicsKB":  435738,
+        "power":  "mWakefulness=Awake",
+        "utc":  "2026-11-05T02:02:14.6499542Z",
+        "sleep":  "mWakefulness=Asleep"
+    }
+]

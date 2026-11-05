@@ -1,0 +1,2 @@
+HANDOFF_DEMO_TESTS_PASSED 50
+Six plies with actual on-device AI algorithm across physical > virtual > physical. Synthetic pinch/corners and lifecycle events; not headset sensor proof.

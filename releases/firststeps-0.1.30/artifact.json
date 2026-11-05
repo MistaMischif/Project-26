@@ -1,0 +1,22 @@
+{
+  "version": "0.1.30",
+  "versionCode": 31,
+  "applicationId": "com.livingtable.firststeps",
+  "sha256": "d7b5b3261a9d3961b5fc56fd46778af702ed7c409484a665df7b75839072f26f",
+  "bytes": 88302105,
+  "file": "LivingTable-FirstSteps-0.1.30.apk",
+  "built": "2026-11-04",
+  "reviewed": "2026-11-04",
+  "status": "Installed on Quest; 3 controlled sleep/wake cycles passed; founder handoff acceptance pending",
+  "publishedVersion": "0.1.30",
+  "publishedUrl": "https://github.com/MistaMischif/Living-Table-First-Steps/releases/tag/firststeps-v0.1.30",
+  "acceptance": "See DEVICE-TEST.md for bounded sleep/wake measurements and founder handoff acceptance",
+  "sourceCommit": "bcc0b85060efab95731d2c4970ec4bfd3eab00db",
+  "verification": {
+    "integrated": 117,
+    "physicalFlow": 80,
+    "handoff": 50,
+    "sleepWakeCycles": 3,
+    "graphicsGrowthKiB": 3364
+  }
+}
