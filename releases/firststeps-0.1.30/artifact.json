@@ -7,10 +7,10 @@
   "file": "LivingTable-FirstSteps-0.1.30.apk",
   "built": "2026-11-04",
   "reviewed": "2026-11-04",
-  "status": "Installed; controlled sleep/wake and live headset handoff telemetry passed; visual acceptance pending",
+  "status": "Installed and founder-accepted: physical/virtual/physical handoff and both manual visor wakes passed",
   "publishedVersion": "0.1.30",
   "publishedUrl": "https://github.com/MistaMischif/Living-Table-First-Steps/releases/tag/firststeps-v0.1.30",
-  "acceptance": "See DEVICE-TEST.md for bounded sleep/wake measurements and founder handoff acceptance",
+  "acceptance": "MASTER OMEGA confirmed Everything worked on November 4, 2026 (America/Chicago), for the requested handoff and two manual visor wake tests.",
   "sourceCommit": "bcc0b85060efab95731d2c4970ec4bfd3eab00db",
   "verification": {
     "integrated": 117,

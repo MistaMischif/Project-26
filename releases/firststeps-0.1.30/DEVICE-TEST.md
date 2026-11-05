@@ -17,3 +17,8 @@ Automated handoff: 50 checks passed using the actual chess AI across six plies a
 Live headset handoff telemetry: the user played physical chess, switched to virtual at ply 3, returned to physical at ply 16, and continued to ply 20. Both surface switches preserved the exact match and board registration. All 35 captured checkpoints passed hash-chain validation. App PID remained 15085. Two additional suspend/resume pairs during user testing retained reported graphics allocation at 375 MiB; a subsequent third suspension was still awaiting wake at this observation. Android Graphics PSS during gameplay was 446562 KiB. Raw saved sessions and device logs remain private.
 
 The physical > virtual > physical handoff and continued physical play are verified by headset checkpoints. Visual/control comfort and explicit founder acceptance remain pending; no response has yet been received to the hands-on test question.
+
+
+## Founder acceptance — November 4, 2026 (America/Chicago)
+
+MASTER OMEGA confirmed "Everything worked" for the requested physical → virtual → physical gameplay handoff and both 10-second visor removal/replacement tests, including RESUME where shown. This revision is founder-accepted for that tested scope. The bounded test does not guarantee absence of every possible crash.
