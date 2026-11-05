@@ -30,13 +30,11 @@ namespace LivingTable.Chess {
   public bool ConfirmPlayerMove(){
    if(!AwaitingDone||PieceHeld||StorageBlocked||Paused||SessionMenuOpen||Busy||Recovering||PendingAi.HasValue||!Playing||!TwoPlayers&&Match.Position.Side!=HumanSide)return false;
    var move=humanPreview.Value;if(!Match.Position.LegalMoves().Contains(move))return false;
-   if(Physical){Vision.CheckDestination(move);DrawUI();return false;}
    CancelHumanReview();return Play(move,false,true);
   }
-  public bool AcceptDestinationPresence(ChessMove move,int revision,bool? occupied){
-   if(revision!=Version||!Physical||!Playing||Paused||SessionMenuOpen||Busy||Recovering||StorageBlocked||!HandsClear||!(PendingAi.HasValue&&PendingAi.Value.Equals(move)||AwaitingDone&&humanPreview.Value.Equals(move)))return false;
-   if(occupied!=true){Message=occupied==false?ChessMove.Square(move.To)+" is empty. Move the physical piece to the highlighted square.":"Cannot see "+ChessMove.Square(move.To)+" clearly. Clear the view and lift your hand.";Highlights();DrawUI();return false;}
-   CancelHumanReview();return Play(move,false,true);
+  public bool ConfirmPhysicalAiMove(){
+   if(!Physical||!Playing||!PendingAi.HasValue||PieceHeld||StorageBlocked||Paused||SessionMenuOpen||Busy||Recovering)return false;
+   return Play(PendingAi.Value,false,true);
   }
   public void CancelHumanReview(){bool redraw=humanPreview.HasValue;humanPreview=null;automaticPreview=playerDropPreview=false;if(redraw&&men!=null&&isActiveAndEnabled){DrawMen();DrawUI();}}
   public bool PreviewHumanMove(ChessMove move,int version){

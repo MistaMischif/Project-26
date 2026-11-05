@@ -56,11 +56,11 @@ namespace LivingTable.Chess {
   void ConfirmLayout(){
    if(unknownSquares.Any(x=>x)){Message="Resolve every unknown square, or rescan. Tap a square, then set its piece.";return;}
    int side=setupPosition.Board.SequenceEqual(ChessPosition.Initial().Board)?1:InferSide(setupPosition.Board);if(side==0&&!LegalLayout(setupPosition.Board,1)&&!LegalLayout(setupPosition.Board,-1)){Message="This layout is not a legal position. Check kings, pawns, colors and selected squares.";return;}
-   if(quickCapture&&quickPhase==1){quickPhase=2;SaveSession("captured position validated");if(Aligned)BeginKingSizing();else BeginFourCorners();return;}
+   if(quickCapture&&quickPhase==1){quickPhase=2;SaveSession("captured position validated");ShowCapturedTurn();return;}
    alignStage=9;turnChosen=side!=0;if(turnChosen)setupPosition.Side=side;Message=turnChosen?SideName(side)+" to move. Confirm before continuing.":"A piece layout cannot reveal whose turn it is. Choose WHITE or BLACK to move.";DrawUI();
   }
   static string RightsName(int bits)=>new[]{"NONE","KING","QUEEN","BOTH"}[bits];
-  void ConfirmTurn(){if(!turnChosen){Message="Choose whose turn it is first.";return;}alignStage=10;Message="Setup ready. Confirm known castling rights, then press the purple START GAME button. Earlier history is unknown.";DrawUI();}
+  void ConfirmTurn(){if(!turnChosen){Message="Choose whose turn it is first.";return;}if(quickCapture&&quickPhase==2&&Aligned){RequestVirtualSafety(()=>{quickPhase=3;BeginKingSizing();});return;}alignStage=10;Message="Setup ready. Confirm known castling rights, then press the purple START GAME button. Earlier history is unknown.";DrawUI();}
   void StartObservedGame(){if(quickCapture&&!entryKeepPhysical){RequestVirtualSafety(StartObservedGameConfirmed);return;}StartObservedGameConfirmed();}
   void StartObservedGameConfirmed(){
    if(quickCapture&&!quickGridConfirmed){Message="Confirm all four corners and the grid before starting.";return;}
